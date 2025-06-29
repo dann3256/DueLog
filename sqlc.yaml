@@ -1,0 +1,11 @@
+version: "2"
+sql:
+  - schema: "sql/schema"
+    queries: "sql/queries"
+    engine: "postgresql"
+    codegen:
+    - out: "internal/db"
+      package: "db"
+      emit_json_tags: true
+      emit_interface: false
+      emit_empty_slices: true
