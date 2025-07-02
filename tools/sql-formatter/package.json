@@ -1,0 +1,7 @@
+{
+  "name": "sql-formatter-root",
+  "private": true,
+  "dependencies": {
+    "sql-formatter": "^15.4.9"
+  }
+}

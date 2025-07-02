@@ -1,0 +1,54 @@
+# local env files
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.envrc
+.devcontainer/secrets
+
+# Node.js
+node_modules
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+yarn-debug.log*
+yarn-error.log*
+
+**/.pnp.*
+**/.yarn/*
+!**/.yarn/patches
+!**/.yarn/plugins
+!**/.yarn/releases
+!**/.yarn/sdks
+!**/.yarn/versions
+
+# TypeScript
+tsconfig.tsbuildinfo
+
+# Ideally the following entries should be in the global gitignore file,
+# but we cannot determine what path the global gitignore file should be placed at
+# because devcontainer automatically copies .gitconfig from the host,
+# which contains arbitrary `core.excludesfile` option.
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+
+# Venv
+.venv
+
+# Claude
+settings.local.json

@@ -1,0 +1,16 @@
+{
+  "language": "postgresql",
+  "keywordCase": "preserve",
+  "linesBetweenQueries": 1,
+  "paramTypes": {
+    "named": [
+      "@"
+    ],
+    "custom": [
+      {
+        "regex": "sqlc\\.embed\\([a-zA-Z0-9_]+\\)"
+      }
+    ]
+  },
+  "tabWidth": 2
+}
