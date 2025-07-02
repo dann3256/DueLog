@@ -2,6 +2,7 @@
   "name": "sql-formatter-root",
   "private": true,
   "dependencies": {
-    "sql-formatter": "^15.4.9"
+    "sql-formatter": "^15.4.9",
+    "sql-lint": "^1.0.0"
   }
 }

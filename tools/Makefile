@@ -1,13 +1,22 @@
 REPOSITORY_ROOT := $(shell git rev-parse --show-toplevel)
 JQ_SCRIPT := sql-formatter/extract-workspace-sql-formatter-config.jq
 
-.PHONY: setup all
-setup:  ## Setup sql-formatter environment
+.PHONY: setup setup-formatter setup-lint all
+setup:  ## Setup sql-formatter and sql-lint environment
+	@echo "Setting up SQL tools..."
+	@$(MAKE) setup-formatter
+	@$(MAKE) setup-lint
+	@echo "SQL tools setup completed!"
+
+setup-formatter:  ## Setup sql-formatter
 	@echo "Installing sql-formatter dependencies..."
 	@yarn --cwd=sql-formatter install
-	@echo "Generating configuration files..."
+	@echo "Generating formatter configuration files..."
 	@$(MAKE) all
-	@echo "sql-formatter setup completed!"
+
+setup-lint:  ## Setup sql-lint
+	@echo "Creating sql-lint configuration..."
+	@echo '{"driver":"postgres","ignore-errors":["odd-code-point","trailing-whitespace"]}' > sql-formatter/.sql-lint.json
 
 all: sql-formatter/sql-formatter-postgresql.json
 
