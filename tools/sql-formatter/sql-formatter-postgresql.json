@@ -1,0 +1,9 @@
+{
+  "language": "postgresql",
+  "keywordCase": "preserve",
+  "linesBetweenQueries": 1,
+  "paramTypes": {
+    "named": ["@"]
+  },
+  "tabWidth": 2
+}

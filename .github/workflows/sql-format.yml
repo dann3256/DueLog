@@ -1,0 +1,35 @@
+name: SQL Format Check
+
+on:
+  push:
+    paths:
+      - '**/*.sql'
+  pull_request:
+    paths:
+      - '**/*.sql'
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install yarn
+        run: npm install -g yarn
+
+      - name: Install dependencies
+        run: yarn --cwd=sql-formatter install
+
+      - name: Check and fix SQL files
+        run: make format-sql
+
+      - name: Check if any files changed
+        run: |
+          git diff --exit-code || (echo "❌ SQLファイルが整形されていません。ローカルで 'make format-sql' を実行してください。" && exit 1)

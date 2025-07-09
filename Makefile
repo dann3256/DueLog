@@ -1,10 +1,10 @@
+REPOSITORY_ROOT := $(shell git rev-parse --show-toplevel)
+SQL_FORMATTER ?= yarn --cwd=sql-formatter sql-formatter
+NPROC := $(shell [ "$(uname)" = "Darwin" ] && sysctl -n hw.ncpu || nproc)
 
-.PHONY:  sql-format
-SQL_DIR:=sql
+.PHONY: format-sql
 
-sql-format:
-	.venv/bin/sqlfluff fix $(SQL_DIR) --dialect postgres --exclude-rules L009
-
-sql-lint:
-	.venv/bin/sqlfluff lint sql --dialect postgres
-
+format-sql:  
+	@find "$(REPOSITORY_ROOT)" -type f -name '*.sql' \
+		-print0 \
+	| xargs -0 -P $(NPROC) -I {name} bash -c 'echo "Formatting {name}..." && $(SQL_FORMATTER) --fix -c "$(REPOSITORY_ROOT)/sql-formatter/sql-formatter-postgresql.json" "{name}"'
