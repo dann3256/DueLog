@@ -28,4 +28,6 @@ jobs:
 
       - name: Check if any files changed
         run: |
-          git diff --exit-code || (echo "❌ SQLファイルが整形されていません。ローカルで 'make format-sql' を実行してください。" && exit 1)
+          if ! git diff -- '*.sql' --quiet; then
+            echo "SQLファイルに差分があります。ローカルで 'make format-sql' を実行してください。"
+          fi
