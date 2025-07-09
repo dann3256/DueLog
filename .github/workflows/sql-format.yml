@@ -25,7 +25,7 @@ jobs:
         run: npm install -g yarn
 
       - name: Install dependencies
-        run: yarn --cwd=sql-formatter install
+        run: yarn --cwd=tools/sql-formatter install
 
       - name: Check and fix SQL files
         run: make format-sql
