@@ -2,11 +2,7 @@ name: SQL Format Check
 
 on:
   push:
-    paths:
-      - '**/*.sql'
   pull_request:
-    paths:
-      - '**/*.sql'
 
 jobs:
   format:
