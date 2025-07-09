@@ -1,5 +1,5 @@
 REPOSITORY_ROOT := $(shell git rev-parse --show-toplevel)
-SQL_FORMATTER ?= yarn --cwd=sql-formatter sql-formatter
+SQL_FORMATTER ?= yarn --cwd=tools/sql-formatter sql-formatter
 NPROC := $(shell [ "$(uname)" = "Darwin" ] && sysctl -n hw.ncpu || nproc)
 
 .PHONY: format-sql
