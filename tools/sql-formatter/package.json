@@ -5,5 +5,8 @@
   "license": "MIT",
   "dependencies": {
     "sql-formatter": "^15.6.6"
+  },
+  "scripts": {
+    "postinstall": "chmod +x node_modules/.bin/sql-formatter"
   }
 }
