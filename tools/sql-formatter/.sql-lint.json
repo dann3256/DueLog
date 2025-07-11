@@ -1,7 +1,1 @@
-{
-  "driver": "postgres",
-  "ignore-errors": [
-    "odd-code-point",
-    "trailing-whitespace"
-  ]
-}
+{"driver":"postgres","ignore-errors":["odd-code-point","trailing-whitespace"]}
