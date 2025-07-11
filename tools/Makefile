@@ -20,7 +20,7 @@ setup-lint:  ## Setup sql-lint
 
 all: sql-formatter/sql-formatter-postgresql.json
 
-sql-formatter/sql-formatter-postgresql.json: $(REPOSITORY_ROOT)/compound/default.code-workspace $(JQ_SCRIPT)
+sql-formatter/sql-formatter-postgresql.json: $(JQ_SCRIPT)
 	@if [ -f "$(REPOSITORY_ROOT)/compound/default.code-workspace" ]; then \
 		grep -v '\s*//' "$<" | jq --from-file "$(JQ_SCRIPT)" > "$@"; \
 	else \
