@@ -1,0 +1,102 @@
+name: SQL
+
+on:
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+    inputs:
+      db:
+        default: false
+        type: boolean
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions: {}
+
+defaults:
+  run:
+    shell: bash
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      pull-requests: read
+      contents: read
+    outputs:
+      db: ${{ steps.filter.outputs.db }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        if: github.event_name != 'workflow_dispatch'
+        with:
+          filters: |
+            db:
+              - "db/**/*.sql"
+  
+  format:
+    name: Format SQL
+    needs: changes
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    if: |
+      needs.changes.outputs.db == 'true' ||
+      github.event.inputs.db == 'true'
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'yarn'
+          cache-dependency-path: 'tools/sql-formatter/yarn.lock'
+      - name: Install dependencies
+        run: make setup
+        working-directory: tools
+      - name: Format Core SQL files
+        run: make format-sql
+        working-directory: db/postgres
+      - name: Test no file diff
+        run: |
+          if [ -z "$(git status -s)" ] ; then
+            echo No formatted files
+            exit 0
+          else
+            echo 'Found non-formatted file(s)!'
+            git status -s
+            exit 1
+          fi
+  
+  lint:
+    name: Lint SQL
+    needs: changes
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    if: |
+      needs.changes.outputs.db == 'true' ||
+      github.event.inputs.db == 'true'
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'yarn'
+          cache-dependency-path: 'tools/sql-formatter/yarn.lock'
+      - name: Install dependencies
+        run: make setup
+        working-directory: tools
+      - name: Run SQL lint
+        run: make lint-sql
+        working-directory: db/postgres
