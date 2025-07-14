@@ -1,4 +1,4 @@
-.PHONY: setup format-sql lint-sql all
+.PHONY: setup format-sql lint-sql all install-sql
 
 setup:  ## Setup development environment
 	@echo "Setting up development environment..."
@@ -13,3 +13,11 @@ lint-sql:  ## Lint PostgreSQL SQL files
 
 all:  ## Run all SQL operations (format and lint)
 	@make -C db/postgres all
+
+SQLC_CONFIG := db/postgres/sqlc.yaml
+SQL_DIR := db/postgres/query
+SCHEMA_DIR := db/postgres/schema
+GEN_DIR := internal/db
+
+install-sql:
+	@make 
