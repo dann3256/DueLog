@@ -11,10 +11,11 @@ CREATE TABLE banks (
   bank_name VARCHAR(50) NOT NULL
 );
 
-CREATE TABLE deadline(
+CREATE TABLE deadlines(
   id INT PRIMARY KEY,
-  deadline VARCHAR(50) NOT NULL
+  payment_date VARCHAR(50) NOT NULL
 );
+
 CREATE TABLE payment(
   id INT PRIMARY KEY,
   amount INT,
@@ -37,9 +38,8 @@ CREATE TABLE bills (
   id SERIAL PRIMARY KEY,
   company_id INT NOT NULL REFERENCES companies (id),
   is_paid BOOLEAN DEFAULT FALSE NOT NULL,
-  memo TEXT,
+  description TEXT,
   created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
   deleted_at TIMESTAMPTZ NULL
 );
 
