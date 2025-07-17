@@ -24,7 +24,7 @@ CREATE TABLE bills (
   bank_id INT NOT NULL REFERENCES banks (id),
   amount INT NOT NULL,
   payment_limit INT NOT NULL,
-  payment_date VARCHAR(255) NOT NULL,
+  payment_date DATE NOT NULL,
   paid_at TIMESTAMPTZ,
   description TEXT,
   created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
