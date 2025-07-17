@@ -1,11 +1,6 @@
 -- name: InsertCompany :exec
 INSERT INTO companies (
   id,
-  bank_id,
-  bill_id,
-  payment_id,
-  deadline_id,
-  company_name,
-  phone_num
+  name,
 )
-VALUES ($1, $2, $3, $4, $5, $6, $7);
+VALUES ($1, $2);

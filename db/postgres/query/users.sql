@@ -3,8 +3,7 @@
 INSERT INTO users (
   id,
   username,
-  email,
-  password_hash
+  email
 )
-VALUES ($1, $2, $3, $4);
+VALUES ($1, $2, $3);
 

@@ -1,6 +1,6 @@
 -- name: InsertBank :exec
 INSERT INTO banks (
     id, 
-    bank_name
+    name
 )
 VALUES ($1, $2);
