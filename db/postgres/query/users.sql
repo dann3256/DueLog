@@ -1,9 +1,10 @@
 
 -- name: InsertUser :exec
 INSERT INTO users (
+  id,
   username,
   email,
   password_hash
 )
-VALUES ($1, $2, $3);
+VALUES ($1, $2, $3, $4);
 

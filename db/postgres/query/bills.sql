@@ -1,9 +1,8 @@
 -- name: InsertBill :exec
 INSERT INTO bills (
-  user_id,
+  id,
   company_id,
   is_paid,
-  paid_at,
-  memo
+  description
 )
-VALUES ($1, $2, $3, $4, $5);
+VALUES ($1, $2, $3, $4);
