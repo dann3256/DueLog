@@ -8,18 +8,18 @@ CREATE TABLE deadlines (
   payment_date VARCHAR(255) NOT NULL
 );
 
-CREATE TABLE companies (
-  id SERIAL PRIMARY KEY,
-  bank_id INT NOT NULL REFERENCES banks (id),
-  payment_deadline_id INT NOT NULL REFERENCES deadlines (id),
-  company_name VARCHAR(255) NOT NULL,
-  phone_num INT NOT NULL,
-  payment_amount INT NOT NULL,
-  payment_limit INT NOT NULL,
-  create_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+CREATE TABLE payments(
+  id INT PRIMARY KEY,
+  amount INT NOT NULL,
+  payment_limit INT NOT NULL
 );
 
-CREATE EXTENSION IF NOT EXISTS pgcrypto;
+CREATE TABLE companies (
+  id SERIAL PRIMARY KEY,
+  company_name VARCHAR(255) NOT NULL,
+  phone_num INT NOT NULL,
+  create_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
 CREATE TABLE users (
   id SERIAL PRIMARY KEY,
@@ -29,15 +29,16 @@ CREATE TABLE users (
   deleted_at TIMESTAMPTZ NULL
 );
 
-CREATE INDEX idx_users_email ON users (email);
-
 CREATE TABLE bills (
   id SERIAL PRIMARY KEY,
   user_id INT NOT NULL REFERENCES users (id),
   company_id INT NOT NULL REFERENCES companies (id),
+  bank_id INT NOT NULL REFERENCES banks (id),
+  deadline_id INT NOT NULL REFERENCES deadlines (id),
+  payment_id INT NOT NULL REFERENCES payments (id),
   is_paid BOOLEAN DEFAULT FALSE NOT NULL,
   paid_at TIMESTAMPTZ,
-  memo TEXT,
+  description TEXT,
   created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
   deleted_at TIMESTAMPTZ NULL
