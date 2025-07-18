@@ -22,6 +22,17 @@ FROM
 INNER JOIN
   banks ON bills.bank_id = banks.id
 INNER JOIN
-  companies ON companies.company_id = companies.id
+  companies ON companies.company_id = companies.id;
+
+-- name: UpdateBill :exec
+UPDATE bills 
+SET  amount=$1,
+     payment_limit=$2,
+     payment_date=$3
+WHERE id = $4;
+
+-- name: DeleteBill :exec
+DELETE FROM bills
+WHERE id = $1;
   
 
