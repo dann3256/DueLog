@@ -28,7 +28,8 @@ CREATE TABLE bills (
   paid_at TIMESTAMPTZ,
   description TEXT,
   created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-  deleted_at TIMESTAMPTZ NULL
+  deleted_at TIMESTAMPTZ NULL,
+  updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE INDEX idx_bills_unpaid_created_at ON bills (created_at)
