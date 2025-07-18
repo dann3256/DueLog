@@ -52,3 +52,6 @@ ehthumbs_vista.db
 
 # Claude
 settings.local.json
+
+#bin
+.bin/

@@ -17,7 +17,7 @@ all:  ## Run all SQL operations (format and lint)
 
 
 ROOT_DIR := $(shell git rev-parse --show-toplevel)
-BIN_DIR  := $(ROOT_DIR)/bin
+BIN_DIR  := $(ROOT_DIR)/.bin
 
 install-sqlc:
 	mkdir -p $(BIN_DIR)
