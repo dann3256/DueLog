@@ -3,7 +3,7 @@
 //   sqlc v1.29.0
 // source: companies.sql
 
-package db
+package sqlc
 
 import (
 	"context"
@@ -15,7 +15,7 @@ WHERE id = $1
 `
 
 func (q *Queries) DeleteCompany(ctx context.Context, id int32) error {
-	_, err := q.db.ExecContext(ctx, deleteCompany, id)
+	_, err := q.db.Exec(ctx, deleteCompany, id)
 	return err
 }
 
@@ -25,7 +25,7 @@ VALUES ($1)
 `
 
 func (q *Queries) InsertCompany(ctx context.Context, name string) error {
-	_, err := q.db.ExecContext(ctx, insertCompany, name)
+	_, err := q.db.Exec(ctx, insertCompany, name)
 	return err
 }
 
@@ -35,7 +35,7 @@ WHERE id = $1
 `
 
 func (q *Queries) SelectCompany(ctx context.Context, id int32) (string, error) {
-	row := q.db.QueryRowContext(ctx, selectCompany, id)
+	row := q.db.QueryRow(ctx, selectCompany, id)
 	var name string
 	err := row.Scan(&name)
 	return name, err
@@ -48,11 +48,11 @@ WHERE id = $2
 `
 
 type UpdateCompanyParams struct {
-	Name string `json:"name"`
-	ID   int32  `json:"id"`
+	Name string
+	ID   int32
 }
 
 func (q *Queries) UpdateCompany(ctx context.Context, arg UpdateCompanyParams) error {
-	_, err := q.db.ExecContext(ctx, updateCompany, arg.Name, arg.ID)
+	_, err := q.db.Exec(ctx, updateCompany, arg.Name, arg.ID)
 	return err
 }

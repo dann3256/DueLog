@@ -3,7 +3,7 @@
 //   sqlc v1.29.0
 // source: banks.sql
 
-package db
+package sqlc
 
 import (
 	"context"
@@ -15,7 +15,7 @@ WHERE id = $1
 `
 
 func (q *Queries) DelteBank(ctx context.Context, id int32) error {
-	_, err := q.db.ExecContext(ctx, delteBank, id)
+	_, err := q.db.Exec(ctx, delteBank, id)
 	return err
 }
 
@@ -25,7 +25,7 @@ VALUES ($1)
 `
 
 func (q *Queries) InsertBank(ctx context.Context, name string) error {
-	_, err := q.db.ExecContext(ctx, insertBank, name)
+	_, err := q.db.Exec(ctx, insertBank, name)
 	return err
 }
 
@@ -35,7 +35,7 @@ WHERE id = $1
 `
 
 func (q *Queries) SelectBank(ctx context.Context, id int32) (string, error) {
-	row := q.db.QueryRowContext(ctx, selectBank, id)
+	row := q.db.QueryRow(ctx, selectBank, id)
 	var name string
 	err := row.Scan(&name)
 	return name, err
@@ -48,11 +48,11 @@ WHERE id = $2
 `
 
 type UpdateBankParams struct {
-	Name string `json:"name"`
-	ID   int32  `json:"id"`
+	Name string
+	ID   int32
 }
 
 func (q *Queries) UpdateBank(ctx context.Context, arg UpdateBankParams) error {
-	_, err := q.db.ExecContext(ctx, updateBank, arg.Name, arg.ID)
+	_, err := q.db.Exec(ctx, updateBank, arg.Name, arg.ID)
 	return err
 }

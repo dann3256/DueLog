@@ -24,6 +24,7 @@ install-sqlc:
 	GOBIN=$(BIN_DIR) go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
 
 sqlc-generate:
+	rm -rf $(GEN_DIR)
 	$(BIN_DIR)/sqlc generate
 
 dev-setup:

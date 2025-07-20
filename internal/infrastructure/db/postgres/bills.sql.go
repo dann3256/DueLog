@@ -3,12 +3,13 @@
 //   sqlc v1.29.0
 // source: bills.sql
 
-package db
+package sqlc
 
 import (
 	"context"
-	"database/sql"
 	"time"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const deleteBill = `-- name: DeleteBill :exec
@@ -17,7 +18,7 @@ WHERE id = $1
 `
 
 func (q *Queries) DeleteBill(ctx context.Context, id int32) error {
-	_, err := q.db.ExecContext(ctx, deleteBill, id)
+	_, err := q.db.Exec(ctx, deleteBill, id)
 	return err
 }
 
@@ -35,17 +36,17 @@ VALUES ($1, $2, $3, $4, $5, $6, $7)
 `
 
 type InsertBillParams struct {
-	ID           int32          `json:"id"`
-	CompanyID    int32          `json:"company_id"`
-	BankID       int32          `json:"bank_id"`
-	Amount       int32          `json:"amount"`
-	PaymentLimit int32          `json:"payment_limit"`
-	PaymentDate  time.Time      `json:"payment_date"`
-	Description  sql.NullString `json:"description"`
+	ID           int32
+	CompanyID    int32
+	BankID       int32
+	Amount       int32
+	PaymentLimit int32
+	PaymentDate  time.Time
+	Description  pgtype.Text
 }
 
 func (q *Queries) InsertBill(ctx context.Context, arg InsertBillParams) error {
-	_, err := q.db.ExecContext(ctx, insertBill,
+	_, err := q.db.Exec(ctx, insertBill,
 		arg.ID,
 		arg.CompanyID,
 		arg.BankID,
@@ -73,20 +74,20 @@ INNER JOIN
 `
 
 type SelectBillRow struct {
-	Name         string    `json:"name"`
-	Name_2       string    `json:"name_2"`
-	Amount       int32     `json:"amount"`
-	PaymentLimit int32     `json:"payment_limit"`
-	PaymentDate  time.Time `json:"payment_date"`
+	Name         string
+	Name_2       string
+	Amount       int32
+	PaymentLimit int32
+	PaymentDate  time.Time
 }
 
 func (q *Queries) SelectBill(ctx context.Context) ([]SelectBillRow, error) {
-	rows, err := q.db.QueryContext(ctx, selectBill)
+	rows, err := q.db.Query(ctx, selectBill)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []SelectBillRow{}
+	var items []SelectBillRow
 	for rows.Next() {
 		var i SelectBillRow
 		if err := rows.Scan(
@@ -99,9 +100,6 @@ func (q *Queries) SelectBill(ctx context.Context) ([]SelectBillRow, error) {
 			return nil, err
 		}
 		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
@@ -118,14 +116,14 @@ WHERE id = $4
 `
 
 type UpdateBillParams struct {
-	Amount       int32     `json:"amount"`
-	PaymentLimit int32     `json:"payment_limit"`
-	PaymentDate  time.Time `json:"payment_date"`
-	ID           int32     `json:"id"`
+	Amount       int32
+	PaymentLimit int32
+	PaymentDate  time.Time
+	ID           int32
 }
 
 func (q *Queries) UpdateBill(ctx context.Context, arg UpdateBillParams) error {
-	_, err := q.db.ExecContext(ctx, updateBill,
+	_, err := q.db.Exec(ctx, updateBill,
 		arg.Amount,
 		arg.PaymentLimit,
 		arg.PaymentDate,

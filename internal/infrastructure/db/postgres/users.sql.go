@@ -3,7 +3,7 @@
 //   sqlc v1.29.0
 // source: users.sql
 
-package db
+package sqlc
 
 import (
 	"context"
@@ -16,7 +16,7 @@ WHERE id = $1 AND deleted_at IS NULL
 `
 
 func (q *Queries) DeleteUser(ctx context.Context, id int32) error {
-	_, err := q.db.ExecContext(ctx, deleteUser, id)
+	_, err := q.db.Exec(ctx, deleteUser, id)
 	return err
 }
 
@@ -29,12 +29,12 @@ VALUES ($1, $2)
 `
 
 type InsertUserParams struct {
-	Name  string `json:"name"`
-	Email string `json:"email"`
+	Name  string
+	Email string
 }
 
 func (q *Queries) InsertUser(ctx context.Context, arg InsertUserParams) error {
-	_, err := q.db.ExecContext(ctx, insertUser, arg.Name, arg.Email)
+	_, err := q.db.Exec(ctx, insertUser, arg.Name, arg.Email)
 	return err
 }
 
@@ -44,12 +44,12 @@ WHERE id = $1 AND deleted_at IS NULL
 `
 
 func (q *Queries) SelectUser(ctx context.Context, id int32) ([]User, error) {
-	rows, err := q.db.QueryContext(ctx, selectUser, id)
+	rows, err := q.db.Query(ctx, selectUser, id)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []User{}
+	var items []User
 	for rows.Next() {
 		var i User
 		if err := rows.Scan(
@@ -62,9 +62,6 @@ func (q *Queries) SelectUser(ctx context.Context, id int32) ([]User, error) {
 			return nil, err
 		}
 		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
@@ -79,12 +76,12 @@ WHERE id = $3 AND deleted_at IS NULL
 `
 
 type UpdateUserParams struct {
-	Name  string `json:"name"`
-	Email string `json:"email"`
-	ID    int32  `json:"id"`
+	Name  string
+	Email string
+	ID    int32
 }
 
 func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) error {
-	_, err := q.db.ExecContext(ctx, updateUser, arg.Name, arg.Email, arg.ID)
+	_, err := q.db.Exec(ctx, updateUser, arg.Name, arg.Email, arg.ID)
 	return err
 }
