@@ -18,7 +18,7 @@ all:  ## Run all SQL operations (format and lint)
 
 ROOT_DIR := $(shell git rev-parse --show-toplevel)
 BIN_DIR  := $(ROOT_DIR)/.bin
-GEN_DIR  := internal/infrastructure/db/postgres
+GEN_DIR  := $(ROOT_DIR)/internal/infrastructure/db/postgres
 install-sqlc:
 	@if [ -x "$(BIN_DIR)" ]; then \
 		echo "already sqlc installed"; \
