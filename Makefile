@@ -32,5 +32,4 @@ sqlc-generate:
 	$(BIN_DIR)/sqlc generate
 
 dev-setup:
-	go mod tidy
 	sqlc generate
