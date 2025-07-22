@@ -1,0 +1,405 @@
+openapi: 3.0.3
+info:
+  title: DueLog API
+  description: API
+  version: 1.0.0
+  license:
+    name: MIT
+    url: https://github.com/dann3256/DueLog
+
+servers:
+  - url: http://localhost:8080
+
+  
+paths:
+  /users:
+    post:
+      summary: create Users
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './user.yaml#/components/schemas/CreateUserRequest'
+      responses:
+        '201':
+          description: success
+          content:
+            application/json:
+              schema:
+                $ref: './user.yaml#/components/schemas/User'
+        '400':
+          description: error
+          content:
+            application/json:
+              schema:
+                $ref: './user.yaml#/components/schemas/Error'
+    get:
+      summary: get user
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './user.yaml#/components/schemas/GetUserRequest'
+      responses:
+        '201':
+          description: success
+          content:
+            application/json:
+              schema:
+                $ref: './user.yaml#/components/schemas/User'
+        '400':
+          description: error
+          content:
+            application/json:
+              schema:
+                $ref: './user.yaml#/components/schemas/Error'
+   
+
+  /users/{id}: 
+    get:
+      summary: get user
+      tags:
+        - Users
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: user information
+          content:
+            application/json:
+              schema:
+                $ref: './user.yaml#/components/schemas/User'
+        '404':
+          description: error
+          content:
+            application/json:
+              schema:
+                $ref: './user.yaml#/components/schemas/Error'
+
+    put:
+      summary: update user
+      tags:
+        - Users
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './user.yaml#/components/schemas/UpdateUserRequest'
+      responses:
+        '200':
+          description: success
+          content:
+            application/json:
+              schema:
+                $ref: './user.yaml#/components/schemas/User'
+        '404':
+          description: error
+
+    delete:
+      summary: delete user
+      tags:
+        - Users
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: success
+        '404':
+          description: error
+
+  
+  /banks:
+    post:
+      summary: create banks
+      tags:
+        - Banks
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './components/bank.yaml#/components/schemas/CreateBankRequest'
+      responses:
+        '201':
+          description: success
+          content:
+            application/json:
+              schema:
+                $ref: './bank.yaml#/components/schemas/Bank'
+   
+  /banks/{id}:
+    get:
+      summary: get information
+      tags:
+        - Banks
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: banks information
+          content:
+            application/json:
+              schema:
+                $ref: './bank.yaml#/components/schemas/Bank'
+        '404':
+          description: error
+
+    
+
+  /companies:
+    post:
+      summary: create company
+      tags:
+        - Companies
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './company.yaml#/components/schemas/CreateCompanyRequest'
+      responses:
+        '201':
+          description: success
+          content:
+            application/json:
+              schema:
+                $ref: './company.yaml#/components/schemas/Company'
+   
+
+  /companies/{id}:
+    get:
+      summary: get company information
+      tags:
+        - Companies
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: information
+          content:
+            application/json:
+              schema:
+                $ref: './company.yaml#/components/schemas/Company'
+
+    put:
+      summary: update
+      tags:
+        - Companies
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './company.yaml#/components/schemas/UpdateCompanyRequest'
+      responses:
+        '200':
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: './company.yaml#/components/schemas/Company'
+
+    delete:
+      summary: delete
+      tags:
+        - Companies
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: success
+
+
+  /bills:
+    get:
+      summary: 請求書一覧取得
+      tags:
+        - Bills
+      parameters:
+        - name: payment_date
+          in: query
+          description: 振込期限でフィルタ
+          schema:
+            type: string
+            $ref: './bill.yaml#/components/schemas/PaymentPeriod'
+        - name: is_paid
+          in: query
+          description: 支払済みステータスでフィルタ
+          schema:
+            type: boolean
+        
+      responses:
+        '200':
+          description: 請求書一覧
+          content:
+            application/json:
+              schema:
+                $ref: './bill.yaml#/components/schemas/BillListResponse'
+
+    post:
+      summary: 請求書作成
+      tags:
+        - Bills
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './bill.yaml#/components/schemas/CreateBillRequest'
+      responses:
+        '201':
+          description: success
+          content:
+            application/json:
+              schema:
+                $ref: './bill.yaml#/components/schemas/Bill'
+        '400':
+          description: error
+          content:
+            application/json:
+              schema:
+                $ref: './bill.yaml#/components/schemas/BillValidationResponse'
+
+  /bills/{id}:
+    get:
+      summary: 請求書詳細取得
+      tags:
+        - Bills
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: information
+          content:
+            application/json:
+              schema:
+                $ref: './bill.yaml#/components/schemas/Bill'
+
+    put:
+      summary: 請求書更新
+      tags:
+        - Bills
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './bill.yaml#/components/schemas/UpdateBillRequest'
+      responses:
+        '200':
+          description: success
+          content:
+            application/json:
+              schema:
+                $ref: './bill.yaml#/components/schemas/Bill'
+
+    delete:
+      summary: 請求書削除
+      tags:
+        - Bills
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: 削除成功
+
+  /bills/{id}/payment-status:
+    patch:
+      summary: 支払い済みに変更
+      tags:
+        - Bills
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './bill.yaml#/components/schemas/UpdatePaymentStatusRequest'
+      responses:
+        '200':
+          description: success
+          content:
+            application/json:
+              schema:
+                $ref: './bill.yaml#/components/schemas/Bill'
+  
+tags:
+  - name: Users
+    description: ユーザー管理
+  - name: Banks
+    description: 銀行管理
+  - name: Companies
+    description: 会社管理
+  - name: Bills
+    description: 請求書（振込情報）管理
+    
+    

@@ -1,0 +1,34 @@
+components:
+  schemas:
+   Bank:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+          maxLength: 50
+      required:
+        - id
+        - name
+
+   CreateBankRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 50
+          minLength: 1
+      required:
+        - name
+
+   UpdateBankRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 50
+          minLength: 1
+      required:
+        - name
