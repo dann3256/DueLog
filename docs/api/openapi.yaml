@@ -142,7 +142,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: './components/bank.yaml#/components/schemas/CreateBankRequest'
+              $ref: './bank.yaml#/components/schemas/CreateBankRequest'
       responses:
         '201':
           description: success
