@@ -22,20 +22,20 @@ paths:
         content:
           application/json:
             schema:
-              $ref: './user.yaml#/components/schemas/CreateUserRequest'
+              $ref: './components/user.yaml#/components/schemas/CreateUserRequest'
       responses:
         '201':
           description: success
           content:
             application/json:
               schema:
-                $ref: './user.yaml#/components/schemas/User'
+                $ref: './components/user.yaml#/components/schemas/User'
         '400':
           description: error
           content:
             application/json:
               schema:
-                $ref: './user.yaml#/components/schemas/Error'
+                $ref: './components/user.yaml#/components/schemas/Error'
     get:
       summary: get user
       tags:
@@ -45,20 +45,20 @@ paths:
         content:
           application/json:
             schema:
-              $ref: './user.yaml#/components/schemas/GetUserRequest'
+              $ref: './components/user.yaml#/components/schemas/GetUserRequest'
       responses:
         '201':
           description: success
           content:
             application/json:
               schema:
-                $ref: './user.yaml#/components/schemas/User'
+                $ref: './components/user.yaml#/components/schemas/User'
         '400':
           description: error
           content:
             application/json:
               schema:
-                $ref: './user.yaml#/components/schemas/Error'
+                $ref: './components/user.yaml#/components/schemas/Error'
    
 
   /users/{id}: 
@@ -79,13 +79,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './user.yaml#/components/schemas/User'
+                $ref: './components/user.yaml#/components/schemas/User'
         '404':
           description: error
           content:
             application/json:
               schema:
-                $ref: './user.yaml#/components/schemas/Error'
+                $ref: './components/user.yaml#/components/schemas/Error'
 
     put:
       summary: update user
@@ -103,14 +103,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: './user.yaml#/components/schemas/UpdateUserRequest'
+              $ref: './components/user.yaml#/components/schemas/UpdateUserRequest'
       responses:
         '200':
           description: success
           content:
             application/json:
               schema:
-                $ref: './user.yaml#/components/schemas/User'
+                $ref: './components/user.yaml#/components/schemas/User'
         '404':
           description: error
 
@@ -142,14 +142,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: './bank.yaml#/components/schemas/CreateBankRequest'
+              $ref: './components/bank.yaml#/components/schemas/CreateBankRequest'
       responses:
         '201':
           description: success
           content:
             application/json:
               schema:
-                $ref: './bank.yaml#/components/schemas/Bank'
+                $ref: './components/bank.yaml#/components/schemas/Bank'
    
   /banks/{id}:
     get:
@@ -169,7 +169,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './bank.yaml#/components/schemas/Bank'
+                $ref: './components/bank.yaml#/components/schemas/Bank'
         '404':
           description: error
 
@@ -185,14 +185,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: './company.yaml#/components/schemas/CreateCompanyRequest'
+              $ref: './components/company.yaml#/components/schemas/CreateCompanyRequest'
       responses:
         '201':
           description: success
           content:
             application/json:
               schema:
-                $ref: './company.yaml#/components/schemas/Company'
+                $ref: './components/company.yaml#/components/schemas/Company'
    
 
   /companies/{id}:
@@ -213,7 +213,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './company.yaml#/components/schemas/Company'
+                $ref: './components/company.yaml#/components/schemas/Company'
 
     put:
       summary: update
@@ -231,14 +231,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: './company.yaml#/components/schemas/UpdateCompanyRequest'
+              $ref: './components/company.yaml#/components/schemas/UpdateCompanyRequest'
       responses:
         '200':
           description: 更新成功
           content:
             application/json:
               schema:
-                $ref: './company.yaml#/components/schemas/Company'
+                $ref: './components/company.yaml#/components/schemas/Company'
 
     delete:
       summary: delete
@@ -267,7 +267,7 @@ paths:
           description: 振込期限でフィルタ
           schema:
             type: string
-            $ref: './bill.yaml#/components/schemas/PaymentPeriod'
+            $ref: './components/bill.yaml#/components/schemas/PaymentPeriod'
         - name: is_paid
           in: query
           description: 支払済みステータスでフィルタ
@@ -280,7 +280,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './bill.yaml#/components/schemas/BillListResponse'
+                $ref: './components/bill.yaml#/components/schemas/BillListResponse'
 
     post:
       summary: 請求書作成
@@ -291,20 +291,20 @@ paths:
         content:
           application/json:
             schema:
-              $ref: './bill.yaml#/components/schemas/CreateBillRequest'
+              $ref: './components/bill.yaml#/components/schemas/CreateBillRequest'
       responses:
         '201':
           description: success
           content:
             application/json:
               schema:
-                $ref: './bill.yaml#/components/schemas/Bill'
+                $ref: './components/bill.yaml#/components/schemas/Bill'
         '400':
           description: error
           content:
             application/json:
               schema:
-                $ref: './bill.yaml#/components/schemas/BillValidationResponse'
+                $ref: './components/bill.yaml#/components/schemas/BillValidationResponse'
 
   /bills/{id}:
     get:
@@ -324,7 +324,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './bill.yaml#/components/schemas/Bill'
+                $ref: './components/bill.yaml#/components/schemas/Bill'
 
     put:
       summary: 請求書更新
@@ -342,14 +342,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: './bill.yaml#/components/schemas/UpdateBillRequest'
+              $ref: './components/bill.yaml#/components/schemas/UpdateBillRequest'
       responses:
         '200':
           description: success
           content:
             application/json:
               schema:
-                $ref: './bill.yaml#/components/schemas/Bill'
+                $ref: './components/bill.yaml#/components/schemas/Bill'
 
     delete:
       summary: 請求書削除
@@ -383,14 +383,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: './bill.yaml#/components/schemas/UpdatePaymentStatusRequest'
+              $ref: './components/bill.yaml#/components/schemas/UpdatePaymentStatusRequest'
       responses:
         '200':
           description: success
           content:
             application/json:
               schema:
-                $ref: './bill.yaml#/components/schemas/Bill'
+                $ref: './components/bill.yaml#/components/schemas/Bill'
   
 tags:
   - name: Users
