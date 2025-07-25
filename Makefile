@@ -40,7 +40,7 @@ install-ogen:
 
 sqlc-generate:
 	rm -rf $(SQL_DIR)
-	$(SQL_DIR)/sqlc generate
+	$(BIN_DIR)/sqlc generate
 
 ogen-generate:
 	rm -rf $(OGEN_DIR)
