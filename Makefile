@@ -18,7 +18,6 @@ all:  ## Run all SQL operations (format and lint)
 
 ROOT_DIR := $(shell git rev-parse --show-toplevel)
 BIN_DIR  := $(ROOT_DIR)/.bin
-SQL_DIR  := $(ROOT_DIR)/internal/infrastructure/db/postgres
 OGEN_DIR  := $(ROOT_DIR)/internal/infrastructure/ogen
 install-sqlc:
 	@if [ -x "$(BIN_DIR)/sqlc" ]; then \
