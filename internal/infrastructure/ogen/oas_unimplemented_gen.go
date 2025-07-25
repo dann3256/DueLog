@@ -33,7 +33,7 @@ func (UnimplementedHandler) BanksPost(ctx context.Context, req *CreateBankReques
 
 // BillsGet implements GET /bills operation.
 //
-// 請求書一覧取得.
+// Get bill.
 //
 // GET /bills
 func (UnimplementedHandler) BillsGet(ctx context.Context, params BillsGetParams) (r *BillListResponse, _ error) {
@@ -42,7 +42,7 @@ func (UnimplementedHandler) BillsGet(ctx context.Context, params BillsGetParams)
 
 // BillsIDDelete implements DELETE /bills/{id} operation.
 //
-// 請求書削除.
+// Delete bill.
 //
 // DELETE /bills/{id}
 func (UnimplementedHandler) BillsIDDelete(ctx context.Context, params BillsIDDeleteParams) error {
@@ -51,7 +51,7 @@ func (UnimplementedHandler) BillsIDDelete(ctx context.Context, params BillsIDDel
 
 // BillsIDGet implements GET /bills/{id} operation.
 //
-// 請求書詳細取得.
+// Get  direct bill.
 //
 // GET /bills/{id}
 func (UnimplementedHandler) BillsIDGet(ctx context.Context, params BillsIDGetParams) (r *Bill, _ error) {
@@ -60,7 +60,7 @@ func (UnimplementedHandler) BillsIDGet(ctx context.Context, params BillsIDGetPar
 
 // BillsIDPaymentStatusPatch implements PATCH /bills/{id}/payment-status operation.
 //
-// 支払い済みに変更.
+// Chenge payment-status.
 //
 // PATCH /bills/{id}/payment-status
 func (UnimplementedHandler) BillsIDPaymentStatusPatch(ctx context.Context, req *UpdatePaymentStatusRequest, params BillsIDPaymentStatusPatchParams) (r *Bill, _ error) {
@@ -69,7 +69,7 @@ func (UnimplementedHandler) BillsIDPaymentStatusPatch(ctx context.Context, req *
 
 // BillsIDPut implements PUT /bills/{id} operation.
 //
-// 請求書更新.
+// Update bill.
 //
 // PUT /bills/{id}
 func (UnimplementedHandler) BillsIDPut(ctx context.Context, req *UpdateBillRequest, params BillsIDPutParams) (r *Bill, _ error) {
@@ -78,7 +78,7 @@ func (UnimplementedHandler) BillsIDPut(ctx context.Context, req *UpdateBillReque
 
 // BillsPost implements POST /bills operation.
 //
-// 請求書作成.
+// Create bill.
 //
 // POST /bills
 func (UnimplementedHandler) BillsPost(ctx context.Context, req *CreateBillRequest) (r BillsPostRes, _ error) {

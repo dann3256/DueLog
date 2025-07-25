@@ -510,7 +510,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 						switch method {
 						case "GET":
 							r.name = BillsGetOperation
-							r.summary = "請求書一覧取得"
+							r.summary = "get bill"
 							r.operationID = ""
 							r.pathPattern = "/bills"
 							r.args = args
@@ -518,7 +518,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 							return r, true
 						case "POST":
 							r.name = BillsPostOperation
-							r.summary = "請求書作成"
+							r.summary = "create bill"
 							r.operationID = ""
 							r.pathPattern = "/bills"
 							r.args = args
@@ -550,7 +550,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 							switch method {
 							case "DELETE":
 								r.name = BillsIDDeleteOperation
-								r.summary = "請求書削除"
+								r.summary = "delete bill"
 								r.operationID = ""
 								r.pathPattern = "/bills/{id}"
 								r.args = args
@@ -558,7 +558,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 								return r, true
 							case "GET":
 								r.name = BillsIDGetOperation
-								r.summary = "請求書詳細取得"
+								r.summary = "get  direct bill"
 								r.operationID = ""
 								r.pathPattern = "/bills/{id}"
 								r.args = args
@@ -566,7 +566,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 								return r, true
 							case "PUT":
 								r.name = BillsIDPutOperation
-								r.summary = "請求書更新"
+								r.summary = "update bill"
 								r.operationID = ""
 								r.pathPattern = "/bills/{id}"
 								r.args = args
@@ -590,7 +590,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 								switch method {
 								case "PATCH":
 									r.name = BillsIDPaymentStatusPatchOperation
-									r.summary = "支払い済みに変更"
+									r.summary = "chenge payment-status"
 									r.operationID = ""
 									r.pathPattern = "/bills/{id}/payment-status"
 									r.args = args

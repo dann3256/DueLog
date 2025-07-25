@@ -41,37 +41,37 @@ type Invoker interface {
 	BanksPost(ctx context.Context, request *CreateBankRequest) (*Bank, error)
 	// BillsGet invokes GET /bills operation.
 	//
-	// 請求書一覧取得.
+	// Get bill.
 	//
 	// GET /bills
 	BillsGet(ctx context.Context, params BillsGetParams) (*BillListResponse, error)
 	// BillsIDDelete invokes DELETE /bills/{id} operation.
 	//
-	// 請求書削除.
+	// Delete bill.
 	//
 	// DELETE /bills/{id}
 	BillsIDDelete(ctx context.Context, params BillsIDDeleteParams) error
 	// BillsIDGet invokes GET /bills/{id} operation.
 	//
-	// 請求書詳細取得.
+	// Get  direct bill.
 	//
 	// GET /bills/{id}
 	BillsIDGet(ctx context.Context, params BillsIDGetParams) (*Bill, error)
 	// BillsIDPaymentStatusPatch invokes PATCH /bills/{id}/payment-status operation.
 	//
-	// 支払い済みに変更.
+	// Chenge payment-status.
 	//
 	// PATCH /bills/{id}/payment-status
 	BillsIDPaymentStatusPatch(ctx context.Context, request *UpdatePaymentStatusRequest, params BillsIDPaymentStatusPatchParams) (*Bill, error)
 	// BillsIDPut invokes PUT /bills/{id} operation.
 	//
-	// 請求書更新.
+	// Update bill.
 	//
 	// PUT /bills/{id}
 	BillsIDPut(ctx context.Context, request *UpdateBillRequest, params BillsIDPutParams) (*Bill, error)
 	// BillsPost invokes POST /bills operation.
 	//
-	// 請求書作成.
+	// Create bill.
 	//
 	// POST /bills
 	BillsPost(ctx context.Context, request *CreateBillRequest) (BillsPostRes, error)
@@ -339,7 +339,7 @@ func (c *Client) sendBanksPost(ctx context.Context, request *CreateBankRequest) 
 
 // BillsGet invokes GET /bills operation.
 //
-// 請求書一覧取得.
+// Get bill.
 //
 // GET /bills
 func (c *Client) BillsGet(ctx context.Context, params BillsGetParams) (*BillListResponse, error) {
@@ -448,7 +448,7 @@ func (c *Client) sendBillsGet(ctx context.Context, params BillsGetParams) (res *
 
 // BillsIDDelete invokes DELETE /bills/{id} operation.
 //
-// 請求書削除.
+// Delete bill.
 //
 // DELETE /bills/{id}
 func (c *Client) BillsIDDelete(ctx context.Context, params BillsIDDeleteParams) error {
@@ -537,7 +537,7 @@ func (c *Client) sendBillsIDDelete(ctx context.Context, params BillsIDDeletePara
 
 // BillsIDGet invokes GET /bills/{id} operation.
 //
-// 請求書詳細取得.
+// Get  direct bill.
 //
 // GET /bills/{id}
 func (c *Client) BillsIDGet(ctx context.Context, params BillsIDGetParams) (*Bill, error) {
@@ -626,7 +626,7 @@ func (c *Client) sendBillsIDGet(ctx context.Context, params BillsIDGetParams) (r
 
 // BillsIDPaymentStatusPatch invokes PATCH /bills/{id}/payment-status operation.
 //
-// 支払い済みに変更.
+// Chenge payment-status.
 //
 // PATCH /bills/{id}/payment-status
 func (c *Client) BillsIDPaymentStatusPatch(ctx context.Context, request *UpdatePaymentStatusRequest, params BillsIDPaymentStatusPatchParams) (*Bill, error) {
@@ -719,7 +719,7 @@ func (c *Client) sendBillsIDPaymentStatusPatch(ctx context.Context, request *Upd
 
 // BillsIDPut invokes PUT /bills/{id} operation.
 //
-// 請求書更新.
+// Update bill.
 //
 // PUT /bills/{id}
 func (c *Client) BillsIDPut(ctx context.Context, request *UpdateBillRequest, params BillsIDPutParams) (*Bill, error) {
@@ -811,7 +811,7 @@ func (c *Client) sendBillsIDPut(ctx context.Context, request *UpdateBillRequest,
 
 // BillsPost invokes POST /bills operation.
 //
-// 請求書作成.
+// Create bill.
 //
 // POST /bills
 func (c *Client) BillsPost(ctx context.Context, request *CreateBillRequest) (BillsPostRes, error) {

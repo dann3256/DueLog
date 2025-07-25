@@ -22,37 +22,37 @@ type Handler interface {
 	BanksPost(ctx context.Context, req *CreateBankRequest) (*Bank, error)
 	// BillsGet implements GET /bills operation.
 	//
-	// 請求書一覧取得.
+	// Get bill.
 	//
 	// GET /bills
 	BillsGet(ctx context.Context, params BillsGetParams) (*BillListResponse, error)
 	// BillsIDDelete implements DELETE /bills/{id} operation.
 	//
-	// 請求書削除.
+	// Delete bill.
 	//
 	// DELETE /bills/{id}
 	BillsIDDelete(ctx context.Context, params BillsIDDeleteParams) error
 	// BillsIDGet implements GET /bills/{id} operation.
 	//
-	// 請求書詳細取得.
+	// Get  direct bill.
 	//
 	// GET /bills/{id}
 	BillsIDGet(ctx context.Context, params BillsIDGetParams) (*Bill, error)
 	// BillsIDPaymentStatusPatch implements PATCH /bills/{id}/payment-status operation.
 	//
-	// 支払い済みに変更.
+	// Chenge payment-status.
 	//
 	// PATCH /bills/{id}/payment-status
 	BillsIDPaymentStatusPatch(ctx context.Context, req *UpdatePaymentStatusRequest, params BillsIDPaymentStatusPatchParams) (*Bill, error)
 	// BillsIDPut implements PUT /bills/{id} operation.
 	//
-	// 請求書更新.
+	// Update bill.
 	//
 	// PUT /bills/{id}
 	BillsIDPut(ctx context.Context, req *UpdateBillRequest, params BillsIDPutParams) (*Bill, error)
 	// BillsPost implements POST /bills operation.
 	//
-	// 請求書作成.
+	// Create bill.
 	//
 	// POST /bills
 	BillsPost(ctx context.Context, req *CreateBillRequest) (BillsPostRes, error)

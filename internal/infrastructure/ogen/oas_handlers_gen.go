@@ -305,7 +305,7 @@ func (s *Server) handleBanksPostRequest(args [0]string, argsEscaped bool, w http
 
 // handleBillsGetRequest handles GET /bills operation.
 //
-// 請求書一覧取得.
+// Get bill.
 //
 // GET /bills
 func (s *Server) handleBillsGetRequest(args [0]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
@@ -392,7 +392,7 @@ func (s *Server) handleBillsGetRequest(args [0]string, argsEscaped bool, w http.
 		mreq := middleware.Request{
 			Context:          ctx,
 			OperationName:    BillsGetOperation,
-			OperationSummary: "請求書一覧取得",
+			OperationSummary: "get bill",
 			OperationID:      "",
 			Body:             nil,
 			Params: middleware.Parameters{
@@ -446,7 +446,7 @@ func (s *Server) handleBillsGetRequest(args [0]string, argsEscaped bool, w http.
 
 // handleBillsIDDeleteRequest handles DELETE /bills/{id} operation.
 //
-// 請求書削除.
+// Delete bill.
 //
 // DELETE /bills/{id}
 func (s *Server) handleBillsIDDeleteRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
@@ -533,7 +533,7 @@ func (s *Server) handleBillsIDDeleteRequest(args [1]string, argsEscaped bool, w 
 		mreq := middleware.Request{
 			Context:          ctx,
 			OperationName:    BillsIDDeleteOperation,
-			OperationSummary: "請求書削除",
+			OperationSummary: "delete bill",
 			OperationID:      "",
 			Body:             nil,
 			Params: middleware.Parameters{
@@ -583,7 +583,7 @@ func (s *Server) handleBillsIDDeleteRequest(args [1]string, argsEscaped bool, w 
 
 // handleBillsIDGetRequest handles GET /bills/{id} operation.
 //
-// 請求書詳細取得.
+// Get  direct bill.
 //
 // GET /bills/{id}
 func (s *Server) handleBillsIDGetRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
@@ -670,7 +670,7 @@ func (s *Server) handleBillsIDGetRequest(args [1]string, argsEscaped bool, w htt
 		mreq := middleware.Request{
 			Context:          ctx,
 			OperationName:    BillsIDGetOperation,
-			OperationSummary: "請求書詳細取得",
+			OperationSummary: "get  direct bill",
 			OperationID:      "",
 			Body:             nil,
 			Params: middleware.Parameters{
@@ -720,7 +720,7 @@ func (s *Server) handleBillsIDGetRequest(args [1]string, argsEscaped bool, w htt
 
 // handleBillsIDPaymentStatusPatchRequest handles PATCH /bills/{id}/payment-status operation.
 //
-// 支払い済みに変更.
+// Chenge payment-status.
 //
 // PATCH /bills/{id}/payment-status
 func (s *Server) handleBillsIDPaymentStatusPatchRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
@@ -822,7 +822,7 @@ func (s *Server) handleBillsIDPaymentStatusPatchRequest(args [1]string, argsEsca
 		mreq := middleware.Request{
 			Context:          ctx,
 			OperationName:    BillsIDPaymentStatusPatchOperation,
-			OperationSummary: "支払い済みに変更",
+			OperationSummary: "chenge payment-status",
 			OperationID:      "",
 			Body:             request,
 			Params: middleware.Parameters{
@@ -872,7 +872,7 @@ func (s *Server) handleBillsIDPaymentStatusPatchRequest(args [1]string, argsEsca
 
 // handleBillsIDPutRequest handles PUT /bills/{id} operation.
 //
-// 請求書更新.
+// Update bill.
 //
 // PUT /bills/{id}
 func (s *Server) handleBillsIDPutRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
@@ -974,7 +974,7 @@ func (s *Server) handleBillsIDPutRequest(args [1]string, argsEscaped bool, w htt
 		mreq := middleware.Request{
 			Context:          ctx,
 			OperationName:    BillsIDPutOperation,
-			OperationSummary: "請求書更新",
+			OperationSummary: "update bill",
 			OperationID:      "",
 			Body:             request,
 			Params: middleware.Parameters{
@@ -1024,7 +1024,7 @@ func (s *Server) handleBillsIDPutRequest(args [1]string, argsEscaped bool, w htt
 
 // handleBillsPostRequest handles POST /bills operation.
 //
-// 請求書作成.
+// Create bill.
 //
 // POST /bills
 func (s *Server) handleBillsPostRequest(args [0]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
@@ -1116,7 +1116,7 @@ func (s *Server) handleBillsPostRequest(args [0]string, argsEscaped bool, w http
 		mreq := middleware.Request{
 			Context:          ctx,
 			OperationName:    BillsPostOperation,
-			OperationSummary: "請求書作成",
+			OperationSummary: "create bill",
 			OperationID:      "",
 			Body:             request,
 			Params:           middleware.Parameters{},

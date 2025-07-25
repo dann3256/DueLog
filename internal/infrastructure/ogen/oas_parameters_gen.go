@@ -82,9 +82,9 @@ func decodeBanksIDGetParams(args [1]string, argsEscaped bool, r *http.Request) (
 
 // BillsGetParams is parameters of GET /bills operation.
 type BillsGetParams struct {
-	// 振込期限でフィルタ.
+	// Filter.
 	PaymentDate OptPaymentPeriod
-	// 支払済みステータスでフィルタ.
+	// Status filter.
 	IsPaid OptBool
 }
 
