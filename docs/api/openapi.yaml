@@ -25,7 +25,7 @@ paths:
               $ref: './components/user.yaml#/components/schemas/CreateUserRequest'
       responses:
         '201':
-          description: success
+          description: User creation was successful
           content:
             application/json:
               schema:
@@ -48,7 +48,7 @@ paths:
               $ref: './components/user.yaml#/components/schemas/GetUserRequest'
       responses:
         '201':
-          description: success
+          description: obtain user information was success
           content:
             application/json:
               schema:
@@ -75,7 +75,7 @@ paths:
             format: int64
       responses:
         '200':
-          description: user information
+          description: obtain user information was success
           content:
             application/json:
               schema:
@@ -106,7 +106,7 @@ paths:
               $ref: './components/user.yaml#/components/schemas/UpdateUserRequest'
       responses:
         '200':
-          description: success
+          description: update was success
           content:
             application/json:
               schema:
@@ -127,7 +127,7 @@ paths:
             format: int64
       responses:
         '204':
-          description: success
+          description: delete was success
         '404':
           description: error
 
@@ -145,7 +145,7 @@ paths:
               $ref: './components/bank.yaml#/components/schemas/CreateBankRequest'
       responses:
         '201':
-          description: success
+          description: creation bank was success
           content:
             application/json:
               schema:
@@ -165,7 +165,7 @@ paths:
             format: int64
       responses:
         '200':
-          description: banks information
+          description: obtain bank information was success
           content:
             application/json:
               schema:
@@ -188,7 +188,7 @@ paths:
               $ref: './components/company.yaml#/components/schemas/CreateCompanyRequest'
       responses:
         '201':
-          description: success
+          description: creation companies was success
           content:
             application/json:
               schema:
@@ -209,7 +209,7 @@ paths:
             format: int64
       responses:
         '200':
-          description: information
+          description: obtain companies was success
           content:
             application/json:
               schema:
@@ -234,7 +234,7 @@ paths:
               $ref: './components/company.yaml#/components/schemas/UpdateCompanyRequest'
       responses:
         '200':
-          description: 更新成功
+          description: update companies was success
           content:
             application/json:
               schema:
@@ -253,36 +253,36 @@ paths:
             format: int64
       responses:
         '204':
-          description: success
+          description: delete companies was success
 
 
   /bills:
     get:
-      summary: 請求書一覧取得
+      summary: get bill
       tags:
         - Bills
       parameters:
         - name: payment_date
           in: query
-          description: 振込期限でフィルタ
+          description: filter
           schema:
             $ref: './components/bill.yaml#/components/schemas/PaymentPeriod'
         - name: is_paid
           in: query
-          description: 支払済みステータスでフィルタ
+          description: status filter
           schema:
             type: boolean
         
       responses:
         '200':
-          description: 請求書一覧
+          description: obtain bill information was success
           content:
             application/json:
               schema:
                 $ref: './components/bill.yaml#/components/schemas/BillListResponse'
 
     post:
-      summary: 請求書作成
+      summary: create bill
       tags:
         - Bills
       requestBody:
@@ -293,7 +293,7 @@ paths:
               $ref: './components/bill.yaml#/components/schemas/CreateBillRequest'
       responses:
         '201':
-          description: success
+          description: creation bill was success
           content:
             application/json:
               schema:
@@ -307,7 +307,7 @@ paths:
 
   /bills/{id}:
     get:
-      summary: 請求書詳細取得
+      summary: get  direct bill
       tags:
         - Bills
       parameters:
@@ -319,14 +319,14 @@ paths:
             format: int64
       responses:
         '200':
-          description: information
+          description: obtain direct bill information was success
           content:
             application/json:
               schema:
                 $ref: './components/bill.yaml#/components/schemas/Bill'
 
     put:
-      summary: 請求書更新
+      summary: update bill
       tags:
         - Bills
       parameters:
@@ -344,14 +344,14 @@ paths:
               $ref: './components/bill.yaml#/components/schemas/UpdateBillRequest'
       responses:
         '200':
-          description: success
+          description: update bill was success
           content:
             application/json:
               schema:
                 $ref: './components/bill.yaml#/components/schemas/Bill'
 
     delete:
-      summary: 請求書削除
+      summary: delete bill 
       tags:
         - Bills
       parameters:
@@ -363,11 +363,11 @@ paths:
             format: int64
       responses:
         '204':
-          description: 削除成功
+          description: delete bill was success
 
   /bills/{id}/payment-status:
     patch:
-      summary: 支払い済みに変更
+      summary: chenge payment-status
       tags:
         - Bills
       parameters:
@@ -385,7 +385,7 @@ paths:
               $ref: './components/bill.yaml#/components/schemas/UpdatePaymentStatusRequest'
       responses:
         '200':
-          description: success
+          description: changing status was success
           content:
             application/json:
               schema:
