@@ -61,6 +61,12 @@ components:
           type: string
           format: email
           maxLength: 255
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+          
       required:
         - name
         - email

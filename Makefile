@@ -27,6 +27,7 @@ install-sqlc:
    		mkdir -p $(BIN_DIR);\
 		GOBIN=$(BIN_DIR) go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest;\
 	fi
+	
 install-ogen:
 	@if [ -x "$(BIN_DIR)/ogen" ]; then \
 		echo "already ogen installed"; \

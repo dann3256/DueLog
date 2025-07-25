@@ -266,7 +266,6 @@ paths:
           in: query
           description: 振込期限でフィルタ
           schema:
-            type: string
             $ref: './components/bill.yaml#/components/schemas/PaymentPeriod'
         - name: is_paid
           in: query

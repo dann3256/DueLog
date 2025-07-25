@@ -7,9 +7,9 @@ components:
           type: integer
           format: int64
         company:
-          $ref: '#/components/schemas/Company'
+          $ref: './company.yaml#/components/schemas/Company'
         bank:
-          $ref: '#/components/schemas/Bank'
+          $ref: './bank.yaml#/components/schemas/Bank'
         amount:
           type: integer
           description: 支払金額（円）
@@ -153,7 +153,7 @@ components:
         - bills
         - total
 
-  PaymentPeriod:
+   PaymentPeriod:
       type: string
       description: 振込期限区分
       enum:
