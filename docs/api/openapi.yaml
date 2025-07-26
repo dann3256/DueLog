@@ -77,7 +77,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "./components/user.yaml#/components/schemas/User"
+                $ref: "./components/user.yaml#/components/schemas/GetUserRequest"
         "404":
           description: error
           content:

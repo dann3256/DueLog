@@ -15,7 +15,7 @@ import (
 )
 
 func (s *Server) decodeBanksPostRequest(r *http.Request) (
-	req *BankBase,
+	req Name,
 	close func() error,
 	rerr error,
 ) {
@@ -54,7 +54,7 @@ func (s *Server) decodeBanksPostRequest(r *http.Request) (
 
 		d := jx.DecodeBytes(buf)
 
-		var request BankBase
+		var request Name
 		if err := func() error {
 			if err := request.Decode(d); err != nil {
 				return err
@@ -71,7 +71,7 @@ func (s *Server) decodeBanksPostRequest(r *http.Request) (
 			}
 			return req, close, err
 		}
-		return &request, close, nil
+		return request, close, nil
 	default:
 		return req, close, validate.InvalidContentType(ct)
 	}

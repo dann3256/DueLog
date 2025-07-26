@@ -268,7 +268,7 @@ func (s *Server) handleBanksPostRequest(args [0]string, argsEscaped bool, w http
 		}
 
 		type (
-			Request  = *BankBase
+			Request  = Name
 			Params   = struct{}
 			Response = *Bank
 		)

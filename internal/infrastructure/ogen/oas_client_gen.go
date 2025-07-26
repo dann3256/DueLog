@@ -38,7 +38,7 @@ type Invoker interface {
 	// Create bank.
 	//
 	// POST /banks
-	BanksPost(ctx context.Context, request *BankBase) (*Bank, error)
+	BanksPost(ctx context.Context, request Name) (*Bank, error)
 	// BillsGet invokes GET /bills operation.
 	//
 	// Get bills.
@@ -268,12 +268,12 @@ func (c *Client) sendBanksIDGet(ctx context.Context, params BanksIDGetParams) (r
 // Create bank.
 //
 // POST /banks
-func (c *Client) BanksPost(ctx context.Context, request *BankBase) (*Bank, error) {
+func (c *Client) BanksPost(ctx context.Context, request Name) (*Bank, error) {
 	res, err := c.sendBanksPost(ctx, request)
 	return res, err
 }
 
-func (c *Client) sendBanksPost(ctx context.Context, request *BankBase) (res *Bank, err error) {
+func (c *Client) sendBanksPost(ctx context.Context, request Name) (res *Bank, err error) {
 	otelAttrs := []attribute.KeyValue{
 		semconv.HTTPRequestMethodKey.String("POST"),
 		semconv.HTTPRouteKey.String("/banks"),

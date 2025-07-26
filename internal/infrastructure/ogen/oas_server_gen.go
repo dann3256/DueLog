@@ -19,7 +19,7 @@ type Handler interface {
 	// Create bank.
 	//
 	// POST /banks
-	BanksPost(ctx context.Context, req *BankBase) (*Bank, error)
+	BanksPost(ctx context.Context, req Name) (*Bank, error)
 	// BillsGet implements GET /bills operation.
 	//
 	// Get bills.

@@ -250,7 +250,7 @@ func encodeUsersIDDeleteResponse(response UsersIDDeleteRes, w http.ResponseWrite
 
 func encodeUsersIDGetResponse(response UsersIDGetRes, w http.ResponseWriter, span trace.Span) error {
 	switch response := response.(type) {
-	case *User:
+	case *GetUserRequest:
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.WriteHeader(200)
 		span.SetStatus(codes.Ok, http.StatusText(200))

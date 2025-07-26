@@ -27,7 +27,7 @@ func (UnimplementedHandler) BanksIDGet(ctx context.Context, params BanksIDGetPar
 // Create bank.
 //
 // POST /banks
-func (UnimplementedHandler) BanksPost(ctx context.Context, req *BankBase) (r *Bank, _ error) {
+func (UnimplementedHandler) BanksPost(ctx context.Context, req Name) (r *Bank, _ error) {
 	return r, ht.ErrNotImplemented
 }
 

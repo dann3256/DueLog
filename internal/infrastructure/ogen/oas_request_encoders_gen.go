@@ -12,7 +12,7 @@ import (
 )
 
 func encodeBanksPostRequest(
-	req *BankBase,
+	req Name,
 	r *http.Request,
 ) error {
 	const contentType = "application/json"

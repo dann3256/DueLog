@@ -647,7 +647,7 @@ func decodeUsersIDGetResponse(resp *http.Response) (res UsersIDGetRes, _ error) 
 			}
 			d := jx.DecodeBytes(buf)
 
-			var response User
+			var response GetUserRequest
 			if err := func() error {
 				if err := response.Decode(d); err != nil {
 					return err

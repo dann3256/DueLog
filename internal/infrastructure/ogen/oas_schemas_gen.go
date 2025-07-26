@@ -8,16 +8,10 @@ import (
 	"github.com/go-faster/errors"
 )
 
-// Merged schema.
 // Ref: #/components/schemas/Bank
 type Bank struct {
-	Name string `json:"name"`
 	ID   int32  `json:"id"`
-}
-
-// GetName returns the value of Name.
-func (s *Bank) GetName() string {
-	return s.Name
+	Name string `json:"name"`
 }
 
 // GetID returns the value of ID.
@@ -25,9 +19,9 @@ func (s *Bank) GetID() int32 {
 	return s.ID
 }
 
-// SetName sets the value of Name.
-func (s *Bank) SetName(val string) {
-	s.Name = val
+// GetName returns the value of Name.
+func (s *Bank) GetName() string {
+	return s.Name
 }
 
 // SetID sets the value of ID.
@@ -35,22 +29,12 @@ func (s *Bank) SetID(val int32) {
 	s.ID = val
 }
 
-func (*Bank) banksIDGetRes() {}
-
-// Ref: #/components/schemas/BankBase
-type BankBase struct {
-	Name string `json:"name"`
-}
-
-// GetName returns the value of Name.
-func (s *BankBase) GetName() string {
-	return s.Name
-}
-
 // SetName sets the value of Name.
-func (s *BankBase) SetName(val string) {
+func (s *Bank) SetName(val string) {
 	s.Name = val
 }
+
+func (*Bank) banksIDGetRes() {}
 
 // BanksIDGetNotFound is response for BanksIDGet operation.
 type BanksIDGetNotFound struct{}
@@ -583,6 +567,10 @@ func (s *GetUserRequest) SetName(val string) {
 func (s *GetUserRequest) SetEmail(val string) {
 	s.Email = val
 }
+
+func (*GetUserRequest) usersIDGetRes() {}
+
+type Name string
 
 // NewOptBool returns new OptBool with value set to v.
 func NewOptBool(v bool) OptBool {
@@ -1227,7 +1215,6 @@ func (s *User) SetCreatedAt(val OptDateTime) {
 }
 
 func (*User) usersGetRes()   {}
-func (*User) usersIDGetRes() {}
 func (*User) usersIDPutRes() {}
 func (*User) usersPostRes()  {}
 

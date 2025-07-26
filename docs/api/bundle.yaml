@@ -83,7 +83,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/GetUserRequest'
         '404':
           description: error
           content:
@@ -142,7 +142,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateBankRequest'
+              $ref: '#/components/schemas/name'
       responses:
         '201':
           description: creation bank was success
@@ -432,26 +432,19 @@ components:
         email:
           type: string
           format: email
-    BankBase:
+    name:
+      type: string
+    Bank:
       type: object
       properties:
+        id:
+          type: integer
+          format: int32
         name:
           type: string
       required:
+        - id
         - name
-    CreateBankRequest:
-      allOf:
-        - $ref: '#/components/schemas/BankBase'
-    Bank:
-      allOf:
-        - $ref: '#/components/schemas/BankBase'
-        - type: object
-          properties:
-            id:
-              type: integer
-              format: int32
-          required:
-            - id
     CreateCompanyRequest:
       type: object
       properties:
