@@ -1,0 +1,395 @@
+openapi: 3.0.3
+info:
+  title: DueLog API
+  description: API
+  version: 1.0.0
+  license:
+    name: MIT
+    url: https://github.com/dann3256/DueLog
+
+servers:
+  - url: http://localhost:8080
+
+paths:
+  /users:
+    post:
+      summary: create User
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "./components/user.yaml#/components/schemas/CreateUserRequest"
+      responses:
+        "201":
+          description: User creation was successful
+          content:
+            application/json:
+              schema:
+                $ref: "./components/user.yaml#/components/schemas/User"
+        "400":
+          description: error
+          content:
+            application/json:
+              schema:
+                $ref: "./components/user.yaml#/components/schemas/Error"
+    get:
+      summary: get users
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "./components/user.yaml#/components/schemas/GetUserRequest"
+      responses:
+        "201":
+          description: obtain user information was success
+          content:
+            application/json:
+              schema:
+                $ref: "./components/user.yaml#/components/schemas/User"
+        "400":
+          description: error
+          content:
+            application/json:
+              schema:
+                $ref: "./components/user.yaml#/components/schemas/Error"
+
+  /users/{id}:
+    get:
+      summary: get user
+      tags:
+        - Users
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: obtain user information was success
+          content:
+            application/json:
+              schema:
+                $ref: "./components/user.yaml#/components/schemas/GetUserRequest"
+        "404":
+          description: error
+          content:
+            application/json:
+              schema:
+                $ref: "./components/user.yaml#/components/schemas/Error"
+
+    put:
+      summary: update user
+      tags:
+        - Users
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "./components/user.yaml#/components/schemas/UpdateUserRequest"
+      responses:
+        "200":
+          description: update was success
+          content:
+            application/json:
+              schema:
+                $ref: "./components/user.yaml#/components/schemas/User"
+        "404":
+          description: error
+
+    delete:
+      summary: delete user
+      tags:
+        - Users
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "204":
+          description: delete was success
+        "404":
+          description: error
+
+  /banks:
+    post:
+      summary: create bank
+      tags:
+        - Banks
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "./components/bank.yaml#/components/schemas/CreateBankRequest"
+      responses:
+        "201":
+          description: creation bank was success
+          content:
+            application/json:
+              schema:
+                $ref: "./components/bank.yaml#/components/schemas/Bank"
+
+  /banks/{id}:
+    get:
+      summary: get bank information
+      tags:
+        - Banks
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: obtain bank information was success
+          content:
+            application/json:
+              schema:
+                $ref: "./components/bank.yaml#/components/schemas/Bank"
+        "404":
+          description: error
+
+  /companies:
+    post:
+      summary: create company
+      tags:
+        - Companies
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "./components/company.yaml#/components/schemas/CreateCompanyRequest"
+      responses:
+        "201":
+          description: creation companies was success
+          content:
+            application/json:
+              schema:
+                $ref: "./components/company.yaml#/components/schemas/Company"
+
+  /companies/{id}:
+    get:
+      summary: get company information
+      tags:
+        - Companies
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: obtain companies was success
+          content:
+            application/json:
+              schema:
+                $ref: "./components/company.yaml#/components/schemas/Company"
+
+    put:
+      summary: update bank
+      tags:
+        - Companies
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "./components/company.yaml#/components/schemas/UpdateCompanyRequest"
+      responses:
+        "200":
+          description: update companies was success
+          content:
+            application/json:
+              schema:
+                $ref: "./components/company.yaml#/components/schemas/Company"
+
+    delete:
+      summary: delete bank
+      tags:
+        - Companies
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "204":
+          description: delete companies was success
+
+  /bills:
+    get:
+      summary: get bills
+      tags:
+        - Bills
+      parameters:
+        - name: payment_date
+          in: query
+          description: filter
+          schema:
+            $ref: "./components/bill.yaml#/components/schemas/PaymentPeriod"
+        - name: is_paid
+          in: query
+          description: status filter
+          schema:
+            type: boolean
+
+      responses:
+        "200":
+          description: obtain bill information was success
+          content:
+            application/json:
+              schema:
+                $ref: "./components/bill.yaml#/components/schemas/BillListResponse"
+
+    post:
+      summary: create bill
+      tags:
+        - Bills
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "./components/bill.yaml#/components/schemas/CreateBillRequest"
+      responses:
+        "201":
+          description: creation bill was success
+          content:
+            application/json:
+              schema:
+                $ref: "./components/bill.yaml#/components/schemas/Bill"
+        "400":
+          description: error
+          content:
+            application/json:
+              schema:
+                $ref: "./components/bill.yaml#/components/schemas/BillValidationResponse"
+
+  /bills/{id}:
+    get:
+      summary: get  bill
+      tags:
+        - Bills
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: obtain direct bill information was success
+          content:
+            application/json:
+              schema:
+                $ref: "./components/bill.yaml#/components/schemas/Bill"
+
+    put:
+      summary: update bill
+      tags:
+        - Bills
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "./components/bill.yaml#/components/schemas/UpdateBillRequest"
+      responses:
+        "200":
+          description: update bill was success
+          content:
+            application/json:
+              schema:
+                $ref: "./components/bill.yaml#/components/schemas/Bill"
+
+    delete:
+      summary: delete bill
+      tags:
+        - Bills
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "204":
+          description: delete bill was success
+
+  /bills/{id}/payment-status:
+    patch:
+      summary: chenge payment-status
+      tags:
+        - Bills
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "./components/bill.yaml#/components/schemas/UpdatePaymentStatusRequest"
+      responses:
+        "200":
+          description: changing status was success
+          content:
+            application/json:
+              schema:
+                $ref: "./components/bill.yaml#/components/schemas/Bill"
+
+tags:
+  - name: Users
+    description: ユーザー管理
+  - name: Banks
+    description: 銀行管理
+  - name: Companies
+    description: 会社管理
+  - name: Bills
+    description: 請求書（振込情報）管理

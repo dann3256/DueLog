@@ -1,4 +1,4 @@
-.PHONY: setup format-sql lint-sql all install-sql sqlc-generate dev-setup
+.PHONY: setup format-sql lint-sql all install sqlc openapi
 
 setup:  ## Setup development environment
 	@echo "Setting up development environment..."
@@ -14,23 +14,11 @@ lint-sql:  ## Lint PostgreSQL SQL files
 all:  ## Run all SQL operations (format and lint)
 	@make -C db/postgres all
 
+install:
+	@bash scripts/install-tools.sh
 
+sqlc:
+	@bash scripts/generate-sqlc.sh
 
-ROOT_DIR := $(shell git rev-parse --show-toplevel)
-BIN_DIR  := $(ROOT_DIR)/.bin
-GEN_DIR  := $(ROOT_DIR)/internal/infrastructure/db/postgres
-install-sqlc:
-	@if [ -x "$(BIN_DIR)" ]; then \
-		echo "already sqlc installed"; \
-	else \
-   		mkdir -p $(BIN_DIR);\
-		GOBIN=$(BIN_DIR) go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest;\
-	fi
-
-sqlc-generate:
-	rm -rf $(GEN_DIR)
-	$(BIN_DIR)/sqlc generate
-
-dev-setup:
-	go mod tidy
-	sqlc generate
+openapi:
+	@bash scripts/generate-openapi.sh
