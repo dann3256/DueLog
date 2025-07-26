@@ -5,19 +5,19 @@ components:
       properties:
         id:
           type: integer
-          format: int64
-        company:
-          $ref: './company.yaml#/components/schemas/Company'
-        bank:
-          $ref: './bank.yaml#/components/schemas/Bank'
+          format: int32
+        company_id:
+          type: integer
+          format: int32
+        bank_id:
+          type: integer
+          format: int32
         amount:
           type: integer
           description: 支払金額（円）
-          minimum: 1
         payment_limit:
           type: integer
           description: 振込上限金額（円）
-          minimum: 1
         payment_date:
           type: string
           format: date

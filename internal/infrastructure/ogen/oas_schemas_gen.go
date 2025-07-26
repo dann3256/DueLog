@@ -8,15 +8,11 @@ import (
 	"github.com/go-faster/errors"
 )
 
+// Merged schema.
 // Ref: #/components/schemas/Bank
 type Bank struct {
-	ID   int64  `json:"id"`
 	Name string `json:"name"`
-}
-
-// GetID returns the value of ID.
-func (s *Bank) GetID() int64 {
-	return s.ID
+	ID   int32  `json:"id"`
 }
 
 // GetName returns the value of Name.
@@ -24,9 +20,9 @@ func (s *Bank) GetName() string {
 	return s.Name
 }
 
-// SetID sets the value of ID.
-func (s *Bank) SetID(val int64) {
-	s.ID = val
+// GetID returns the value of ID.
+func (s *Bank) GetID() int32 {
+	return s.ID
 }
 
 // SetName sets the value of Name.
@@ -34,7 +30,27 @@ func (s *Bank) SetName(val string) {
 	s.Name = val
 }
 
+// SetID sets the value of ID.
+func (s *Bank) SetID(val int32) {
+	s.ID = val
+}
+
 func (*Bank) banksIDGetRes() {}
+
+// Ref: #/components/schemas/BankBase
+type BankBase struct {
+	Name string `json:"name"`
+}
+
+// GetName returns the value of Name.
+func (s *BankBase) GetName() string {
+	return s.Name
+}
+
+// SetName sets the value of Name.
+func (s *BankBase) SetName(val string) {
+	s.Name = val
+}
 
 // BanksIDGetNotFound is response for BanksIDGet operation.
 type BanksIDGetNotFound struct{}
@@ -43,9 +59,9 @@ func (*BanksIDGetNotFound) banksIDGetRes() {}
 
 // Ref: #/components/schemas/Bill
 type Bill struct {
-	ID      int64   `json:"id"`
-	Company Company `json:"company"`
-	Bank    Bank    `json:"bank"`
+	ID        int32    `json:"id"`
+	CompanyID OptInt32 `json:"company_id"`
+	BankID    OptInt32 `json:"bank_id"`
 	// 支払金額（円）.
 	Amount int `json:"amount"`
 	// 振込上限金額（円）.
@@ -65,18 +81,18 @@ type Bill struct {
 }
 
 // GetID returns the value of ID.
-func (s *Bill) GetID() int64 {
+func (s *Bill) GetID() int32 {
 	return s.ID
 }
 
-// GetCompany returns the value of Company.
-func (s *Bill) GetCompany() Company {
-	return s.Company
+// GetCompanyID returns the value of CompanyID.
+func (s *Bill) GetCompanyID() OptInt32 {
+	return s.CompanyID
 }
 
-// GetBank returns the value of Bank.
-func (s *Bill) GetBank() Bank {
-	return s.Bank
+// GetBankID returns the value of BankID.
+func (s *Bill) GetBankID() OptInt32 {
+	return s.BankID
 }
 
 // GetAmount returns the value of Amount.
@@ -125,18 +141,18 @@ func (s *Bill) GetUpdatedAt() OptDateTime {
 }
 
 // SetID sets the value of ID.
-func (s *Bill) SetID(val int64) {
+func (s *Bill) SetID(val int32) {
 	s.ID = val
 }
 
-// SetCompany sets the value of Company.
-func (s *Bill) SetCompany(val Company) {
-	s.Company = val
+// SetCompanyID sets the value of CompanyID.
+func (s *Bill) SetCompanyID(val OptInt32) {
+	s.CompanyID = val
 }
 
-// SetBank sets the value of Bank.
-func (s *Bill) SetBank(val Bank) {
-	s.Bank = val
+// SetBankID sets the value of BankID.
+func (s *Bill) SetBankID(val OptInt32) {
+	s.BankID = val
 }
 
 // SetAmount sets the value of Amount.
@@ -318,13 +334,13 @@ type CompaniesIDDeleteNoContent struct{}
 
 // Ref: #/components/schemas/Company
 type Company struct {
-	ID        int64       `json:"id"`
+	ID        int32       `json:"id"`
 	Name      string      `json:"name"`
 	CreatedAt OptDateTime `json:"created_at"`
 }
 
 // GetID returns the value of ID.
-func (s *Company) GetID() int64 {
+func (s *Company) GetID() int32 {
 	return s.ID
 }
 
@@ -339,7 +355,7 @@ func (s *Company) GetCreatedAt() OptDateTime {
 }
 
 // SetID sets the value of ID.
-func (s *Company) SetID(val int64) {
+func (s *Company) SetID(val int32) {
 	s.ID = val
 }
 
@@ -351,21 +367,6 @@ func (s *Company) SetName(val string) {
 // SetCreatedAt sets the value of CreatedAt.
 func (s *Company) SetCreatedAt(val OptDateTime) {
 	s.CreatedAt = val
-}
-
-// Ref: #/components/schemas/CreateBankRequest
-type CreateBankRequest struct {
-	Name string `json:"name"`
-}
-
-// GetName returns the value of Name.
-func (s *CreateBankRequest) GetName() string {
-	return s.Name
-}
-
-// SetName sets the value of Name.
-func (s *CreateBankRequest) SetName(val string) {
-	s.Name = val
 }
 
 // Ref: #/components/schemas/CreateBillRequest
@@ -669,6 +670,52 @@ func (o OptDateTime) Get() (v time.Time, ok bool) {
 
 // Or returns value if set, or given parameter if does not.
 func (o OptDateTime) Or(d time.Time) time.Time {
+	if v, ok := o.Get(); ok {
+		return v
+	}
+	return d
+}
+
+// NewOptInt32 returns new OptInt32 with value set to v.
+func NewOptInt32(v int32) OptInt32 {
+	return OptInt32{
+		Value: v,
+		Set:   true,
+	}
+}
+
+// OptInt32 is optional int32.
+type OptInt32 struct {
+	Value int32
+	Set   bool
+}
+
+// IsSet returns true if OptInt32 was set.
+func (o OptInt32) IsSet() bool { return o.Set }
+
+// Reset unsets value.
+func (o *OptInt32) Reset() {
+	var v int32
+	o.Value = v
+	o.Set = false
+}
+
+// SetTo sets value to v.
+func (o *OptInt32) SetTo(v int32) {
+	o.Set = true
+	o.Value = v
+}
+
+// Get returns value and boolean that denotes whether value was set.
+func (o OptInt32) Get() (v int32, ok bool) {
+	if !o.Set {
+		return v, false
+	}
+	return o.Value, true
+}
+
+// Or returns value if set, or given parameter if does not.
+func (o OptInt32) Or(d int32) int32 {
 	if v, ok := o.Get(); ok {
 		return v
 	}
@@ -1133,14 +1180,14 @@ func (s *UpdateUserRequest) SetEmail(val OptString) {
 
 // Ref: #/components/schemas/User
 type User struct {
-	ID        int64       `json:"id"`
+	ID        int32       `json:"id"`
 	Name      string      `json:"name"`
 	Email     string      `json:"email"`
 	CreatedAt OptDateTime `json:"created_at"`
 }
 
 // GetID returns the value of ID.
-func (s *User) GetID() int64 {
+func (s *User) GetID() int32 {
 	return s.ID
 }
 
@@ -1160,7 +1207,7 @@ func (s *User) GetCreatedAt() OptDateTime {
 }
 
 // SetID sets the value of ID.
-func (s *User) SetID(val int64) {
+func (s *User) SetID(val int32) {
 	s.ID = val
 }
 

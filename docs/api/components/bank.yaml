@@ -1,34 +1,28 @@
 components:
   schemas:
-   Bank:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-        name:
-          type: string
-          maxLength: 50
-      required:
-        - id
-        - name
-
-   CreateBankRequest:
+    BankBase:
       type: object
       properties:
         name:
           type: string
-          maxLength: 50
-          minLength: 1
       required:
         - name
 
-   UpdateBankRequest:
-      type: object
-      properties:
-        name:
-          type: string
-          maxLength: 50
-          minLength: 1
-      required:
-        - name
+    Bank:
+      allOf:
+        - $ref: '#/components/schemas/BankBase'
+        - type: object
+          properties:
+            id:
+              type: integer
+              format: int32
+          required:
+            - id
+
+    CreateBankRequest:
+      allOf:
+        - $ref: '#/components/schemas/BankBase'
+
+    UpdateBankRequest:
+      allOf:
+        - $ref: '#/components/schemas/BankBase'

@@ -5,10 +5,9 @@ components:
       properties:
         id:
           type: integer
-          format: int64
+          format: int32
         name:
           type: string
-          maxLength: 255
         created_at:
           type: string
           format: date-time
@@ -21,8 +20,6 @@ components:
       properties:
         name:
           type: string
-          maxLength: 255
-          minLength: 1
       required:
         - name
 
@@ -31,7 +28,5 @@ components:
       properties:
         name:
           type: string
-          maxLength: 255
-          minLength: 1
       required:
         - name

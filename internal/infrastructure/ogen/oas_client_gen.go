@@ -29,19 +29,19 @@ func trimTrailingSlashes(u *url.URL) {
 type Invoker interface {
 	// BanksIDGet invokes GET /banks/{id} operation.
 	//
-	// Get information.
+	// Get bank information.
 	//
 	// GET /banks/{id}
 	BanksIDGet(ctx context.Context, params BanksIDGetParams) (BanksIDGetRes, error)
 	// BanksPost invokes POST /banks operation.
 	//
-	// Create banks.
+	// Create bank.
 	//
 	// POST /banks
-	BanksPost(ctx context.Context, request *CreateBankRequest) (*Bank, error)
+	BanksPost(ctx context.Context, request *BankBase) (*Bank, error)
 	// BillsGet invokes GET /bills operation.
 	//
-	// Get bill.
+	// Get bills.
 	//
 	// GET /bills
 	BillsGet(ctx context.Context, params BillsGetParams) (*BillListResponse, error)
@@ -53,7 +53,7 @@ type Invoker interface {
 	BillsIDDelete(ctx context.Context, params BillsIDDeleteParams) error
 	// BillsIDGet invokes GET /bills/{id} operation.
 	//
-	// Get  direct bill.
+	// Get  bill.
 	//
 	// GET /bills/{id}
 	BillsIDGet(ctx context.Context, params BillsIDGetParams) (*Bill, error)
@@ -77,7 +77,7 @@ type Invoker interface {
 	BillsPost(ctx context.Context, request *CreateBillRequest) (BillsPostRes, error)
 	// CompaniesIDDelete invokes DELETE /companies/{id} operation.
 	//
-	// Delete.
+	// Delete bank.
 	//
 	// DELETE /companies/{id}
 	CompaniesIDDelete(ctx context.Context, params CompaniesIDDeleteParams) error
@@ -89,7 +89,7 @@ type Invoker interface {
 	CompaniesIDGet(ctx context.Context, params CompaniesIDGetParams) (*Company, error)
 	// CompaniesIDPut invokes PUT /companies/{id} operation.
 	//
-	// Update.
+	// Update bank.
 	//
 	// PUT /companies/{id}
 	CompaniesIDPut(ctx context.Context, request *UpdateCompanyRequest, params CompaniesIDPutParams) (*Company, error)
@@ -101,7 +101,7 @@ type Invoker interface {
 	CompaniesPost(ctx context.Context, request *CreateCompanyRequest) (*Company, error)
 	// UsersGet invokes GET /users operation.
 	//
-	// Get user.
+	// Get users.
 	//
 	// GET /users
 	UsersGet(ctx context.Context, request *GetUserRequest) (UsersGetRes, error)
@@ -125,7 +125,7 @@ type Invoker interface {
 	UsersIDPut(ctx context.Context, request *UpdateUserRequest, params UsersIDPutParams) (UsersIDPutRes, error)
 	// UsersPost invokes POST /users operation.
 	//
-	// Create Users.
+	// Create User.
 	//
 	// POST /users
 	UsersPost(ctx context.Context, request *CreateUserRequest) (UsersPostRes, error)
@@ -176,7 +176,7 @@ func (c *Client) requestURL(ctx context.Context) *url.URL {
 
 // BanksIDGet invokes GET /banks/{id} operation.
 //
-// Get information.
+// Get bank information.
 //
 // GET /banks/{id}
 func (c *Client) BanksIDGet(ctx context.Context, params BanksIDGetParams) (BanksIDGetRes, error) {
@@ -265,15 +265,15 @@ func (c *Client) sendBanksIDGet(ctx context.Context, params BanksIDGetParams) (r
 
 // BanksPost invokes POST /banks operation.
 //
-// Create banks.
+// Create bank.
 //
 // POST /banks
-func (c *Client) BanksPost(ctx context.Context, request *CreateBankRequest) (*Bank, error) {
+func (c *Client) BanksPost(ctx context.Context, request *BankBase) (*Bank, error) {
 	res, err := c.sendBanksPost(ctx, request)
 	return res, err
 }
 
-func (c *Client) sendBanksPost(ctx context.Context, request *CreateBankRequest) (res *Bank, err error) {
+func (c *Client) sendBanksPost(ctx context.Context, request *BankBase) (res *Bank, err error) {
 	otelAttrs := []attribute.KeyValue{
 		semconv.HTTPRequestMethodKey.String("POST"),
 		semconv.HTTPRouteKey.String("/banks"),
@@ -339,7 +339,7 @@ func (c *Client) sendBanksPost(ctx context.Context, request *CreateBankRequest) 
 
 // BillsGet invokes GET /bills operation.
 //
-// Get bill.
+// Get bills.
 //
 // GET /bills
 func (c *Client) BillsGet(ctx context.Context, params BillsGetParams) (*BillListResponse, error) {
@@ -537,7 +537,7 @@ func (c *Client) sendBillsIDDelete(ctx context.Context, params BillsIDDeletePara
 
 // BillsIDGet invokes GET /bills/{id} operation.
 //
-// Get  direct bill.
+// Get  bill.
 //
 // GET /bills/{id}
 func (c *Client) BillsIDGet(ctx context.Context, params BillsIDGetParams) (*Bill, error) {
@@ -885,7 +885,7 @@ func (c *Client) sendBillsPost(ctx context.Context, request *CreateBillRequest) 
 
 // CompaniesIDDelete invokes DELETE /companies/{id} operation.
 //
-// Delete.
+// Delete bank.
 //
 // DELETE /companies/{id}
 func (c *Client) CompaniesIDDelete(ctx context.Context, params CompaniesIDDeleteParams) error {
@@ -1063,7 +1063,7 @@ func (c *Client) sendCompaniesIDGet(ctx context.Context, params CompaniesIDGetPa
 
 // CompaniesIDPut invokes PUT /companies/{id} operation.
 //
-// Update.
+// Update bank.
 //
 // PUT /companies/{id}
 func (c *Client) CompaniesIDPut(ctx context.Context, request *UpdateCompanyRequest, params CompaniesIDPutParams) (*Company, error) {
@@ -1229,7 +1229,7 @@ func (c *Client) sendCompaniesPost(ctx context.Context, request *CreateCompanyRe
 
 // UsersGet invokes GET /users operation.
 //
-// Get user.
+// Get users.
 //
 // GET /users
 func (c *Client) UsersGet(ctx context.Context, request *GetUserRequest) (UsersGetRes, error) {
@@ -1573,7 +1573,7 @@ func (c *Client) sendUsersIDPut(ctx context.Context, request *UpdateUserRequest,
 
 // UsersPost invokes POST /users operation.
 //
-// Create Users.
+// Create User.
 //
 // POST /users
 func (c *Client) UsersPost(ctx context.Context, request *CreateUserRequest) (UsersPostRes, error) {

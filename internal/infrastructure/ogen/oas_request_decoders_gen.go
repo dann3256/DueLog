@@ -15,7 +15,7 @@ import (
 )
 
 func (s *Server) decodeBanksPostRequest(r *http.Request) (
-	req *CreateBankRequest,
+	req *BankBase,
 	close func() error,
 	rerr error,
 ) {
@@ -54,7 +54,7 @@ func (s *Server) decodeBanksPostRequest(r *http.Request) (
 
 		d := jx.DecodeBytes(buf)
 
-		var request CreateBankRequest
+		var request BankBase
 		if err := func() error {
 			if err := request.Decode(d); err != nil {
 				return err
@@ -70,14 +70,6 @@ func (s *Server) decodeBanksPostRequest(r *http.Request) (
 				Err:         err,
 			}
 			return req, close, err
-		}
-		if err := func() error {
-			if err := request.Validate(); err != nil {
-				return err
-			}
-			return nil
-		}(); err != nil {
-			return req, close, errors.Wrap(err, "validate")
 		}
 		return &request, close, nil
 	default:
@@ -347,14 +339,6 @@ func (s *Server) decodeCompaniesIDPutRequest(r *http.Request) (
 			}
 			return req, close, err
 		}
-		if err := func() error {
-			if err := request.Validate(); err != nil {
-				return err
-			}
-			return nil
-		}(); err != nil {
-			return req, close, errors.Wrap(err, "validate")
-		}
 		return &request, close, nil
 	default:
 		return req, close, validate.InvalidContentType(ct)
@@ -417,14 +401,6 @@ func (s *Server) decodeCompaniesPostRequest(r *http.Request) (
 				Err:         err,
 			}
 			return req, close, err
-		}
-		if err := func() error {
-			if err := request.Validate(); err != nil {
-				return err
-			}
-			return nil
-		}(); err != nil {
-			return req, close, errors.Wrap(err, "validate")
 		}
 		return &request, close, nil
 	default:

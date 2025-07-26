@@ -31,7 +31,7 @@ func (c *codeRecorder) WriteHeader(status int) {
 
 // handleBanksIDGetRequest handles GET /banks/{id} operation.
 //
-// Get information.
+// Get bank information.
 //
 // GET /banks/{id}
 func (s *Server) handleBanksIDGetRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
@@ -118,7 +118,7 @@ func (s *Server) handleBanksIDGetRequest(args [1]string, argsEscaped bool, w htt
 		mreq := middleware.Request{
 			Context:          ctx,
 			OperationName:    BanksIDGetOperation,
-			OperationSummary: "get information",
+			OperationSummary: "get bank information",
 			OperationID:      "",
 			Body:             nil,
 			Params: middleware.Parameters{
@@ -168,7 +168,7 @@ func (s *Server) handleBanksIDGetRequest(args [1]string, argsEscaped bool, w htt
 
 // handleBanksPostRequest handles POST /banks operation.
 //
-// Create banks.
+// Create bank.
 //
 // POST /banks
 func (s *Server) handleBanksPostRequest(args [0]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
@@ -260,7 +260,7 @@ func (s *Server) handleBanksPostRequest(args [0]string, argsEscaped bool, w http
 		mreq := middleware.Request{
 			Context:          ctx,
 			OperationName:    BanksPostOperation,
-			OperationSummary: "create banks",
+			OperationSummary: "create bank",
 			OperationID:      "",
 			Body:             request,
 			Params:           middleware.Parameters{},
@@ -268,7 +268,7 @@ func (s *Server) handleBanksPostRequest(args [0]string, argsEscaped bool, w http
 		}
 
 		type (
-			Request  = *CreateBankRequest
+			Request  = *BankBase
 			Params   = struct{}
 			Response = *Bank
 		)
@@ -305,7 +305,7 @@ func (s *Server) handleBanksPostRequest(args [0]string, argsEscaped bool, w http
 
 // handleBillsGetRequest handles GET /bills operation.
 //
-// Get bill.
+// Get bills.
 //
 // GET /bills
 func (s *Server) handleBillsGetRequest(args [0]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
@@ -392,7 +392,7 @@ func (s *Server) handleBillsGetRequest(args [0]string, argsEscaped bool, w http.
 		mreq := middleware.Request{
 			Context:          ctx,
 			OperationName:    BillsGetOperation,
-			OperationSummary: "get bill",
+			OperationSummary: "get bills",
 			OperationID:      "",
 			Body:             nil,
 			Params: middleware.Parameters{
@@ -583,7 +583,7 @@ func (s *Server) handleBillsIDDeleteRequest(args [1]string, argsEscaped bool, w 
 
 // handleBillsIDGetRequest handles GET /bills/{id} operation.
 //
-// Get  direct bill.
+// Get  bill.
 //
 // GET /bills/{id}
 func (s *Server) handleBillsIDGetRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
@@ -670,7 +670,7 @@ func (s *Server) handleBillsIDGetRequest(args [1]string, argsEscaped bool, w htt
 		mreq := middleware.Request{
 			Context:          ctx,
 			OperationName:    BillsIDGetOperation,
-			OperationSummary: "get  direct bill",
+			OperationSummary: "get  bill",
 			OperationID:      "",
 			Body:             nil,
 			Params: middleware.Parameters{
@@ -1161,7 +1161,7 @@ func (s *Server) handleBillsPostRequest(args [0]string, argsEscaped bool, w http
 
 // handleCompaniesIDDeleteRequest handles DELETE /companies/{id} operation.
 //
-// Delete.
+// Delete bank.
 //
 // DELETE /companies/{id}
 func (s *Server) handleCompaniesIDDeleteRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
@@ -1248,7 +1248,7 @@ func (s *Server) handleCompaniesIDDeleteRequest(args [1]string, argsEscaped bool
 		mreq := middleware.Request{
 			Context:          ctx,
 			OperationName:    CompaniesIDDeleteOperation,
-			OperationSummary: "delete",
+			OperationSummary: "delete bank",
 			OperationID:      "",
 			Body:             nil,
 			Params: middleware.Parameters{
@@ -1435,7 +1435,7 @@ func (s *Server) handleCompaniesIDGetRequest(args [1]string, argsEscaped bool, w
 
 // handleCompaniesIDPutRequest handles PUT /companies/{id} operation.
 //
-// Update.
+// Update bank.
 //
 // PUT /companies/{id}
 func (s *Server) handleCompaniesIDPutRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
@@ -1537,7 +1537,7 @@ func (s *Server) handleCompaniesIDPutRequest(args [1]string, argsEscaped bool, w
 		mreq := middleware.Request{
 			Context:          ctx,
 			OperationName:    CompaniesIDPutOperation,
-			OperationSummary: "update",
+			OperationSummary: "update bank",
 			OperationID:      "",
 			Body:             request,
 			Params: middleware.Parameters{
@@ -1724,7 +1724,7 @@ func (s *Server) handleCompaniesPostRequest(args [0]string, argsEscaped bool, w 
 
 // handleUsersGetRequest handles GET /users operation.
 //
-// Get user.
+// Get users.
 //
 // GET /users
 func (s *Server) handleUsersGetRequest(args [0]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
@@ -1816,7 +1816,7 @@ func (s *Server) handleUsersGetRequest(args [0]string, argsEscaped bool, w http.
 		mreq := middleware.Request{
 			Context:          ctx,
 			OperationName:    UsersGetOperation,
-			OperationSummary: "get user",
+			OperationSummary: "get users",
 			OperationID:      "",
 			Body:             request,
 			Params:           middleware.Parameters{},
@@ -2287,7 +2287,7 @@ func (s *Server) handleUsersIDPutRequest(args [1]string, argsEscaped bool, w htt
 
 // handleUsersPostRequest handles POST /users operation.
 //
-// Create Users.
+// Create User.
 //
 // POST /users
 func (s *Server) handleUsersPostRequest(args [0]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
@@ -2379,7 +2379,7 @@ func (s *Server) handleUsersPostRequest(args [0]string, argsEscaped bool, w http
 		mreq := middleware.Request{
 			Context:          ctx,
 			OperationName:    UsersPostOperation,
-			OperationSummary: "create Users",
+			OperationSummary: "create User",
 			OperationID:      "",
 			Body:             request,
 			Params:           middleware.Parameters{},

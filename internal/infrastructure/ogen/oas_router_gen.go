@@ -452,7 +452,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 						switch method {
 						case "POST":
 							r.name = BanksPostOperation
-							r.summary = "create banks"
+							r.summary = "create bank"
 							r.operationID = ""
 							r.pathPattern = "/banks"
 							r.args = args
@@ -485,7 +485,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 							switch method {
 							case "GET":
 								r.name = BanksIDGetOperation
-								r.summary = "get information"
+								r.summary = "get bank information"
 								r.operationID = ""
 								r.pathPattern = "/banks/{id}"
 								r.args = args
@@ -510,7 +510,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 						switch method {
 						case "GET":
 							r.name = BillsGetOperation
-							r.summary = "get bill"
+							r.summary = "get bills"
 							r.operationID = ""
 							r.pathPattern = "/bills"
 							r.args = args
@@ -558,7 +558,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 								return r, true
 							case "GET":
 								r.name = BillsIDGetOperation
-								r.summary = "get  direct bill"
+								r.summary = "get  bill"
 								r.operationID = ""
 								r.pathPattern = "/bills/{id}"
 								r.args = args
@@ -652,7 +652,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 						switch method {
 						case "DELETE":
 							r.name = CompaniesIDDeleteOperation
-							r.summary = "delete"
+							r.summary = "delete bank"
 							r.operationID = ""
 							r.pathPattern = "/companies/{id}"
 							r.args = args
@@ -668,7 +668,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 							return r, true
 						case "PUT":
 							r.name = CompaniesIDPutOperation
-							r.summary = "update"
+							r.summary = "update bank"
 							r.operationID = ""
 							r.pathPattern = "/companies/{id}"
 							r.args = args
@@ -693,7 +693,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 					switch method {
 					case "GET":
 						r.name = UsersGetOperation
-						r.summary = "get user"
+						r.summary = "get users"
 						r.operationID = ""
 						r.pathPattern = "/users"
 						r.args = args
@@ -701,7 +701,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 						return r, true
 					case "POST":
 						r.name = UsersPostOperation
-						r.summary = "create Users"
+						r.summary = "create User"
 						r.operationID = ""
 						r.pathPattern = "/users"
 						r.args = args

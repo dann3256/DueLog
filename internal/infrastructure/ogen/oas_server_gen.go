@@ -10,19 +10,19 @@ import (
 type Handler interface {
 	// BanksIDGet implements GET /banks/{id} operation.
 	//
-	// Get information.
+	// Get bank information.
 	//
 	// GET /banks/{id}
 	BanksIDGet(ctx context.Context, params BanksIDGetParams) (BanksIDGetRes, error)
 	// BanksPost implements POST /banks operation.
 	//
-	// Create banks.
+	// Create bank.
 	//
 	// POST /banks
-	BanksPost(ctx context.Context, req *CreateBankRequest) (*Bank, error)
+	BanksPost(ctx context.Context, req *BankBase) (*Bank, error)
 	// BillsGet implements GET /bills operation.
 	//
-	// Get bill.
+	// Get bills.
 	//
 	// GET /bills
 	BillsGet(ctx context.Context, params BillsGetParams) (*BillListResponse, error)
@@ -34,7 +34,7 @@ type Handler interface {
 	BillsIDDelete(ctx context.Context, params BillsIDDeleteParams) error
 	// BillsIDGet implements GET /bills/{id} operation.
 	//
-	// Get  direct bill.
+	// Get  bill.
 	//
 	// GET /bills/{id}
 	BillsIDGet(ctx context.Context, params BillsIDGetParams) (*Bill, error)
@@ -58,7 +58,7 @@ type Handler interface {
 	BillsPost(ctx context.Context, req *CreateBillRequest) (BillsPostRes, error)
 	// CompaniesIDDelete implements DELETE /companies/{id} operation.
 	//
-	// Delete.
+	// Delete bank.
 	//
 	// DELETE /companies/{id}
 	CompaniesIDDelete(ctx context.Context, params CompaniesIDDeleteParams) error
@@ -70,7 +70,7 @@ type Handler interface {
 	CompaniesIDGet(ctx context.Context, params CompaniesIDGetParams) (*Company, error)
 	// CompaniesIDPut implements PUT /companies/{id} operation.
 	//
-	// Update.
+	// Update bank.
 	//
 	// PUT /companies/{id}
 	CompaniesIDPut(ctx context.Context, req *UpdateCompanyRequest, params CompaniesIDPutParams) (*Company, error)
@@ -82,7 +82,7 @@ type Handler interface {
 	CompaniesPost(ctx context.Context, req *CreateCompanyRequest) (*Company, error)
 	// UsersGet implements GET /users operation.
 	//
-	// Get user.
+	// Get users.
 	//
 	// GET /users
 	UsersGet(ctx context.Context, req *GetUserRequest) (UsersGetRes, error)
@@ -106,7 +106,7 @@ type Handler interface {
 	UsersIDPut(ctx context.Context, req *UpdateUserRequest, params UsersIDPutParams) (UsersIDPutRes, error)
 	// UsersPost implements POST /users operation.
 	//
-	// Create Users.
+	// Create User.
 	//
 	// POST /users
 	UsersPost(ctx context.Context, req *CreateUserRequest) (UsersPostRes, error)

@@ -15,7 +15,7 @@ var _ Handler = UnimplementedHandler{}
 
 // BanksIDGet implements GET /banks/{id} operation.
 //
-// Get information.
+// Get bank information.
 //
 // GET /banks/{id}
 func (UnimplementedHandler) BanksIDGet(ctx context.Context, params BanksIDGetParams) (r BanksIDGetRes, _ error) {
@@ -24,16 +24,16 @@ func (UnimplementedHandler) BanksIDGet(ctx context.Context, params BanksIDGetPar
 
 // BanksPost implements POST /banks operation.
 //
-// Create banks.
+// Create bank.
 //
 // POST /banks
-func (UnimplementedHandler) BanksPost(ctx context.Context, req *CreateBankRequest) (r *Bank, _ error) {
+func (UnimplementedHandler) BanksPost(ctx context.Context, req *BankBase) (r *Bank, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
 // BillsGet implements GET /bills operation.
 //
-// Get bill.
+// Get bills.
 //
 // GET /bills
 func (UnimplementedHandler) BillsGet(ctx context.Context, params BillsGetParams) (r *BillListResponse, _ error) {
@@ -51,7 +51,7 @@ func (UnimplementedHandler) BillsIDDelete(ctx context.Context, params BillsIDDel
 
 // BillsIDGet implements GET /bills/{id} operation.
 //
-// Get  direct bill.
+// Get  bill.
 //
 // GET /bills/{id}
 func (UnimplementedHandler) BillsIDGet(ctx context.Context, params BillsIDGetParams) (r *Bill, _ error) {
@@ -87,7 +87,7 @@ func (UnimplementedHandler) BillsPost(ctx context.Context, req *CreateBillReques
 
 // CompaniesIDDelete implements DELETE /companies/{id} operation.
 //
-// Delete.
+// Delete bank.
 //
 // DELETE /companies/{id}
 func (UnimplementedHandler) CompaniesIDDelete(ctx context.Context, params CompaniesIDDeleteParams) error {
@@ -105,7 +105,7 @@ func (UnimplementedHandler) CompaniesIDGet(ctx context.Context, params Companies
 
 // CompaniesIDPut implements PUT /companies/{id} operation.
 //
-// Update.
+// Update bank.
 //
 // PUT /companies/{id}
 func (UnimplementedHandler) CompaniesIDPut(ctx context.Context, req *UpdateCompanyRequest, params CompaniesIDPutParams) (r *Company, _ error) {
@@ -123,7 +123,7 @@ func (UnimplementedHandler) CompaniesPost(ctx context.Context, req *CreateCompan
 
 // UsersGet implements GET /users operation.
 //
-// Get user.
+// Get users.
 //
 // GET /users
 func (UnimplementedHandler) UsersGet(ctx context.Context, req *GetUserRequest) (r UsersGetRes, _ error) {
@@ -159,7 +159,7 @@ func (UnimplementedHandler) UsersIDPut(ctx context.Context, req *UpdateUserReque
 
 // UsersPost implements POST /users operation.
 //
-// Create Users.
+// Create User.
 //
 // POST /users
 func (UnimplementedHandler) UsersPost(ctx context.Context, req *CreateUserRequest) (r UsersPostRes, _ error) {
