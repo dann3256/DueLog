@@ -8,6 +8,12 @@ import (
 
 // Handler handles operations described by OpenAPI v3 specification.
 type Handler interface {
+	// Auth implements Auth operation.
+	//
+	// Authenticate User (Sign In or Sign Up).
+	//
+	// POST /auth
+	Auth(ctx context.Context, req *AuthReq) (AuthRes, error)
 	// BanksIDGet implements GET /banks/{id} operation.
 	//
 	// Get bank information.
@@ -19,67 +25,67 @@ type Handler interface {
 	// Create bank.
 	//
 	// POST /banks
-	BanksPost(ctx context.Context, req Name) (*Bank, error)
-	// BillsGet implements GET /bills operation.
-	//
-	// Get bills.
-	//
-	// GET /bills
-	BillsGet(ctx context.Context, params BillsGetParams) (*BillListResponse, error)
+	BanksPost(ctx context.Context, req *CreateBankRequest) (BanksPostRes, error)
 	// BillsIDDelete implements DELETE /bills/{id} operation.
 	//
 	// Delete bill.
 	//
 	// DELETE /bills/{id}
-	BillsIDDelete(ctx context.Context, params BillsIDDeleteParams) error
+	BillsIDDelete(ctx context.Context, params BillsIDDeleteParams) (BillsIDDeleteRes, error)
 	// BillsIDGet implements GET /bills/{id} operation.
 	//
 	// Get  bill.
 	//
 	// GET /bills/{id}
-	BillsIDGet(ctx context.Context, params BillsIDGetParams) (*Bill, error)
-	// BillsIDPaymentStatusPatch implements PATCH /bills/{id}/payment-status operation.
-	//
-	// Chenge payment-status.
-	//
-	// PATCH /bills/{id}/payment-status
-	BillsIDPaymentStatusPatch(ctx context.Context, req *UpdatePaymentStatusRequest, params BillsIDPaymentStatusPatchParams) (*Bill, error)
+	BillsIDGet(ctx context.Context, params BillsIDGetParams) (BillsIDGetRes, error)
 	// BillsIDPut implements PUT /bills/{id} operation.
 	//
 	// Update bill.
 	//
 	// PUT /bills/{id}
-	BillsIDPut(ctx context.Context, req *UpdateBillRequest, params BillsIDPutParams) (*Bill, error)
+	BillsIDPut(ctx context.Context, req *UpdateBillRequest, params BillsIDPutParams) (BillsIDPutRes, error)
 	// BillsPost implements POST /bills operation.
 	//
 	// Create bill.
 	//
 	// POST /bills
 	BillsPost(ctx context.Context, req *CreateBillRequest) (BillsPostRes, error)
+	// BillsStatementIDPut implements PUT /bills_statement/{id} operation.
+	//
+	// Change is_paid of bills.
+	//
+	// PUT /bills_statement/{id}
+	BillsStatementIDPut(ctx context.Context, params BillsStatementIDPutParams) (BillsStatementIDPutRes, error)
 	// CompaniesIDDelete implements DELETE /companies/{id} operation.
 	//
-	// Delete bank.
+	// Delete company.
 	//
 	// DELETE /companies/{id}
-	CompaniesIDDelete(ctx context.Context, params CompaniesIDDeleteParams) error
+	CompaniesIDDelete(ctx context.Context, params CompaniesIDDeleteParams) (CompaniesIDDeleteRes, error)
 	// CompaniesIDGet implements GET /companies/{id} operation.
 	//
 	// Get company information.
 	//
 	// GET /companies/{id}
-	CompaniesIDGet(ctx context.Context, params CompaniesIDGetParams) (*Company, error)
+	CompaniesIDGet(ctx context.Context, params CompaniesIDGetParams) (CompaniesIDGetRes, error)
 	// CompaniesIDPut implements PUT /companies/{id} operation.
 	//
-	// Update bank.
+	// Update company.
 	//
 	// PUT /companies/{id}
-	CompaniesIDPut(ctx context.Context, req *UpdateCompanyRequest, params CompaniesIDPutParams) (*Company, error)
+	CompaniesIDPut(ctx context.Context, params CompaniesIDPutParams) (CompaniesIDPutRes, error)
 	// CompaniesPost implements POST /companies operation.
 	//
 	// Create company.
 	//
 	// POST /companies
-	CompaniesPost(ctx context.Context, req *CreateCompanyRequest) (*Company, error)
+	CompaniesPost(ctx context.Context, req *CreateCompanyRequest) (CompaniesPostRes, error)
+	// PaydatePaymentDateGet implements GET /paydate/{payment_date} operation.
+	//
+	// Get bill by day.
+	//
+	// GET /paydate/{payment_date}
+	PaydatePaymentDateGet(ctx context.Context, params PaydatePaymentDateGetParams) (PaydatePaymentDateGetRes, error)
 	// UsersGet implements GET /users operation.
 	//
 	// Get users.
@@ -110,6 +116,10 @@ type Handler interface {
 	//
 	// POST /users
 	UsersPost(ctx context.Context, req *CreateUserRequest) (UsersPostRes, error)
+	// NewError creates *InternalServerErrorStatusCode from error returned by handler.
+	//
+	// Used for common default response.
+	NewError(ctx context.Context, err error) *InternalServerErrorStatusCode
 }
 
 // Server implements http server based on OpenAPI v3 specification and

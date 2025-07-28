@@ -3,7 +3,6 @@ CREATE TABLE banks (
   name VARCHAR(50) NOT NULL
 );
 
-
 CREATE TABLE companies (
   id SERIAL PRIMARY KEY,
   name VARCHAR(255) NOT NULL,
@@ -18,13 +17,15 @@ CREATE TABLE users (
   deleted_at TIMESTAMPTZ NULL
 );
 
+CREATE TYPE date AS ENUM ('current_month_end', 'next_month_15', 'next_month_20', 'next_month_end');
+
 CREATE TABLE bills (
   id SERIAL PRIMARY KEY,
   company_id INT NOT NULL REFERENCES companies (id),
   bank_id INT NOT NULL REFERENCES banks (id),
   amount INT NOT NULL,
   payment_limit INT NOT NULL,
-  payment_date DATE NOT NULL,
+  payment_date date NOT NULL,
   is_paid BOOLEAN NOT NULL DEFAULT FALSE,
   description TEXT,
   created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,

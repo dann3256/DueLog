@@ -13,6 +13,15 @@ type UnimplementedHandler struct{}
 
 var _ Handler = UnimplementedHandler{}
 
+// Auth implements Auth operation.
+//
+// Authenticate User (Sign In or Sign Up).
+//
+// POST /auth
+func (UnimplementedHandler) Auth(ctx context.Context, req *AuthReq) (r AuthRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // BanksIDGet implements GET /banks/{id} operation.
 //
 // Get bank information.
@@ -27,16 +36,7 @@ func (UnimplementedHandler) BanksIDGet(ctx context.Context, params BanksIDGetPar
 // Create bank.
 //
 // POST /banks
-func (UnimplementedHandler) BanksPost(ctx context.Context, req Name) (r *Bank, _ error) {
-	return r, ht.ErrNotImplemented
-}
-
-// BillsGet implements GET /bills operation.
-//
-// Get bills.
-//
-// GET /bills
-func (UnimplementedHandler) BillsGet(ctx context.Context, params BillsGetParams) (r *BillListResponse, _ error) {
+func (UnimplementedHandler) BanksPost(ctx context.Context, req *CreateBankRequest) (r BanksPostRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -45,8 +45,8 @@ func (UnimplementedHandler) BillsGet(ctx context.Context, params BillsGetParams)
 // Delete bill.
 //
 // DELETE /bills/{id}
-func (UnimplementedHandler) BillsIDDelete(ctx context.Context, params BillsIDDeleteParams) error {
-	return ht.ErrNotImplemented
+func (UnimplementedHandler) BillsIDDelete(ctx context.Context, params BillsIDDeleteParams) (r BillsIDDeleteRes, _ error) {
+	return r, ht.ErrNotImplemented
 }
 
 // BillsIDGet implements GET /bills/{id} operation.
@@ -54,16 +54,7 @@ func (UnimplementedHandler) BillsIDDelete(ctx context.Context, params BillsIDDel
 // Get  bill.
 //
 // GET /bills/{id}
-func (UnimplementedHandler) BillsIDGet(ctx context.Context, params BillsIDGetParams) (r *Bill, _ error) {
-	return r, ht.ErrNotImplemented
-}
-
-// BillsIDPaymentStatusPatch implements PATCH /bills/{id}/payment-status operation.
-//
-// Chenge payment-status.
-//
-// PATCH /bills/{id}/payment-status
-func (UnimplementedHandler) BillsIDPaymentStatusPatch(ctx context.Context, req *UpdatePaymentStatusRequest, params BillsIDPaymentStatusPatchParams) (r *Bill, _ error) {
+func (UnimplementedHandler) BillsIDGet(ctx context.Context, params BillsIDGetParams) (r BillsIDGetRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -72,7 +63,7 @@ func (UnimplementedHandler) BillsIDPaymentStatusPatch(ctx context.Context, req *
 // Update bill.
 //
 // PUT /bills/{id}
-func (UnimplementedHandler) BillsIDPut(ctx context.Context, req *UpdateBillRequest, params BillsIDPutParams) (r *Bill, _ error) {
+func (UnimplementedHandler) BillsIDPut(ctx context.Context, req *UpdateBillRequest, params BillsIDPutParams) (r BillsIDPutRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -85,13 +76,22 @@ func (UnimplementedHandler) BillsPost(ctx context.Context, req *CreateBillReques
 	return r, ht.ErrNotImplemented
 }
 
+// BillsStatementIDPut implements PUT /bills_statement/{id} operation.
+//
+// Change is_paid of bills.
+//
+// PUT /bills_statement/{id}
+func (UnimplementedHandler) BillsStatementIDPut(ctx context.Context, params BillsStatementIDPutParams) (r BillsStatementIDPutRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // CompaniesIDDelete implements DELETE /companies/{id} operation.
 //
-// Delete bank.
+// Delete company.
 //
 // DELETE /companies/{id}
-func (UnimplementedHandler) CompaniesIDDelete(ctx context.Context, params CompaniesIDDeleteParams) error {
-	return ht.ErrNotImplemented
+func (UnimplementedHandler) CompaniesIDDelete(ctx context.Context, params CompaniesIDDeleteParams) (r CompaniesIDDeleteRes, _ error) {
+	return r, ht.ErrNotImplemented
 }
 
 // CompaniesIDGet implements GET /companies/{id} operation.
@@ -99,16 +99,16 @@ func (UnimplementedHandler) CompaniesIDDelete(ctx context.Context, params Compan
 // Get company information.
 //
 // GET /companies/{id}
-func (UnimplementedHandler) CompaniesIDGet(ctx context.Context, params CompaniesIDGetParams) (r *Company, _ error) {
+func (UnimplementedHandler) CompaniesIDGet(ctx context.Context, params CompaniesIDGetParams) (r CompaniesIDGetRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
 // CompaniesIDPut implements PUT /companies/{id} operation.
 //
-// Update bank.
+// Update company.
 //
 // PUT /companies/{id}
-func (UnimplementedHandler) CompaniesIDPut(ctx context.Context, req *UpdateCompanyRequest, params CompaniesIDPutParams) (r *Company, _ error) {
+func (UnimplementedHandler) CompaniesIDPut(ctx context.Context, params CompaniesIDPutParams) (r CompaniesIDPutRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -117,7 +117,16 @@ func (UnimplementedHandler) CompaniesIDPut(ctx context.Context, req *UpdateCompa
 // Create company.
 //
 // POST /companies
-func (UnimplementedHandler) CompaniesPost(ctx context.Context, req *CreateCompanyRequest) (r *Company, _ error) {
+func (UnimplementedHandler) CompaniesPost(ctx context.Context, req *CreateCompanyRequest) (r CompaniesPostRes, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
+// PaydatePaymentDateGet implements GET /paydate/{payment_date} operation.
+//
+// Get bill by day.
+//
+// GET /paydate/{payment_date}
+func (UnimplementedHandler) PaydatePaymentDateGet(ctx context.Context, params PaydatePaymentDateGetParams) (r PaydatePaymentDateGetRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
@@ -164,4 +173,12 @@ func (UnimplementedHandler) UsersIDPut(ctx context.Context, req *UpdateUserReque
 // POST /users
 func (UnimplementedHandler) UsersPost(ctx context.Context, req *CreateUserRequest) (r UsersPostRes, _ error) {
 	return r, ht.ErrNotImplemented
+}
+
+// NewError creates *InternalServerErrorStatusCode from error returned by handler.
+//
+// Used for common default response.
+func (UnimplementedHandler) NewError(ctx context.Context, err error) (r *InternalServerErrorStatusCode) {
+	r = new(InternalServerErrorStatusCode)
+	return r
 }

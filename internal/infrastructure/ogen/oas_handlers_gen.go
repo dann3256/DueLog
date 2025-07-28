@@ -17,6 +17,7 @@ import (
 	ht "github.com/ogen-go/ogen/http"
 	"github.com/ogen-go/ogen/middleware"
 	"github.com/ogen-go/ogen/ogenerrors"
+	"github.com/ogen-go/ogen/otelogen"
 )
 
 type codeRecorder struct {
@@ -27,6 +28,155 @@ type codeRecorder struct {
 func (c *codeRecorder) WriteHeader(status int) {
 	c.status = status
 	c.ResponseWriter.WriteHeader(status)
+}
+
+// handleAuthRequest handles Auth operation.
+//
+// Authenticate User (Sign In or Sign Up).
+//
+// POST /auth
+func (s *Server) handleAuthRequest(args [0]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
+	statusWriter := &codeRecorder{ResponseWriter: w}
+	w = statusWriter
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("Auth"),
+		semconv.HTTPRequestMethodKey.String("POST"),
+		semconv.HTTPRouteKey.String("/auth"),
+	}
+
+	// Start a span for this request.
+	ctx, span := s.cfg.Tracer.Start(r.Context(), AuthOperation,
+		trace.WithAttributes(otelAttrs...),
+		serverSpanKind,
+	)
+	defer span.End()
+
+	// Add Labeler to context.
+	labeler := &Labeler{attrs: otelAttrs}
+	ctx = contextWithLabeler(ctx, labeler)
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		elapsedDuration := time.Since(startTime)
+
+		attrSet := labeler.AttributeSet()
+		attrs := attrSet.ToSlice()
+		code := statusWriter.status
+		if code != 0 {
+			codeAttr := semconv.HTTPResponseStatusCode(code)
+			attrs = append(attrs, codeAttr)
+			span.SetAttributes(codeAttr)
+		}
+		attrOpt := metric.WithAttributes(attrs...)
+
+		// Increment request counter.
+		s.requests.Add(ctx, 1, attrOpt)
+
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		s.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), attrOpt)
+	}()
+
+	var (
+		recordError = func(stage string, err error) {
+			span.RecordError(err)
+
+			// https://opentelemetry.io/docs/specs/semconv/http/http-spans/#status
+			// Span Status MUST be left unset if HTTP status code was in the 1xx, 2xx or 3xx ranges,
+			// unless there was another error (e.g., network error receiving the response body; or 3xx codes with
+			// max redirects exceeded), in which case status MUST be set to Error.
+			code := statusWriter.status
+			if code >= 100 && code < 500 {
+				span.SetStatus(codes.Error, stage)
+			}
+
+			attrSet := labeler.AttributeSet()
+			attrs := attrSet.ToSlice()
+			if code != 0 {
+				attrs = append(attrs, semconv.HTTPResponseStatusCode(code))
+			}
+
+			s.errors.Add(ctx, 1, metric.WithAttributes(attrs...))
+		}
+		err          error
+		opErrContext = ogenerrors.OperationContext{
+			Name: AuthOperation,
+			ID:   "Auth",
+		}
+	)
+	request, close, err := s.decodeAuthRequest(r)
+	if err != nil {
+		err = &ogenerrors.DecodeRequestError{
+			OperationContext: opErrContext,
+			Err:              err,
+		}
+		defer recordError("DecodeRequest", err)
+		s.cfg.ErrorHandler(ctx, w, r, err)
+		return
+	}
+	defer func() {
+		if err := close(); err != nil {
+			recordError("CloseRequest", err)
+		}
+	}()
+
+	var response AuthRes
+	if m := s.cfg.Middleware; m != nil {
+		mreq := middleware.Request{
+			Context:          ctx,
+			OperationName:    AuthOperation,
+			OperationSummary: "Authenticate User (Sign In or Sign Up)",
+			OperationID:      "Auth",
+			Body:             request,
+			Params:           middleware.Parameters{},
+			Raw:              r,
+		}
+
+		type (
+			Request  = *AuthReq
+			Params   = struct{}
+			Response = AuthRes
+		)
+		response, err = middleware.HookMiddleware[
+			Request,
+			Params,
+			Response,
+		](
+			m,
+			mreq,
+			nil,
+			func(ctx context.Context, request Request, params Params) (response Response, err error) {
+				response, err = s.h.Auth(ctx, request)
+				return response, err
+			},
+		)
+	} else {
+		response, err = s.h.Auth(ctx, request)
+	}
+	if err != nil {
+		if errRes, ok := errors.Into[*InternalServerErrorStatusCode](err); ok {
+			if err := encodeErrorResponse(errRes, w, span); err != nil {
+				defer recordError("Internal", err)
+			}
+			return
+		}
+		if errors.Is(err, ht.ErrNotImplemented) {
+			s.cfg.ErrorHandler(ctx, w, r, err)
+			return
+		}
+		if err := encodeErrorResponse(s.h.NewError(ctx, err), w, span); err != nil {
+			defer recordError("Internal", err)
+		}
+		return
+	}
+
+	if err := encodeAuthResponse(response, w, span); err != nil {
+		defer recordError("EncodeResponse", err)
+		if !errors.Is(err, ht.ErrInternalServerErrorResponse) {
+			s.cfg.ErrorHandler(ctx, w, r, err)
+		}
+		return
+	}
 }
 
 // handleBanksIDGetRequest handles GET /banks/{id} operation.
@@ -152,8 +302,19 @@ func (s *Server) handleBanksIDGetRequest(args [1]string, argsEscaped bool, w htt
 		response, err = s.h.BanksIDGet(ctx, params)
 	}
 	if err != nil {
-		defer recordError("Internal", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
+		if errRes, ok := errors.Into[*InternalServerErrorStatusCode](err); ok {
+			if err := encodeErrorResponse(errRes, w, span); err != nil {
+				defer recordError("Internal", err)
+			}
+			return
+		}
+		if errors.Is(err, ht.ErrNotImplemented) {
+			s.cfg.ErrorHandler(ctx, w, r, err)
+			return
+		}
+		if err := encodeErrorResponse(s.h.NewError(ctx, err), w, span); err != nil {
+			defer recordError("Internal", err)
+		}
 		return
 	}
 
@@ -255,7 +416,7 @@ func (s *Server) handleBanksPostRequest(args [0]string, argsEscaped bool, w http
 		}
 	}()
 
-	var response *Bank
+	var response BanksPostRes
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:          ctx,
@@ -268,9 +429,9 @@ func (s *Server) handleBanksPostRequest(args [0]string, argsEscaped bool, w http
 		}
 
 		type (
-			Request  = Name
+			Request  = *CreateBankRequest
 			Params   = struct{}
-			Response = *Bank
+			Response = BanksPostRes
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -289,153 +450,23 @@ func (s *Server) handleBanksPostRequest(args [0]string, argsEscaped bool, w http
 		response, err = s.h.BanksPost(ctx, request)
 	}
 	if err != nil {
-		defer recordError("Internal", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
+		if errRes, ok := errors.Into[*InternalServerErrorStatusCode](err); ok {
+			if err := encodeErrorResponse(errRes, w, span); err != nil {
+				defer recordError("Internal", err)
+			}
+			return
+		}
+		if errors.Is(err, ht.ErrNotImplemented) {
+			s.cfg.ErrorHandler(ctx, w, r, err)
+			return
+		}
+		if err := encodeErrorResponse(s.h.NewError(ctx, err), w, span); err != nil {
+			defer recordError("Internal", err)
+		}
 		return
 	}
 
 	if err := encodeBanksPostResponse(response, w, span); err != nil {
-		defer recordError("EncodeResponse", err)
-		if !errors.Is(err, ht.ErrInternalServerErrorResponse) {
-			s.cfg.ErrorHandler(ctx, w, r, err)
-		}
-		return
-	}
-}
-
-// handleBillsGetRequest handles GET /bills operation.
-//
-// Get bills.
-//
-// GET /bills
-func (s *Server) handleBillsGetRequest(args [0]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
-	statusWriter := &codeRecorder{ResponseWriter: w}
-	w = statusWriter
-	otelAttrs := []attribute.KeyValue{
-		semconv.HTTPRequestMethodKey.String("GET"),
-		semconv.HTTPRouteKey.String("/bills"),
-	}
-
-	// Start a span for this request.
-	ctx, span := s.cfg.Tracer.Start(r.Context(), BillsGetOperation,
-		trace.WithAttributes(otelAttrs...),
-		serverSpanKind,
-	)
-	defer span.End()
-
-	// Add Labeler to context.
-	labeler := &Labeler{attrs: otelAttrs}
-	ctx = contextWithLabeler(ctx, labeler)
-
-	// Run stopwatch.
-	startTime := time.Now()
-	defer func() {
-		elapsedDuration := time.Since(startTime)
-
-		attrSet := labeler.AttributeSet()
-		attrs := attrSet.ToSlice()
-		code := statusWriter.status
-		if code != 0 {
-			codeAttr := semconv.HTTPResponseStatusCode(code)
-			attrs = append(attrs, codeAttr)
-			span.SetAttributes(codeAttr)
-		}
-		attrOpt := metric.WithAttributes(attrs...)
-
-		// Increment request counter.
-		s.requests.Add(ctx, 1, attrOpt)
-
-		// Use floating point division here for higher precision (instead of Millisecond method).
-		s.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), attrOpt)
-	}()
-
-	var (
-		recordError = func(stage string, err error) {
-			span.RecordError(err)
-
-			// https://opentelemetry.io/docs/specs/semconv/http/http-spans/#status
-			// Span Status MUST be left unset if HTTP status code was in the 1xx, 2xx or 3xx ranges,
-			// unless there was another error (e.g., network error receiving the response body; or 3xx codes with
-			// max redirects exceeded), in which case status MUST be set to Error.
-			code := statusWriter.status
-			if code >= 100 && code < 500 {
-				span.SetStatus(codes.Error, stage)
-			}
-
-			attrSet := labeler.AttributeSet()
-			attrs := attrSet.ToSlice()
-			if code != 0 {
-				attrs = append(attrs, semconv.HTTPResponseStatusCode(code))
-			}
-
-			s.errors.Add(ctx, 1, metric.WithAttributes(attrs...))
-		}
-		err          error
-		opErrContext = ogenerrors.OperationContext{
-			Name: BillsGetOperation,
-			ID:   "",
-		}
-	)
-	params, err := decodeBillsGetParams(args, argsEscaped, r)
-	if err != nil {
-		err = &ogenerrors.DecodeParamsError{
-			OperationContext: opErrContext,
-			Err:              err,
-		}
-		defer recordError("DecodeParams", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
-
-	var response *BillListResponse
-	if m := s.cfg.Middleware; m != nil {
-		mreq := middleware.Request{
-			Context:          ctx,
-			OperationName:    BillsGetOperation,
-			OperationSummary: "get bills",
-			OperationID:      "",
-			Body:             nil,
-			Params: middleware.Parameters{
-				{
-					Name: "payment_date",
-					In:   "query",
-				}: params.PaymentDate,
-				{
-					Name: "is_paid",
-					In:   "query",
-				}: params.IsPaid,
-			},
-			Raw: r,
-		}
-
-		type (
-			Request  = struct{}
-			Params   = BillsGetParams
-			Response = *BillListResponse
-		)
-		response, err = middleware.HookMiddleware[
-			Request,
-			Params,
-			Response,
-		](
-			m,
-			mreq,
-			unpackBillsGetParams,
-			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.BillsGet(ctx, params)
-				return response, err
-			},
-		)
-	} else {
-		response, err = s.h.BillsGet(ctx, params)
-	}
-	if err != nil {
-		defer recordError("Internal", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
-
-	if err := encodeBillsGetResponse(response, w, span); err != nil {
 		defer recordError("EncodeResponse", err)
 		if !errors.Is(err, ht.ErrInternalServerErrorResponse) {
 			s.cfg.ErrorHandler(ctx, w, r, err)
@@ -528,7 +559,7 @@ func (s *Server) handleBillsIDDeleteRequest(args [1]string, argsEscaped bool, w 
 		return
 	}
 
-	var response *BillsIDDeleteNoContent
+	var response BillsIDDeleteRes
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:          ctx,
@@ -548,7 +579,7 @@ func (s *Server) handleBillsIDDeleteRequest(args [1]string, argsEscaped bool, w 
 		type (
 			Request  = struct{}
 			Params   = BillsIDDeleteParams
-			Response = *BillsIDDeleteNoContent
+			Response = BillsIDDeleteRes
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -559,16 +590,27 @@ func (s *Server) handleBillsIDDeleteRequest(args [1]string, argsEscaped bool, w 
 			mreq,
 			unpackBillsIDDeleteParams,
 			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				err = s.h.BillsIDDelete(ctx, params)
+				response, err = s.h.BillsIDDelete(ctx, params)
 				return response, err
 			},
 		)
 	} else {
-		err = s.h.BillsIDDelete(ctx, params)
+		response, err = s.h.BillsIDDelete(ctx, params)
 	}
 	if err != nil {
-		defer recordError("Internal", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
+		if errRes, ok := errors.Into[*InternalServerErrorStatusCode](err); ok {
+			if err := encodeErrorResponse(errRes, w, span); err != nil {
+				defer recordError("Internal", err)
+			}
+			return
+		}
+		if errors.Is(err, ht.ErrNotImplemented) {
+			s.cfg.ErrorHandler(ctx, w, r, err)
+			return
+		}
+		if err := encodeErrorResponse(s.h.NewError(ctx, err), w, span); err != nil {
+			defer recordError("Internal", err)
+		}
 		return
 	}
 
@@ -665,7 +707,7 @@ func (s *Server) handleBillsIDGetRequest(args [1]string, argsEscaped bool, w htt
 		return
 	}
 
-	var response *Bill
+	var response BillsIDGetRes
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:          ctx,
@@ -685,7 +727,7 @@ func (s *Server) handleBillsIDGetRequest(args [1]string, argsEscaped bool, w htt
 		type (
 			Request  = struct{}
 			Params   = BillsIDGetParams
-			Response = *Bill
+			Response = BillsIDGetRes
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -704,164 +746,23 @@ func (s *Server) handleBillsIDGetRequest(args [1]string, argsEscaped bool, w htt
 		response, err = s.h.BillsIDGet(ctx, params)
 	}
 	if err != nil {
-		defer recordError("Internal", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
+		if errRes, ok := errors.Into[*InternalServerErrorStatusCode](err); ok {
+			if err := encodeErrorResponse(errRes, w, span); err != nil {
+				defer recordError("Internal", err)
+			}
+			return
+		}
+		if errors.Is(err, ht.ErrNotImplemented) {
+			s.cfg.ErrorHandler(ctx, w, r, err)
+			return
+		}
+		if err := encodeErrorResponse(s.h.NewError(ctx, err), w, span); err != nil {
+			defer recordError("Internal", err)
+		}
 		return
 	}
 
 	if err := encodeBillsIDGetResponse(response, w, span); err != nil {
-		defer recordError("EncodeResponse", err)
-		if !errors.Is(err, ht.ErrInternalServerErrorResponse) {
-			s.cfg.ErrorHandler(ctx, w, r, err)
-		}
-		return
-	}
-}
-
-// handleBillsIDPaymentStatusPatchRequest handles PATCH /bills/{id}/payment-status operation.
-//
-// Chenge payment-status.
-//
-// PATCH /bills/{id}/payment-status
-func (s *Server) handleBillsIDPaymentStatusPatchRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
-	statusWriter := &codeRecorder{ResponseWriter: w}
-	w = statusWriter
-	otelAttrs := []attribute.KeyValue{
-		semconv.HTTPRequestMethodKey.String("PATCH"),
-		semconv.HTTPRouteKey.String("/bills/{id}/payment-status"),
-	}
-
-	// Start a span for this request.
-	ctx, span := s.cfg.Tracer.Start(r.Context(), BillsIDPaymentStatusPatchOperation,
-		trace.WithAttributes(otelAttrs...),
-		serverSpanKind,
-	)
-	defer span.End()
-
-	// Add Labeler to context.
-	labeler := &Labeler{attrs: otelAttrs}
-	ctx = contextWithLabeler(ctx, labeler)
-
-	// Run stopwatch.
-	startTime := time.Now()
-	defer func() {
-		elapsedDuration := time.Since(startTime)
-
-		attrSet := labeler.AttributeSet()
-		attrs := attrSet.ToSlice()
-		code := statusWriter.status
-		if code != 0 {
-			codeAttr := semconv.HTTPResponseStatusCode(code)
-			attrs = append(attrs, codeAttr)
-			span.SetAttributes(codeAttr)
-		}
-		attrOpt := metric.WithAttributes(attrs...)
-
-		// Increment request counter.
-		s.requests.Add(ctx, 1, attrOpt)
-
-		// Use floating point division here for higher precision (instead of Millisecond method).
-		s.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), attrOpt)
-	}()
-
-	var (
-		recordError = func(stage string, err error) {
-			span.RecordError(err)
-
-			// https://opentelemetry.io/docs/specs/semconv/http/http-spans/#status
-			// Span Status MUST be left unset if HTTP status code was in the 1xx, 2xx or 3xx ranges,
-			// unless there was another error (e.g., network error receiving the response body; or 3xx codes with
-			// max redirects exceeded), in which case status MUST be set to Error.
-			code := statusWriter.status
-			if code >= 100 && code < 500 {
-				span.SetStatus(codes.Error, stage)
-			}
-
-			attrSet := labeler.AttributeSet()
-			attrs := attrSet.ToSlice()
-			if code != 0 {
-				attrs = append(attrs, semconv.HTTPResponseStatusCode(code))
-			}
-
-			s.errors.Add(ctx, 1, metric.WithAttributes(attrs...))
-		}
-		err          error
-		opErrContext = ogenerrors.OperationContext{
-			Name: BillsIDPaymentStatusPatchOperation,
-			ID:   "",
-		}
-	)
-	params, err := decodeBillsIDPaymentStatusPatchParams(args, argsEscaped, r)
-	if err != nil {
-		err = &ogenerrors.DecodeParamsError{
-			OperationContext: opErrContext,
-			Err:              err,
-		}
-		defer recordError("DecodeParams", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
-	request, close, err := s.decodeBillsIDPaymentStatusPatchRequest(r)
-	if err != nil {
-		err = &ogenerrors.DecodeRequestError{
-			OperationContext: opErrContext,
-			Err:              err,
-		}
-		defer recordError("DecodeRequest", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
-	defer func() {
-		if err := close(); err != nil {
-			recordError("CloseRequest", err)
-		}
-	}()
-
-	var response *Bill
-	if m := s.cfg.Middleware; m != nil {
-		mreq := middleware.Request{
-			Context:          ctx,
-			OperationName:    BillsIDPaymentStatusPatchOperation,
-			OperationSummary: "chenge payment-status",
-			OperationID:      "",
-			Body:             request,
-			Params: middleware.Parameters{
-				{
-					Name: "id",
-					In:   "path",
-				}: params.ID,
-			},
-			Raw: r,
-		}
-
-		type (
-			Request  = *UpdatePaymentStatusRequest
-			Params   = BillsIDPaymentStatusPatchParams
-			Response = *Bill
-		)
-		response, err = middleware.HookMiddleware[
-			Request,
-			Params,
-			Response,
-		](
-			m,
-			mreq,
-			unpackBillsIDPaymentStatusPatchParams,
-			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.BillsIDPaymentStatusPatch(ctx, request, params)
-				return response, err
-			},
-		)
-	} else {
-		response, err = s.h.BillsIDPaymentStatusPatch(ctx, request, params)
-	}
-	if err != nil {
-		defer recordError("Internal", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
-
-	if err := encodeBillsIDPaymentStatusPatchResponse(response, w, span); err != nil {
 		defer recordError("EncodeResponse", err)
 		if !errors.Is(err, ht.ErrInternalServerErrorResponse) {
 			s.cfg.ErrorHandler(ctx, w, r, err)
@@ -969,7 +870,7 @@ func (s *Server) handleBillsIDPutRequest(args [1]string, argsEscaped bool, w htt
 		}
 	}()
 
-	var response *Bill
+	var response BillsIDPutRes
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:          ctx,
@@ -989,7 +890,7 @@ func (s *Server) handleBillsIDPutRequest(args [1]string, argsEscaped bool, w htt
 		type (
 			Request  = *UpdateBillRequest
 			Params   = BillsIDPutParams
-			Response = *Bill
+			Response = BillsIDPutRes
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -1008,8 +909,19 @@ func (s *Server) handleBillsIDPutRequest(args [1]string, argsEscaped bool, w htt
 		response, err = s.h.BillsIDPut(ctx, request, params)
 	}
 	if err != nil {
-		defer recordError("Internal", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
+		if errRes, ok := errors.Into[*InternalServerErrorStatusCode](err); ok {
+			if err := encodeErrorResponse(errRes, w, span); err != nil {
+				defer recordError("Internal", err)
+			}
+			return
+		}
+		if errors.Is(err, ht.ErrNotImplemented) {
+			s.cfg.ErrorHandler(ctx, w, r, err)
+			return
+		}
+		if err := encodeErrorResponse(s.h.NewError(ctx, err), w, span); err != nil {
+			defer recordError("Internal", err)
+		}
 		return
 	}
 
@@ -1145,8 +1057,19 @@ func (s *Server) handleBillsPostRequest(args [0]string, argsEscaped bool, w http
 		response, err = s.h.BillsPost(ctx, request)
 	}
 	if err != nil {
-		defer recordError("Internal", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
+		if errRes, ok := errors.Into[*InternalServerErrorStatusCode](err); ok {
+			if err := encodeErrorResponse(errRes, w, span); err != nil {
+				defer recordError("Internal", err)
+			}
+			return
+		}
+		if errors.Is(err, ht.ErrNotImplemented) {
+			s.cfg.ErrorHandler(ctx, w, r, err)
+			return
+		}
+		if err := encodeErrorResponse(s.h.NewError(ctx, err), w, span); err != nil {
+			defer recordError("Internal", err)
+		}
 		return
 	}
 
@@ -1159,9 +1082,157 @@ func (s *Server) handleBillsPostRequest(args [0]string, argsEscaped bool, w http
 	}
 }
 
+// handleBillsStatementIDPutRequest handles PUT /bills_statement/{id} operation.
+//
+// Change is_paid of bills.
+//
+// PUT /bills_statement/{id}
+func (s *Server) handleBillsStatementIDPutRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
+	statusWriter := &codeRecorder{ResponseWriter: w}
+	w = statusWriter
+	otelAttrs := []attribute.KeyValue{
+		semconv.HTTPRequestMethodKey.String("PUT"),
+		semconv.HTTPRouteKey.String("/bills_statement/{id}"),
+	}
+
+	// Start a span for this request.
+	ctx, span := s.cfg.Tracer.Start(r.Context(), BillsStatementIDPutOperation,
+		trace.WithAttributes(otelAttrs...),
+		serverSpanKind,
+	)
+	defer span.End()
+
+	// Add Labeler to context.
+	labeler := &Labeler{attrs: otelAttrs}
+	ctx = contextWithLabeler(ctx, labeler)
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		elapsedDuration := time.Since(startTime)
+
+		attrSet := labeler.AttributeSet()
+		attrs := attrSet.ToSlice()
+		code := statusWriter.status
+		if code != 0 {
+			codeAttr := semconv.HTTPResponseStatusCode(code)
+			attrs = append(attrs, codeAttr)
+			span.SetAttributes(codeAttr)
+		}
+		attrOpt := metric.WithAttributes(attrs...)
+
+		// Increment request counter.
+		s.requests.Add(ctx, 1, attrOpt)
+
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		s.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), attrOpt)
+	}()
+
+	var (
+		recordError = func(stage string, err error) {
+			span.RecordError(err)
+
+			// https://opentelemetry.io/docs/specs/semconv/http/http-spans/#status
+			// Span Status MUST be left unset if HTTP status code was in the 1xx, 2xx or 3xx ranges,
+			// unless there was another error (e.g., network error receiving the response body; or 3xx codes with
+			// max redirects exceeded), in which case status MUST be set to Error.
+			code := statusWriter.status
+			if code >= 100 && code < 500 {
+				span.SetStatus(codes.Error, stage)
+			}
+
+			attrSet := labeler.AttributeSet()
+			attrs := attrSet.ToSlice()
+			if code != 0 {
+				attrs = append(attrs, semconv.HTTPResponseStatusCode(code))
+			}
+
+			s.errors.Add(ctx, 1, metric.WithAttributes(attrs...))
+		}
+		err          error
+		opErrContext = ogenerrors.OperationContext{
+			Name: BillsStatementIDPutOperation,
+			ID:   "",
+		}
+	)
+	params, err := decodeBillsStatementIDPutParams(args, argsEscaped, r)
+	if err != nil {
+		err = &ogenerrors.DecodeParamsError{
+			OperationContext: opErrContext,
+			Err:              err,
+		}
+		defer recordError("DecodeParams", err)
+		s.cfg.ErrorHandler(ctx, w, r, err)
+		return
+	}
+
+	var response BillsStatementIDPutRes
+	if m := s.cfg.Middleware; m != nil {
+		mreq := middleware.Request{
+			Context:          ctx,
+			OperationName:    BillsStatementIDPutOperation,
+			OperationSummary: "change is_paid of bills",
+			OperationID:      "",
+			Body:             nil,
+			Params: middleware.Parameters{
+				{
+					Name: "id",
+					In:   "path",
+				}: params.ID,
+			},
+			Raw: r,
+		}
+
+		type (
+			Request  = struct{}
+			Params   = BillsStatementIDPutParams
+			Response = BillsStatementIDPutRes
+		)
+		response, err = middleware.HookMiddleware[
+			Request,
+			Params,
+			Response,
+		](
+			m,
+			mreq,
+			unpackBillsStatementIDPutParams,
+			func(ctx context.Context, request Request, params Params) (response Response, err error) {
+				response, err = s.h.BillsStatementIDPut(ctx, params)
+				return response, err
+			},
+		)
+	} else {
+		response, err = s.h.BillsStatementIDPut(ctx, params)
+	}
+	if err != nil {
+		if errRes, ok := errors.Into[*InternalServerErrorStatusCode](err); ok {
+			if err := encodeErrorResponse(errRes, w, span); err != nil {
+				defer recordError("Internal", err)
+			}
+			return
+		}
+		if errors.Is(err, ht.ErrNotImplemented) {
+			s.cfg.ErrorHandler(ctx, w, r, err)
+			return
+		}
+		if err := encodeErrorResponse(s.h.NewError(ctx, err), w, span); err != nil {
+			defer recordError("Internal", err)
+		}
+		return
+	}
+
+	if err := encodeBillsStatementIDPutResponse(response, w, span); err != nil {
+		defer recordError("EncodeResponse", err)
+		if !errors.Is(err, ht.ErrInternalServerErrorResponse) {
+			s.cfg.ErrorHandler(ctx, w, r, err)
+		}
+		return
+	}
+}
+
 // handleCompaniesIDDeleteRequest handles DELETE /companies/{id} operation.
 //
-// Delete bank.
+// Delete company.
 //
 // DELETE /companies/{id}
 func (s *Server) handleCompaniesIDDeleteRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
@@ -1243,12 +1314,12 @@ func (s *Server) handleCompaniesIDDeleteRequest(args [1]string, argsEscaped bool
 		return
 	}
 
-	var response *CompaniesIDDeleteNoContent
+	var response CompaniesIDDeleteRes
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:          ctx,
 			OperationName:    CompaniesIDDeleteOperation,
-			OperationSummary: "delete bank",
+			OperationSummary: "delete company",
 			OperationID:      "",
 			Body:             nil,
 			Params: middleware.Parameters{
@@ -1263,7 +1334,7 @@ func (s *Server) handleCompaniesIDDeleteRequest(args [1]string, argsEscaped bool
 		type (
 			Request  = struct{}
 			Params   = CompaniesIDDeleteParams
-			Response = *CompaniesIDDeleteNoContent
+			Response = CompaniesIDDeleteRes
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -1274,16 +1345,27 @@ func (s *Server) handleCompaniesIDDeleteRequest(args [1]string, argsEscaped bool
 			mreq,
 			unpackCompaniesIDDeleteParams,
 			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				err = s.h.CompaniesIDDelete(ctx, params)
+				response, err = s.h.CompaniesIDDelete(ctx, params)
 				return response, err
 			},
 		)
 	} else {
-		err = s.h.CompaniesIDDelete(ctx, params)
+		response, err = s.h.CompaniesIDDelete(ctx, params)
 	}
 	if err != nil {
-		defer recordError("Internal", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
+		if errRes, ok := errors.Into[*InternalServerErrorStatusCode](err); ok {
+			if err := encodeErrorResponse(errRes, w, span); err != nil {
+				defer recordError("Internal", err)
+			}
+			return
+		}
+		if errors.Is(err, ht.ErrNotImplemented) {
+			s.cfg.ErrorHandler(ctx, w, r, err)
+			return
+		}
+		if err := encodeErrorResponse(s.h.NewError(ctx, err), w, span); err != nil {
+			defer recordError("Internal", err)
+		}
 		return
 	}
 
@@ -1380,7 +1462,7 @@ func (s *Server) handleCompaniesIDGetRequest(args [1]string, argsEscaped bool, w
 		return
 	}
 
-	var response *Company
+	var response CompaniesIDGetRes
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:          ctx,
@@ -1400,7 +1482,7 @@ func (s *Server) handleCompaniesIDGetRequest(args [1]string, argsEscaped bool, w
 		type (
 			Request  = struct{}
 			Params   = CompaniesIDGetParams
-			Response = *Company
+			Response = CompaniesIDGetRes
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -1419,8 +1501,19 @@ func (s *Server) handleCompaniesIDGetRequest(args [1]string, argsEscaped bool, w
 		response, err = s.h.CompaniesIDGet(ctx, params)
 	}
 	if err != nil {
-		defer recordError("Internal", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
+		if errRes, ok := errors.Into[*InternalServerErrorStatusCode](err); ok {
+			if err := encodeErrorResponse(errRes, w, span); err != nil {
+				defer recordError("Internal", err)
+			}
+			return
+		}
+		if errors.Is(err, ht.ErrNotImplemented) {
+			s.cfg.ErrorHandler(ctx, w, r, err)
+			return
+		}
+		if err := encodeErrorResponse(s.h.NewError(ctx, err), w, span); err != nil {
+			defer recordError("Internal", err)
+		}
 		return
 	}
 
@@ -1435,7 +1528,7 @@ func (s *Server) handleCompaniesIDGetRequest(args [1]string, argsEscaped bool, w
 
 // handleCompaniesIDPutRequest handles PUT /companies/{id} operation.
 //
-// Update bank.
+// Update company.
 //
 // PUT /companies/{id}
 func (s *Server) handleCompaniesIDPutRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
@@ -1516,30 +1609,15 @@ func (s *Server) handleCompaniesIDPutRequest(args [1]string, argsEscaped bool, w
 		s.cfg.ErrorHandler(ctx, w, r, err)
 		return
 	}
-	request, close, err := s.decodeCompaniesIDPutRequest(r)
-	if err != nil {
-		err = &ogenerrors.DecodeRequestError{
-			OperationContext: opErrContext,
-			Err:              err,
-		}
-		defer recordError("DecodeRequest", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
-	defer func() {
-		if err := close(); err != nil {
-			recordError("CloseRequest", err)
-		}
-	}()
 
-	var response *Company
+	var response CompaniesIDPutRes
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:          ctx,
 			OperationName:    CompaniesIDPutOperation,
-			OperationSummary: "update bank",
+			OperationSummary: "update company",
 			OperationID:      "",
-			Body:             request,
+			Body:             nil,
 			Params: middleware.Parameters{
 				{
 					Name: "id",
@@ -1550,9 +1628,9 @@ func (s *Server) handleCompaniesIDPutRequest(args [1]string, argsEscaped bool, w
 		}
 
 		type (
-			Request  = *UpdateCompanyRequest
+			Request  = struct{}
 			Params   = CompaniesIDPutParams
-			Response = *Company
+			Response = CompaniesIDPutRes
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -1563,16 +1641,27 @@ func (s *Server) handleCompaniesIDPutRequest(args [1]string, argsEscaped bool, w
 			mreq,
 			unpackCompaniesIDPutParams,
 			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.CompaniesIDPut(ctx, request, params)
+				response, err = s.h.CompaniesIDPut(ctx, params)
 				return response, err
 			},
 		)
 	} else {
-		response, err = s.h.CompaniesIDPut(ctx, request, params)
+		response, err = s.h.CompaniesIDPut(ctx, params)
 	}
 	if err != nil {
-		defer recordError("Internal", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
+		if errRes, ok := errors.Into[*InternalServerErrorStatusCode](err); ok {
+			if err := encodeErrorResponse(errRes, w, span); err != nil {
+				defer recordError("Internal", err)
+			}
+			return
+		}
+		if errors.Is(err, ht.ErrNotImplemented) {
+			s.cfg.ErrorHandler(ctx, w, r, err)
+			return
+		}
+		if err := encodeErrorResponse(s.h.NewError(ctx, err), w, span); err != nil {
+			defer recordError("Internal", err)
+		}
 		return
 	}
 
@@ -1674,7 +1763,7 @@ func (s *Server) handleCompaniesPostRequest(args [0]string, argsEscaped bool, w 
 		}
 	}()
 
-	var response *Company
+	var response CompaniesPostRes
 	if m := s.cfg.Middleware; m != nil {
 		mreq := middleware.Request{
 			Context:          ctx,
@@ -1689,7 +1778,7 @@ func (s *Server) handleCompaniesPostRequest(args [0]string, argsEscaped bool, w 
 		type (
 			Request  = *CreateCompanyRequest
 			Params   = struct{}
-			Response = *Company
+			Response = CompaniesPostRes
 		)
 		response, err = middleware.HookMiddleware[
 			Request,
@@ -1708,12 +1797,171 @@ func (s *Server) handleCompaniesPostRequest(args [0]string, argsEscaped bool, w 
 		response, err = s.h.CompaniesPost(ctx, request)
 	}
 	if err != nil {
-		defer recordError("Internal", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
+		if errRes, ok := errors.Into[*InternalServerErrorStatusCode](err); ok {
+			if err := encodeErrorResponse(errRes, w, span); err != nil {
+				defer recordError("Internal", err)
+			}
+			return
+		}
+		if errors.Is(err, ht.ErrNotImplemented) {
+			s.cfg.ErrorHandler(ctx, w, r, err)
+			return
+		}
+		if err := encodeErrorResponse(s.h.NewError(ctx, err), w, span); err != nil {
+			defer recordError("Internal", err)
+		}
 		return
 	}
 
 	if err := encodeCompaniesPostResponse(response, w, span); err != nil {
+		defer recordError("EncodeResponse", err)
+		if !errors.Is(err, ht.ErrInternalServerErrorResponse) {
+			s.cfg.ErrorHandler(ctx, w, r, err)
+		}
+		return
+	}
+}
+
+// handlePaydatePaymentDateGetRequest handles GET /paydate/{payment_date} operation.
+//
+// Get bill by day.
+//
+// GET /paydate/{payment_date}
+func (s *Server) handlePaydatePaymentDateGetRequest(args [1]string, argsEscaped bool, w http.ResponseWriter, r *http.Request) {
+	statusWriter := &codeRecorder{ResponseWriter: w}
+	w = statusWriter
+	otelAttrs := []attribute.KeyValue{
+		semconv.HTTPRequestMethodKey.String("GET"),
+		semconv.HTTPRouteKey.String("/paydate/{payment_date}"),
+	}
+
+	// Start a span for this request.
+	ctx, span := s.cfg.Tracer.Start(r.Context(), PaydatePaymentDateGetOperation,
+		trace.WithAttributes(otelAttrs...),
+		serverSpanKind,
+	)
+	defer span.End()
+
+	// Add Labeler to context.
+	labeler := &Labeler{attrs: otelAttrs}
+	ctx = contextWithLabeler(ctx, labeler)
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		elapsedDuration := time.Since(startTime)
+
+		attrSet := labeler.AttributeSet()
+		attrs := attrSet.ToSlice()
+		code := statusWriter.status
+		if code != 0 {
+			codeAttr := semconv.HTTPResponseStatusCode(code)
+			attrs = append(attrs, codeAttr)
+			span.SetAttributes(codeAttr)
+		}
+		attrOpt := metric.WithAttributes(attrs...)
+
+		// Increment request counter.
+		s.requests.Add(ctx, 1, attrOpt)
+
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		s.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), attrOpt)
+	}()
+
+	var (
+		recordError = func(stage string, err error) {
+			span.RecordError(err)
+
+			// https://opentelemetry.io/docs/specs/semconv/http/http-spans/#status
+			// Span Status MUST be left unset if HTTP status code was in the 1xx, 2xx or 3xx ranges,
+			// unless there was another error (e.g., network error receiving the response body; or 3xx codes with
+			// max redirects exceeded), in which case status MUST be set to Error.
+			code := statusWriter.status
+			if code >= 100 && code < 500 {
+				span.SetStatus(codes.Error, stage)
+			}
+
+			attrSet := labeler.AttributeSet()
+			attrs := attrSet.ToSlice()
+			if code != 0 {
+				attrs = append(attrs, semconv.HTTPResponseStatusCode(code))
+			}
+
+			s.errors.Add(ctx, 1, metric.WithAttributes(attrs...))
+		}
+		err          error
+		opErrContext = ogenerrors.OperationContext{
+			Name: PaydatePaymentDateGetOperation,
+			ID:   "",
+		}
+	)
+	params, err := decodePaydatePaymentDateGetParams(args, argsEscaped, r)
+	if err != nil {
+		err = &ogenerrors.DecodeParamsError{
+			OperationContext: opErrContext,
+			Err:              err,
+		}
+		defer recordError("DecodeParams", err)
+		s.cfg.ErrorHandler(ctx, w, r, err)
+		return
+	}
+
+	var response PaydatePaymentDateGetRes
+	if m := s.cfg.Middleware; m != nil {
+		mreq := middleware.Request{
+			Context:          ctx,
+			OperationName:    PaydatePaymentDateGetOperation,
+			OperationSummary: "get bill by day",
+			OperationID:      "",
+			Body:             nil,
+			Params: middleware.Parameters{
+				{
+					Name: "payment_date",
+					In:   "path",
+				}: params.PaymentDate,
+			},
+			Raw: r,
+		}
+
+		type (
+			Request  = struct{}
+			Params   = PaydatePaymentDateGetParams
+			Response = PaydatePaymentDateGetRes
+		)
+		response, err = middleware.HookMiddleware[
+			Request,
+			Params,
+			Response,
+		](
+			m,
+			mreq,
+			unpackPaydatePaymentDateGetParams,
+			func(ctx context.Context, request Request, params Params) (response Response, err error) {
+				response, err = s.h.PaydatePaymentDateGet(ctx, params)
+				return response, err
+			},
+		)
+	} else {
+		response, err = s.h.PaydatePaymentDateGet(ctx, params)
+	}
+	if err != nil {
+		if errRes, ok := errors.Into[*InternalServerErrorStatusCode](err); ok {
+			if err := encodeErrorResponse(errRes, w, span); err != nil {
+				defer recordError("Internal", err)
+			}
+			return
+		}
+		if errors.Is(err, ht.ErrNotImplemented) {
+			s.cfg.ErrorHandler(ctx, w, r, err)
+			return
+		}
+		if err := encodeErrorResponse(s.h.NewError(ctx, err), w, span); err != nil {
+			defer recordError("Internal", err)
+		}
+		return
+	}
+
+	if err := encodePaydatePaymentDateGetResponse(response, w, span); err != nil {
 		defer recordError("EncodeResponse", err)
 		if !errors.Is(err, ht.ErrInternalServerErrorResponse) {
 			s.cfg.ErrorHandler(ctx, w, r, err)
@@ -1845,8 +2093,19 @@ func (s *Server) handleUsersGetRequest(args [0]string, argsEscaped bool, w http.
 		response, err = s.h.UsersGet(ctx, request)
 	}
 	if err != nil {
-		defer recordError("Internal", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
+		if errRes, ok := errors.Into[*InternalServerErrorStatusCode](err); ok {
+			if err := encodeErrorResponse(errRes, w, span); err != nil {
+				defer recordError("Internal", err)
+			}
+			return
+		}
+		if errors.Is(err, ht.ErrNotImplemented) {
+			s.cfg.ErrorHandler(ctx, w, r, err)
+			return
+		}
+		if err := encodeErrorResponse(s.h.NewError(ctx, err), w, span); err != nil {
+			defer recordError("Internal", err)
+		}
 		return
 	}
 
@@ -1982,8 +2241,19 @@ func (s *Server) handleUsersIDDeleteRequest(args [1]string, argsEscaped bool, w 
 		response, err = s.h.UsersIDDelete(ctx, params)
 	}
 	if err != nil {
-		defer recordError("Internal", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
+		if errRes, ok := errors.Into[*InternalServerErrorStatusCode](err); ok {
+			if err := encodeErrorResponse(errRes, w, span); err != nil {
+				defer recordError("Internal", err)
+			}
+			return
+		}
+		if errors.Is(err, ht.ErrNotImplemented) {
+			s.cfg.ErrorHandler(ctx, w, r, err)
+			return
+		}
+		if err := encodeErrorResponse(s.h.NewError(ctx, err), w, span); err != nil {
+			defer recordError("Internal", err)
+		}
 		return
 	}
 
@@ -2119,8 +2389,19 @@ func (s *Server) handleUsersIDGetRequest(args [1]string, argsEscaped bool, w htt
 		response, err = s.h.UsersIDGet(ctx, params)
 	}
 	if err != nil {
-		defer recordError("Internal", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
+		if errRes, ok := errors.Into[*InternalServerErrorStatusCode](err); ok {
+			if err := encodeErrorResponse(errRes, w, span); err != nil {
+				defer recordError("Internal", err)
+			}
+			return
+		}
+		if errors.Is(err, ht.ErrNotImplemented) {
+			s.cfg.ErrorHandler(ctx, w, r, err)
+			return
+		}
+		if err := encodeErrorResponse(s.h.NewError(ctx, err), w, span); err != nil {
+			defer recordError("Internal", err)
+		}
 		return
 	}
 
@@ -2271,8 +2552,19 @@ func (s *Server) handleUsersIDPutRequest(args [1]string, argsEscaped bool, w htt
 		response, err = s.h.UsersIDPut(ctx, request, params)
 	}
 	if err != nil {
-		defer recordError("Internal", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
+		if errRes, ok := errors.Into[*InternalServerErrorStatusCode](err); ok {
+			if err := encodeErrorResponse(errRes, w, span); err != nil {
+				defer recordError("Internal", err)
+			}
+			return
+		}
+		if errors.Is(err, ht.ErrNotImplemented) {
+			s.cfg.ErrorHandler(ctx, w, r, err)
+			return
+		}
+		if err := encodeErrorResponse(s.h.NewError(ctx, err), w, span); err != nil {
+			defer recordError("Internal", err)
+		}
 		return
 	}
 
@@ -2408,8 +2700,19 @@ func (s *Server) handleUsersPostRequest(args [0]string, argsEscaped bool, w http
 		response, err = s.h.UsersPost(ctx, request)
 	}
 	if err != nil {
-		defer recordError("Internal", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
+		if errRes, ok := errors.Into[*InternalServerErrorStatusCode](err); ok {
+			if err := encodeErrorResponse(errRes, w, span); err != nil {
+				defer recordError("Internal", err)
+			}
+			return
+		}
+		if errors.Is(err, ht.ErrNotImplemented) {
+			s.cfg.ErrorHandler(ctx, w, r, err)
+			return
+		}
+		if err := encodeErrorResponse(s.h.NewError(ctx, err), w, span); err != nil {
+			defer recordError("Internal", err)
+		}
 		return
 	}
 

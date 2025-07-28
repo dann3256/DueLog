@@ -11,8 +11,8 @@ import (
 	ht "github.com/ogen-go/ogen/http"
 )
 
-func encodeBanksPostRequest(
-	req Name,
+func encodeAuthRequest(
+	req *AuthReq,
 	r *http.Request,
 ) error {
 	const contentType = "application/json"
@@ -25,8 +25,8 @@ func encodeBanksPostRequest(
 	return nil
 }
 
-func encodeBillsIDPaymentStatusPatchRequest(
-	req *UpdatePaymentStatusRequest,
+func encodeBanksPostRequest(
+	req *CreateBankRequest,
 	r *http.Request,
 ) error {
 	const contentType = "application/json"
@@ -55,20 +55,6 @@ func encodeBillsIDPutRequest(
 
 func encodeBillsPostRequest(
 	req *CreateBillRequest,
-	r *http.Request,
-) error {
-	const contentType = "application/json"
-	e := new(jx.Encoder)
-	{
-		req.Encode(e)
-	}
-	encoded := e.Bytes()
-	ht.SetBody(r, bytes.NewReader(encoded), contentType)
-	return nil
-}
-
-func encodeCompaniesIDPutRequest(
-	req *UpdateCompanyRequest,
 	r *http.Request,
 ) error {
 	const contentType = "application/json"

@@ -17,7 +17,7 @@ import (
 
 // BanksIDGetParams is parameters of GET /banks/{id} operation.
 type BanksIDGetParams struct {
-	ID int64
+	ID ID
 }
 
 func unpackBanksIDGetParams(packed middleware.Parameters) (params BanksIDGetParams) {
@@ -26,7 +26,7 @@ func unpackBanksIDGetParams(packed middleware.Parameters) (params BanksIDGetPara
 			Name: "id",
 			In:   "path",
 		}
-		params.ID = packed[key].(int64)
+		params.ID = packed[key].(ID)
 	}
 	return params
 }
@@ -51,17 +51,24 @@ func decodeBanksIDGetParams(args [1]string, argsEscaped bool, r *http.Request) (
 			})
 
 			if err := func() error {
-				val, err := d.DecodeValue()
-				if err != nil {
+				var paramsDotIDVal int32
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToInt32(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotIDVal = c
+					return nil
+				}(); err != nil {
 					return err
 				}
-
-				c, err := conv.ToInt64(val)
-				if err != nil {
-					return err
-				}
-
-				params.ID = c
+				params.ID = ID(paramsDotIDVal)
 				return nil
 			}(); err != nil {
 				return err
@@ -74,138 +81,6 @@ func decodeBanksIDGetParams(args [1]string, argsEscaped bool, r *http.Request) (
 		return params, &ogenerrors.DecodeParamError{
 			Name: "id",
 			In:   "path",
-			Err:  err,
-		}
-	}
-	return params, nil
-}
-
-// BillsGetParams is parameters of GET /bills operation.
-type BillsGetParams struct {
-	// Filter.
-	PaymentDate OptPaymentPeriod
-	// Status filter.
-	IsPaid OptBool
-}
-
-func unpackBillsGetParams(packed middleware.Parameters) (params BillsGetParams) {
-	{
-		key := middleware.ParameterKey{
-			Name: "payment_date",
-			In:   "query",
-		}
-		if v, ok := packed[key]; ok {
-			params.PaymentDate = v.(OptPaymentPeriod)
-		}
-	}
-	{
-		key := middleware.ParameterKey{
-			Name: "is_paid",
-			In:   "query",
-		}
-		if v, ok := packed[key]; ok {
-			params.IsPaid = v.(OptBool)
-		}
-	}
-	return params
-}
-
-func decodeBillsGetParams(args [0]string, argsEscaped bool, r *http.Request) (params BillsGetParams, _ error) {
-	q := uri.NewQueryDecoder(r.URL.Query())
-	// Decode query: payment_date.
-	if err := func() error {
-		cfg := uri.QueryParameterDecodingConfig{
-			Name:    "payment_date",
-			Style:   uri.QueryStyleForm,
-			Explode: true,
-		}
-
-		if err := q.HasParam(cfg); err == nil {
-			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
-				var paramsDotPaymentDateVal PaymentPeriod
-				if err := func() error {
-					val, err := d.DecodeValue()
-					if err != nil {
-						return err
-					}
-
-					c, err := conv.ToString(val)
-					if err != nil {
-						return err
-					}
-
-					paramsDotPaymentDateVal = PaymentPeriod(c)
-					return nil
-				}(); err != nil {
-					return err
-				}
-				params.PaymentDate.SetTo(paramsDotPaymentDateVal)
-				return nil
-			}); err != nil {
-				return err
-			}
-			if err := func() error {
-				if value, ok := params.PaymentDate.Get(); ok {
-					if err := func() error {
-						if err := value.Validate(); err != nil {
-							return err
-						}
-						return nil
-					}(); err != nil {
-						return err
-					}
-				}
-				return nil
-			}(); err != nil {
-				return err
-			}
-		}
-		return nil
-	}(); err != nil {
-		return params, &ogenerrors.DecodeParamError{
-			Name: "payment_date",
-			In:   "query",
-			Err:  err,
-		}
-	}
-	// Decode query: is_paid.
-	if err := func() error {
-		cfg := uri.QueryParameterDecodingConfig{
-			Name:    "is_paid",
-			Style:   uri.QueryStyleForm,
-			Explode: true,
-		}
-
-		if err := q.HasParam(cfg); err == nil {
-			if err := q.DecodeParam(cfg, func(d uri.Decoder) error {
-				var paramsDotIsPaidVal bool
-				if err := func() error {
-					val, err := d.DecodeValue()
-					if err != nil {
-						return err
-					}
-
-					c, err := conv.ToBool(val)
-					if err != nil {
-						return err
-					}
-
-					paramsDotIsPaidVal = c
-					return nil
-				}(); err != nil {
-					return err
-				}
-				params.IsPaid.SetTo(paramsDotIsPaidVal)
-				return nil
-			}); err != nil {
-				return err
-			}
-		}
-		return nil
-	}(); err != nil {
-		return params, &ogenerrors.DecodeParamError{
-			Name: "is_paid",
-			In:   "query",
 			Err:  err,
 		}
 	}
@@ -279,7 +154,7 @@ func decodeBillsIDDeleteParams(args [1]string, argsEscaped bool, r *http.Request
 
 // BillsIDGetParams is parameters of GET /bills/{id} operation.
 type BillsIDGetParams struct {
-	ID int64
+	ID ID
 }
 
 func unpackBillsIDGetParams(packed middleware.Parameters) (params BillsIDGetParams) {
@@ -288,7 +163,7 @@ func unpackBillsIDGetParams(packed middleware.Parameters) (params BillsIDGetPara
 			Name: "id",
 			In:   "path",
 		}
-		params.ID = packed[key].(int64)
+		params.ID = packed[key].(ID)
 	}
 	return params
 }
@@ -313,82 +188,24 @@ func decodeBillsIDGetParams(args [1]string, argsEscaped bool, r *http.Request) (
 			})
 
 			if err := func() error {
-				val, err := d.DecodeValue()
-				if err != nil {
+				var paramsDotIDVal int32
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToInt32(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotIDVal = c
+					return nil
+				}(); err != nil {
 					return err
 				}
-
-				c, err := conv.ToInt64(val)
-				if err != nil {
-					return err
-				}
-
-				params.ID = c
-				return nil
-			}(); err != nil {
-				return err
-			}
-		} else {
-			return validate.ErrFieldRequired
-		}
-		return nil
-	}(); err != nil {
-		return params, &ogenerrors.DecodeParamError{
-			Name: "id",
-			In:   "path",
-			Err:  err,
-		}
-	}
-	return params, nil
-}
-
-// BillsIDPaymentStatusPatchParams is parameters of PATCH /bills/{id}/payment-status operation.
-type BillsIDPaymentStatusPatchParams struct {
-	ID int64
-}
-
-func unpackBillsIDPaymentStatusPatchParams(packed middleware.Parameters) (params BillsIDPaymentStatusPatchParams) {
-	{
-		key := middleware.ParameterKey{
-			Name: "id",
-			In:   "path",
-		}
-		params.ID = packed[key].(int64)
-	}
-	return params
-}
-
-func decodeBillsIDPaymentStatusPatchParams(args [1]string, argsEscaped bool, r *http.Request) (params BillsIDPaymentStatusPatchParams, _ error) {
-	// Decode path: id.
-	if err := func() error {
-		param := args[0]
-		if argsEscaped {
-			unescaped, err := url.PathUnescape(args[0])
-			if err != nil {
-				return errors.Wrap(err, "unescape path")
-			}
-			param = unescaped
-		}
-		if len(param) > 0 {
-			d := uri.NewPathDecoder(uri.PathDecoderConfig{
-				Param:   "id",
-				Value:   param,
-				Style:   uri.PathStyleSimple,
-				Explode: false,
-			})
-
-			if err := func() error {
-				val, err := d.DecodeValue()
-				if err != nil {
-					return err
-				}
-
-				c, err := conv.ToInt64(val)
-				if err != nil {
-					return err
-				}
-
-				params.ID = c
+				params.ID = ID(paramsDotIDVal)
 				return nil
 			}(); err != nil {
 				return err
@@ -454,6 +271,78 @@ func decodeBillsIDPutParams(args [1]string, argsEscaped bool, r *http.Request) (
 				}
 
 				params.ID = c
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "id",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
+// BillsStatementIDPutParams is parameters of PUT /bills_statement/{id} operation.
+type BillsStatementIDPutParams struct {
+	ID ID
+}
+
+func unpackBillsStatementIDPutParams(packed middleware.Parameters) (params BillsStatementIDPutParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "id",
+			In:   "path",
+		}
+		params.ID = packed[key].(ID)
+	}
+	return params
+}
+
+func decodeBillsStatementIDPutParams(args [1]string, argsEscaped bool, r *http.Request) (params BillsStatementIDPutParams, _ error) {
+	// Decode path: id.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "id",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				var paramsDotIDVal int32
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToInt32(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotIDVal = c
+					return nil
+				}(); err != nil {
+					return err
+				}
+				params.ID = ID(paramsDotIDVal)
 				return nil
 			}(); err != nil {
 				return err
@@ -539,7 +428,7 @@ func decodeCompaniesIDDeleteParams(args [1]string, argsEscaped bool, r *http.Req
 
 // CompaniesIDGetParams is parameters of GET /companies/{id} operation.
 type CompaniesIDGetParams struct {
-	ID int64
+	ID ID
 }
 
 func unpackCompaniesIDGetParams(packed middleware.Parameters) (params CompaniesIDGetParams) {
@@ -548,7 +437,7 @@ func unpackCompaniesIDGetParams(packed middleware.Parameters) (params CompaniesI
 			Name: "id",
 			In:   "path",
 		}
-		params.ID = packed[key].(int64)
+		params.ID = packed[key].(ID)
 	}
 	return params
 }
@@ -573,17 +462,24 @@ func decodeCompaniesIDGetParams(args [1]string, argsEscaped bool, r *http.Reques
 			})
 
 			if err := func() error {
-				val, err := d.DecodeValue()
-				if err != nil {
+				var paramsDotIDVal int32
+				if err := func() error {
+					val, err := d.DecodeValue()
+					if err != nil {
+						return err
+					}
+
+					c, err := conv.ToInt32(val)
+					if err != nil {
+						return err
+					}
+
+					paramsDotIDVal = c
+					return nil
+				}(); err != nil {
 					return err
 				}
-
-				c, err := conv.ToInt64(val)
-				if err != nil {
-					return err
-				}
-
-				params.ID = c
+				params.ID = ID(paramsDotIDVal)
 				return nil
 			}(); err != nil {
 				return err
@@ -667,6 +563,79 @@ func decodeCompaniesIDPutParams(args [1]string, argsEscaped bool, r *http.Reques
 	return params, nil
 }
 
+// PaydatePaymentDateGetParams is parameters of GET /paydate/{payment_date} operation.
+type PaydatePaymentDateGetParams struct {
+	PaymentDate PaymentDate
+}
+
+func unpackPaydatePaymentDateGetParams(packed middleware.Parameters) (params PaydatePaymentDateGetParams) {
+	{
+		key := middleware.ParameterKey{
+			Name: "payment_date",
+			In:   "path",
+		}
+		params.PaymentDate = packed[key].(PaymentDate)
+	}
+	return params
+}
+
+func decodePaydatePaymentDateGetParams(args [1]string, argsEscaped bool, r *http.Request) (params PaydatePaymentDateGetParams, _ error) {
+	// Decode path: payment_date.
+	if err := func() error {
+		param := args[0]
+		if argsEscaped {
+			unescaped, err := url.PathUnescape(args[0])
+			if err != nil {
+				return errors.Wrap(err, "unescape path")
+			}
+			param = unescaped
+		}
+		if len(param) > 0 {
+			d := uri.NewPathDecoder(uri.PathDecoderConfig{
+				Param:   "payment_date",
+				Value:   param,
+				Style:   uri.PathStyleSimple,
+				Explode: false,
+			})
+
+			if err := func() error {
+				val, err := d.DecodeValue()
+				if err != nil {
+					return err
+				}
+
+				c, err := conv.ToString(val)
+				if err != nil {
+					return err
+				}
+
+				params.PaymentDate = PaymentDate(c)
+				return nil
+			}(); err != nil {
+				return err
+			}
+			if err := func() error {
+				if err := params.PaymentDate.Validate(); err != nil {
+					return err
+				}
+				return nil
+			}(); err != nil {
+				return err
+			}
+		} else {
+			return validate.ErrFieldRequired
+		}
+		return nil
+	}(); err != nil {
+		return params, &ogenerrors.DecodeParamError{
+			Name: "payment_date",
+			In:   "path",
+			Err:  err,
+		}
+	}
+	return params, nil
+}
+
 // UsersIDDeleteParams is parameters of DELETE /users/{id} operation.
 type UsersIDDeleteParams struct {
 	ID int64
@@ -734,7 +703,7 @@ func decodeUsersIDDeleteParams(args [1]string, argsEscaped bool, r *http.Request
 
 // UsersIDGetParams is parameters of GET /users/{id} operation.
 type UsersIDGetParams struct {
-	ID int64
+	ID UserCreated
 }
 
 func unpackUsersIDGetParams(packed middleware.Parameters) (params UsersIDGetParams) {
@@ -743,7 +712,7 @@ func unpackUsersIDGetParams(packed middleware.Parameters) (params UsersIDGetPara
 			Name: "id",
 			In:   "path",
 		}
-		params.ID = packed[key].(int64)
+		params.ID = packed[key].(UserCreated)
 	}
 	return params
 }
@@ -768,18 +737,7 @@ func decodeUsersIDGetParams(args [1]string, argsEscaped bool, r *http.Request) (
 			})
 
 			if err := func() error {
-				val, err := d.DecodeValue()
-				if err != nil {
-					return err
-				}
-
-				c, err := conv.ToInt64(val)
-				if err != nil {
-					return err
-				}
-
-				params.ID = c
-				return nil
+				return params.ID.DecodeURI(d)
 			}(); err != nil {
 				return err
 			}

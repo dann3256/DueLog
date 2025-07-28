@@ -2,7 +2,10 @@ components:
   requestBodies:
     # User requests
     CreateUserRequest:
-      required: true
+      type: object
+      required:
+       - name
+       - email
       content:
         application/json:
           schema:
@@ -13,7 +16,11 @@ components:
 
 
     GetUserRequest:
-      required: true
+      type: object
+      required:
+       - name
+       - email
+
       content:
         application/json:
           schema:
@@ -23,7 +30,10 @@ components:
             $ref: "./components/schema.yaml#/components/schemas/User/properties/email"
 
     UpdateUserRequest:
-      required: true
+      type: object
+      required: 
+       - name
+       - email
       content:
         application/json:
           schema:
@@ -35,7 +45,9 @@ components:
 
     # Bank requests
     CreateBankRequest:
-      required: true
+      type: object
+      required: 
+       - name
       content:
         application/json:
           schema:
@@ -44,7 +56,9 @@ components:
 
     # Company requests
     CreateCompanyRequest:
-      required: true
+      type: object
+      required: 
+       - name
       content:
         application/json:
           schema:
@@ -52,6 +66,7 @@ components:
             $ref: "./components/schema.yaml#/components/schemas/Company/properties/name"
 
     UpdateCompanyRequest:
+      type: object
       required: true
       content:
         application/json:
@@ -61,7 +76,7 @@ components:
 
     # Bill requests
     CreateBillRequest:
-      required: true
+      type: object
       content:
         application/json:
           schema:
@@ -88,7 +103,7 @@ components:
         - payment_date
 
     UpdateBillRequest:
-      required: true
+      type: object
       content:
         application/json:
           schema:
@@ -106,10 +121,22 @@ components:
              $ref: "./components/schema.yaml#/components/schemas/Bill/properties/payment_date"
             description:
              $ref: "./components/schema.yaml#/components/schemas/Bill/properties/description"
-
-    UpdatePaymentStatusRequest:
+    
+    SignInAndSignUpRequest:
+      description: Request to register or log in a user using a Google JWT token and user information.
       required: true
       content:
         application/json:
           schema:
-            $ref: "./components/bill.yaml#/components/schemas/UpdatePaymentStatusRequest"
+            type: object
+            properties:
+              signup:
+                type: boolean
+                description: "Boolean to indicate if the user is signing in or signing up"
+              token:
+                type: string
+                description: "Google JWT token provided after Google authentication"
+                example: "eyJhbGciOiJSUzI1NiIsImtpZCI6IjFlODk5..."
+            required:
+              - signup
+              - token

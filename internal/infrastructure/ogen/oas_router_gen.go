@@ -61,6 +61,26 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				break
 			}
 			switch elem[0] {
+			case 'a': // Prefix: "auth"
+
+				if l := len("auth"); len(elem) >= l && elem[0:l] == "auth" {
+					elem = elem[l:]
+				} else {
+					break
+				}
+
+				if len(elem) == 0 {
+					// Leaf node.
+					switch r.Method {
+					case "POST":
+						s.handleAuthRequest([0]string{}, elemIsEscaped, w, r)
+					default:
+						s.notAllowed(w, r, "POST")
+					}
+
+					return
+				}
+
 			case 'b': // Prefix: "b"
 
 				if l := len("b"); len(elem) >= l && elem[0:l] == "b" {
@@ -135,12 +155,10 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 					if len(elem) == 0 {
 						switch r.Method {
-						case "GET":
-							s.handleBillsGetRequest([0]string{}, elemIsEscaped, w, r)
 						case "POST":
 							s.handleBillsPostRequest([0]string{}, elemIsEscaped, w, r)
 						default:
-							s.notAllowed(w, r, "GET,POST")
+							s.notAllowed(w, r, "POST")
 						}
 
 						return
@@ -155,15 +173,16 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 						}
 
 						// Param: "id"
-						// Match until "/"
+						// Leaf parameter, slashes are prohibited
 						idx := strings.IndexByte(elem, '/')
-						if idx < 0 {
-							idx = len(elem)
+						if idx >= 0 {
+							break
 						}
-						args[0] = elem[:idx]
-						elem = elem[idx:]
+						args[0] = elem
+						elem = ""
 
 						if len(elem) == 0 {
+							// Leaf node.
 							switch r.Method {
 							case "DELETE":
 								s.handleBillsIDDeleteRequest([1]string{
@@ -183,29 +202,36 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 							return
 						}
-						switch elem[0] {
-						case '/': // Prefix: "/payment-status"
 
-							if l := len("/payment-status"); len(elem) >= l && elem[0:l] == "/payment-status" {
-								elem = elem[l:]
-							} else {
-								break
+					case '_': // Prefix: "_statement/"
+
+						if l := len("_statement/"); len(elem) >= l && elem[0:l] == "_statement/" {
+							elem = elem[l:]
+						} else {
+							break
+						}
+
+						// Param: "id"
+						// Leaf parameter, slashes are prohibited
+						idx := strings.IndexByte(elem, '/')
+						if idx >= 0 {
+							break
+						}
+						args[0] = elem
+						elem = ""
+
+						if len(elem) == 0 {
+							// Leaf node.
+							switch r.Method {
+							case "PUT":
+								s.handleBillsStatementIDPutRequest([1]string{
+									args[0],
+								}, elemIsEscaped, w, r)
+							default:
+								s.notAllowed(w, r, "PUT")
 							}
 
-							if len(elem) == 0 {
-								// Leaf node.
-								switch r.Method {
-								case "PATCH":
-									s.handleBillsIDPaymentStatusPatchRequest([1]string{
-										args[0],
-									}, elemIsEscaped, w, r)
-								default:
-									s.notAllowed(w, r, "PATCH")
-								}
-
-								return
-							}
-
+							return
 						}
 
 					}
@@ -270,6 +296,37 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 						return
 					}
 
+				}
+
+			case 'p': // Prefix: "paydate/"
+
+				if l := len("paydate/"); len(elem) >= l && elem[0:l] == "paydate/" {
+					elem = elem[l:]
+				} else {
+					break
+				}
+
+				// Param: "payment_date"
+				// Leaf parameter, slashes are prohibited
+				idx := strings.IndexByte(elem, '/')
+				if idx >= 0 {
+					break
+				}
+				args[0] = elem
+				elem = ""
+
+				if len(elem) == 0 {
+					// Leaf node.
+					switch r.Method {
+					case "GET":
+						s.handlePaydatePaymentDateGetRequest([1]string{
+							args[0],
+						}, elemIsEscaped, w, r)
+					default:
+						s.notAllowed(w, r, "GET")
+					}
+
+					return
 				}
 
 			case 'u': // Prefix: "users"
@@ -428,6 +485,30 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 				break
 			}
 			switch elem[0] {
+			case 'a': // Prefix: "auth"
+
+				if l := len("auth"); len(elem) >= l && elem[0:l] == "auth" {
+					elem = elem[l:]
+				} else {
+					break
+				}
+
+				if len(elem) == 0 {
+					// Leaf node.
+					switch method {
+					case "POST":
+						r.name = AuthOperation
+						r.summary = "Authenticate User (Sign In or Sign Up)"
+						r.operationID = "Auth"
+						r.pathPattern = "/auth"
+						r.args = args
+						r.count = 0
+						return r, true
+					default:
+						return
+					}
+				}
+
 			case 'b': // Prefix: "b"
 
 				if l := len("b"); len(elem) >= l && elem[0:l] == "b" {
@@ -508,14 +589,6 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 
 					if len(elem) == 0 {
 						switch method {
-						case "GET":
-							r.name = BillsGetOperation
-							r.summary = "get bills"
-							r.operationID = ""
-							r.pathPattern = "/bills"
-							r.args = args
-							r.count = 0
-							return r, true
 						case "POST":
 							r.name = BillsPostOperation
 							r.summary = "create bill"
@@ -538,15 +611,16 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 						}
 
 						// Param: "id"
-						// Match until "/"
+						// Leaf parameter, slashes are prohibited
 						idx := strings.IndexByte(elem, '/')
-						if idx < 0 {
-							idx = len(elem)
+						if idx >= 0 {
+							break
 						}
-						args[0] = elem[:idx]
-						elem = elem[idx:]
+						args[0] = elem
+						elem = ""
 
 						if len(elem) == 0 {
+							// Leaf node.
 							switch method {
 							case "DELETE":
 								r.name = BillsIDDeleteOperation
@@ -576,31 +650,38 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 								return
 							}
 						}
-						switch elem[0] {
-						case '/': // Prefix: "/payment-status"
 
-							if l := len("/payment-status"); len(elem) >= l && elem[0:l] == "/payment-status" {
-								elem = elem[l:]
-							} else {
-								break
+					case '_': // Prefix: "_statement/"
+
+						if l := len("_statement/"); len(elem) >= l && elem[0:l] == "_statement/" {
+							elem = elem[l:]
+						} else {
+							break
+						}
+
+						// Param: "id"
+						// Leaf parameter, slashes are prohibited
+						idx := strings.IndexByte(elem, '/')
+						if idx >= 0 {
+							break
+						}
+						args[0] = elem
+						elem = ""
+
+						if len(elem) == 0 {
+							// Leaf node.
+							switch method {
+							case "PUT":
+								r.name = BillsStatementIDPutOperation
+								r.summary = "change is_paid of bills"
+								r.operationID = ""
+								r.pathPattern = "/bills_statement/{id}"
+								r.args = args
+								r.count = 1
+								return r, true
+							default:
+								return
 							}
-
-							if len(elem) == 0 {
-								// Leaf node.
-								switch method {
-								case "PATCH":
-									r.name = BillsIDPaymentStatusPatchOperation
-									r.summary = "chenge payment-status"
-									r.operationID = ""
-									r.pathPattern = "/bills/{id}/payment-status"
-									r.args = args
-									r.count = 1
-									return r, true
-								default:
-									return
-								}
-							}
-
 						}
 
 					}
@@ -652,7 +733,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 						switch method {
 						case "DELETE":
 							r.name = CompaniesIDDeleteOperation
-							r.summary = "delete bank"
+							r.summary = "delete company"
 							r.operationID = ""
 							r.pathPattern = "/companies/{id}"
 							r.args = args
@@ -668,7 +749,7 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 							return r, true
 						case "PUT":
 							r.name = CompaniesIDPutOperation
-							r.summary = "update bank"
+							r.summary = "update company"
 							r.operationID = ""
 							r.pathPattern = "/companies/{id}"
 							r.args = args
@@ -679,6 +760,39 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 						}
 					}
 
+				}
+
+			case 'p': // Prefix: "paydate/"
+
+				if l := len("paydate/"); len(elem) >= l && elem[0:l] == "paydate/" {
+					elem = elem[l:]
+				} else {
+					break
+				}
+
+				// Param: "payment_date"
+				// Leaf parameter, slashes are prohibited
+				idx := strings.IndexByte(elem, '/')
+				if idx >= 0 {
+					break
+				}
+				args[0] = elem
+				elem = ""
+
+				if len(elem) == 0 {
+					// Leaf node.
+					switch method {
+					case "GET":
+						r.name = PaydatePaymentDateGetOperation
+						r.summary = "get bill by day"
+						r.operationID = ""
+						r.pathPattern = "/paydate/{payment_date}"
+						r.args = args
+						r.count = 1
+						return r, true
+					default:
+						return
+					}
 				}
 
 			case 'u': // Prefix: "users"

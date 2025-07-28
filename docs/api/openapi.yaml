@@ -30,8 +30,12 @@ paths:
             application/json:
               schema:
                 $ref: "./components/responseBodies.yaml#/components/responses/UserCreated"
-        "404":
-          description: error
+        '400':
+          $ref: './components/errors.yaml#/components/responses/badRequest'
+        '404':
+          $ref: './components/errors.yaml#/components/responses/badRequest'
+        default:
+          $ref: './components/errors.yaml#/components/responses/internalServerError'
     get:
       summary: get users
       tags:
@@ -49,8 +53,12 @@ paths:
             application/json:
               schema:
                 $ref: "./components/responseBodies.yaml#/components/responses/UserObtained"
-        "400":
-          description: error
+        '400':
+          $ref: './components/errors.yaml#/components/responses/badRequest'
+        '404':
+          $ref: './components/errors.yaml#/components/responses/badRequest'
+        default:
+          $ref: './components/errors.yaml#/components/responses/internalServerError'
 
   /users/{id}:
     get:
@@ -62,7 +70,7 @@ paths:
           in: path
           required: true
           schema:
-            $ref: "./components/schema.yaml#/components/responses/User/properties/id"
+            $ref: "./components/responseBodies.yaml#/components/responses/UserCreated"
       responses:
         "200":
           description: obtain user information was success
@@ -70,8 +78,12 @@ paths:
             application/json:
               schema:
                 $ref: "./components/responseBodies.yaml#/components/responses/UserUpdated"
-        "404":
-          description: error
+        '400':
+          $ref: './components/errors.yaml#/components/responses/badRequest'
+        '404':
+          $ref: './components/errors.yaml#/components/responses/badRequest'
+        default:
+          $ref: './components/errors.yaml#/components/responses/internalServerError'
 
     put:
       summary: update user
@@ -97,8 +109,12 @@ paths:
             application/json:
               schema:
                 $ref: "./components/responseBodies.yaml#/components/responses/UserUpdated"
-        "404":
-          description: error
+        '400':
+          $ref: './components/errors.yaml#/components/responses/badRequest'
+        '404':
+          $ref: './components/errors.yaml#/components/responses/badRequest'
+        default:
+          $ref: './components/errors.yaml#/components/responses/internalServerError'
 
     delete:
       summary: delete user
@@ -114,8 +130,12 @@ paths:
       responses:
         "204":
           description: delete was success
-        "404":
-          description: error
+        '400':
+          $ref: './components/errors.yaml#/components/responses/badRequest'
+        '404':
+          $ref: './components/errors.yaml#/components/responses/badRequest'
+        default:
+          $ref: './components/errors.yaml#/components/responses/internalServerError'
 
 # bank-api
   /banks:
@@ -136,8 +156,12 @@ paths:
             application/json:
               schema:
                 $ref: "./components/responseBodies.yaml#/components/responses/BankCreated"
-        "404":
-          description: error
+        '400':
+          $ref: './components/errors.yaml#/components/responses/badRequest'
+        '404':
+          $ref: './components/errors.yaml#/components/responses/badRequest'
+        default:
+          $ref: './components/errors.yaml#/components/responses/internalServerError'
 
   /banks/{id}:
     get:
@@ -149,7 +173,7 @@ paths:
           in: path
           required: true
           schema:
-           $ref: "./components/schema.yaml#/components/responses/Bank/properties/id"
+           $ref: "./components/schema.yaml#/components/schemas/Bank/properties/id"
       responses:
         "200":
           description: obtain bank information was success
@@ -157,8 +181,12 @@ paths:
             application/json:
               schema:
                 $ref: "./components/responseBodies.yaml#/components/responses/BankObtained"
-        "404":
-          description: error
+        '400':
+          $ref: './components/errors.yaml#/components/responses/badRequest'
+        '404':
+          $ref: './components/errors.yaml#/components/responses/badRequest'
+        default:
+          $ref: './components/errors.yaml#/components/responses/internalServerError'
 
 # company-api
   /companies:
@@ -179,8 +207,12 @@ paths:
             application/json:
               schema:
                 $ref: "./components/responseBodies.yaml#/components/responses/CompanyCreated"
-        "404":
-          description: error
+        '400':
+          $ref: './components/errors.yaml#/components/responses/badRequest'
+        '404':
+          $ref: './components/errors.yaml#/components/responses/badRequest'
+        default:
+          $ref: './components/errors.yaml#/components/responses/internalServerError'
 
   /companies/{id}:
     get:
@@ -192,7 +224,7 @@ paths:
           in: path
           required: true
           schema:
-           $ref: "./components/schema.yaml#/components/responses/Company/properties/id"
+           $ref: "./components/schema.yaml#/components/schemas/Company/properties/id"
       responses:
         "200":
           description: obtain companies was success
@@ -200,8 +232,12 @@ paths:
             application/json:
               schema:
                 $ref: "./components/responseBodies.yaml#/components/responses/CompanyObtained"
-        "404":
-          description: error
+        '400':
+          $ref: './components/errors.yaml#/components/responses/badRequest'
+        '404':
+          $ref: './components/errors.yaml#/components/responses/badRequest'
+        default:
+          $ref: './components/errors.yaml#/components/responses/internalServerError'
 
     put:
       summary: update company
@@ -221,8 +257,12 @@ paths:
             application/json:
               schema:
                 $ref: "./components/responseBodies.yaml#/components/responses/CompanyUpdated"
-        "404":
-          description: error
+        '400':
+          $ref: './components/errors.yaml#/components/responses/badRequest'
+        '404':
+          $ref: './components/errors.yaml#/components/responses/badRequest'
+        default:
+          $ref: './components/errors.yaml#/components/responses/internalServerError'
 
     delete:
       summary: delete company
@@ -238,9 +278,12 @@ paths:
       responses:
         "204":
           description: delete companies was success
-        "404":
-          description: error
-          
+        '400':
+          $ref: './components/errors.yaml#/components/responses/badRequest'
+        '404':
+          $ref: './components/errors.yaml#/components/responses/badRequest'
+        default:
+          $ref: './components/errors.yaml#/components/responses/internalServerError'
 # bill-api
   /bills:
      post:
@@ -253,15 +296,19 @@ paths:
           application/json:
             schema:
               $ref: "./components/requestBodies.yaml#/components/requestBodies/CreateBillRequest"
+      responses:
         "201":
           description: creation bill was success
           content:
             application/json:
               schema:
                 $ref: "./components/responseBodies.yaml#/components/responses/BillCreated"
-        "404":
-          description: error
-
+        '400':
+          $ref: './components/errors.yaml#/components/responses/badRequest'
+        '404':
+          $ref: './components/errors.yaml#/components/responses/badRequest'
+        default:
+          $ref: './components/errors.yaml#/components/responses/internalServerError'
    
   /bills/{id}:
     get:
@@ -273,7 +320,7 @@ paths:
           in: path
           required: true
           schema:
-            $ref: "./components/schema.yaml#/components/responses/Bill/properties/id"
+            $ref: "./components/schema.yaml#/components/schemas/Bill/properties/id"
       responses:
         "200":
           description: obtain direct bill information was success
@@ -281,8 +328,12 @@ paths:
             application/json:
               schema:
                 $ref: "./components/responseBodies.yaml#/components/responses/BillObtained"
-        "404":
-          description: error
+        '400':
+          $ref: './components/errors.yaml#/components/responses/badRequest'
+        '404':
+          $ref: './components/errors.yaml#/components/responses/badRequest'
+        default:
+          $ref: './components/errors.yaml#/components/responses/internalServerError'
 
     put:
       summary: update bill
@@ -308,8 +359,12 @@ paths:
             application/json:
               schema:
                 $ref: "./components/responseBodies.yaml#/components/responses/BillUpdated"
-        "404":
-          description: error
+        '400':
+          $ref: './components/errors.yaml#/components/responses/badRequest'
+        '404':
+          $ref: './components/errors.yaml#/components/responses/badRequest'
+        default:
+          $ref: './components/errors.yaml#/components/responses/internalServerError'
         
     
     
@@ -328,20 +383,24 @@ paths:
       responses:
         "204":
           description: delete bill was success
-      "404":
-          description: error
+        '400':
+          $ref: './components/errors.yaml#/components/responses/badRequest'
+        '404':
+          $ref: './components/errors.yaml#/components/responses/badRequest'
+        default:
+          $ref: './components/errors.yaml#/components/responses/internalServerError'
 
-  /bills/{payment_date}:
+  /paydate/{payment_date}:
     get:
       summary: get bill by day
       tags:
         - Bills
       parameters:
-        - name: payment_id
+        - name: payment_date
           in: path
           required: true
           schema:
-           $ref: "./components/schema.yaml#/components/responses/Bill/properties/payment_date"
+           $ref: "./components/schema.yaml#/components/schemas/Bill/properties/payment_date"
       
       responses:
         "200":
@@ -350,8 +409,12 @@ paths:
             application/json:
               schema:
                 $ref: "./components/responseBodies.yaml#/components/responses/BillObtained"
-        "404":
-          description: error
+        '400':
+          $ref: './components/errors.yaml#/components/responses/badRequest'
+        '404':
+          $ref: './components/errors.yaml#/components/responses/badRequest'
+        default:
+          $ref: './components/errors.yaml#/components/responses/internalServerError'
 
   /bills_statement/{id}:
    put:
@@ -363,15 +426,40 @@ paths:
           in: path
           required: true
           schema:
-           $ref: "./components/schema.yaml#/components/responses/Bill/properties/id"
+           $ref: "./components/schema.yaml#/components/schemas/Bill/properties/id"
       
       responses:
         "200":
           description: change is_paid was success
-          
-        "404":
-          description: error
+        '400':
+          $ref: './components/errors.yaml#/components/responses/badRequest'
+        '404':
+          $ref: './components/errors.yaml#/components/responses/badRequest'
+        default:
+          $ref: './components/errors.yaml#/components/responses/internalServerError'
    
+  /auth:
+    post:
+      operationId: Auth
+      summary: Authenticate User (Sign In or Sign Up)
+      requestBody:
+        $ref: './components/requestBodies.yaml#/components/requestBodies/SignInAndSignUpRequest'
+      responses:
+        '200':
+          description: User authenticated successfully (signed in or signed up)
+          headers:
+            Set-Cookie:
+              required: true
+              schema:
+                type: string
+                example: "Authorization: Bearer <token>"
+        '400':
+          $ref: './components/errors.yaml#/components/responses/badRequest'
+        '404':
+          $ref: './components/errors.yaml#/components/responses/badRequest'
+        default:
+          $ref: './components/errors.yaml#/components/responses/internalServerError'
+        
 tags:
   - name: Users
     description: ユーザー管理

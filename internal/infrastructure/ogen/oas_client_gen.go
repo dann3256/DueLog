@@ -17,6 +17,7 @@ import (
 
 	"github.com/ogen-go/ogen/conv"
 	ht "github.com/ogen-go/ogen/http"
+	"github.com/ogen-go/ogen/otelogen"
 	"github.com/ogen-go/ogen/uri"
 )
 
@@ -27,6 +28,12 @@ func trimTrailingSlashes(u *url.URL) {
 
 // Invoker invokes operations described by OpenAPI v3 specification.
 type Invoker interface {
+	// Auth invokes Auth operation.
+	//
+	// Authenticate User (Sign In or Sign Up).
+	//
+	// POST /auth
+	Auth(ctx context.Context, request *AuthReq) (AuthRes, error)
 	// BanksIDGet invokes GET /banks/{id} operation.
 	//
 	// Get bank information.
@@ -38,67 +45,67 @@ type Invoker interface {
 	// Create bank.
 	//
 	// POST /banks
-	BanksPost(ctx context.Context, request Name) (*Bank, error)
-	// BillsGet invokes GET /bills operation.
-	//
-	// Get bills.
-	//
-	// GET /bills
-	BillsGet(ctx context.Context, params BillsGetParams) (*BillListResponse, error)
+	BanksPost(ctx context.Context, request *CreateBankRequest) (BanksPostRes, error)
 	// BillsIDDelete invokes DELETE /bills/{id} operation.
 	//
 	// Delete bill.
 	//
 	// DELETE /bills/{id}
-	BillsIDDelete(ctx context.Context, params BillsIDDeleteParams) error
+	BillsIDDelete(ctx context.Context, params BillsIDDeleteParams) (BillsIDDeleteRes, error)
 	// BillsIDGet invokes GET /bills/{id} operation.
 	//
 	// Get  bill.
 	//
 	// GET /bills/{id}
-	BillsIDGet(ctx context.Context, params BillsIDGetParams) (*Bill, error)
-	// BillsIDPaymentStatusPatch invokes PATCH /bills/{id}/payment-status operation.
-	//
-	// Chenge payment-status.
-	//
-	// PATCH /bills/{id}/payment-status
-	BillsIDPaymentStatusPatch(ctx context.Context, request *UpdatePaymentStatusRequest, params BillsIDPaymentStatusPatchParams) (*Bill, error)
+	BillsIDGet(ctx context.Context, params BillsIDGetParams) (BillsIDGetRes, error)
 	// BillsIDPut invokes PUT /bills/{id} operation.
 	//
 	// Update bill.
 	//
 	// PUT /bills/{id}
-	BillsIDPut(ctx context.Context, request *UpdateBillRequest, params BillsIDPutParams) (*Bill, error)
+	BillsIDPut(ctx context.Context, request *UpdateBillRequest, params BillsIDPutParams) (BillsIDPutRes, error)
 	// BillsPost invokes POST /bills operation.
 	//
 	// Create bill.
 	//
 	// POST /bills
 	BillsPost(ctx context.Context, request *CreateBillRequest) (BillsPostRes, error)
+	// BillsStatementIDPut invokes PUT /bills_statement/{id} operation.
+	//
+	// Change is_paid of bills.
+	//
+	// PUT /bills_statement/{id}
+	BillsStatementIDPut(ctx context.Context, params BillsStatementIDPutParams) (BillsStatementIDPutRes, error)
 	// CompaniesIDDelete invokes DELETE /companies/{id} operation.
 	//
-	// Delete bank.
+	// Delete company.
 	//
 	// DELETE /companies/{id}
-	CompaniesIDDelete(ctx context.Context, params CompaniesIDDeleteParams) error
+	CompaniesIDDelete(ctx context.Context, params CompaniesIDDeleteParams) (CompaniesIDDeleteRes, error)
 	// CompaniesIDGet invokes GET /companies/{id} operation.
 	//
 	// Get company information.
 	//
 	// GET /companies/{id}
-	CompaniesIDGet(ctx context.Context, params CompaniesIDGetParams) (*Company, error)
+	CompaniesIDGet(ctx context.Context, params CompaniesIDGetParams) (CompaniesIDGetRes, error)
 	// CompaniesIDPut invokes PUT /companies/{id} operation.
 	//
-	// Update bank.
+	// Update company.
 	//
 	// PUT /companies/{id}
-	CompaniesIDPut(ctx context.Context, request *UpdateCompanyRequest, params CompaniesIDPutParams) (*Company, error)
+	CompaniesIDPut(ctx context.Context, params CompaniesIDPutParams) (CompaniesIDPutRes, error)
 	// CompaniesPost invokes POST /companies operation.
 	//
 	// Create company.
 	//
 	// POST /companies
-	CompaniesPost(ctx context.Context, request *CreateCompanyRequest) (*Company, error)
+	CompaniesPost(ctx context.Context, request *CreateCompanyRequest) (CompaniesPostRes, error)
+	// PaydatePaymentDateGet invokes GET /paydate/{payment_date} operation.
+	//
+	// Get bill by day.
+	//
+	// GET /paydate/{payment_date}
+	PaydatePaymentDateGet(ctx context.Context, params PaydatePaymentDateGetParams) (PaydatePaymentDateGetRes, error)
 	// UsersGet invokes GET /users operation.
 	//
 	// Get users.
@@ -136,8 +143,12 @@ type Client struct {
 	serverURL *url.URL
 	baseClient
 }
+type errorHandler interface {
+	NewError(ctx context.Context, err error) *InternalServerErrorStatusCode
+}
 
 var _ Handler = struct {
+	errorHandler
 	*Client
 }{}
 
@@ -172,6 +183,81 @@ func (c *Client) requestURL(ctx context.Context) *url.URL {
 		return c.serverURL
 	}
 	return u
+}
+
+// Auth invokes Auth operation.
+//
+// Authenticate User (Sign In or Sign Up).
+//
+// POST /auth
+func (c *Client) Auth(ctx context.Context, request *AuthReq) (AuthRes, error) {
+	res, err := c.sendAuth(ctx, request)
+	return res, err
+}
+
+func (c *Client) sendAuth(ctx context.Context, request *AuthReq) (res AuthRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("Auth"),
+		semconv.HTTPRequestMethodKey.String("POST"),
+		semconv.HTTPRouteKey.String("/auth"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, AuthOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [1]string
+	pathParts[0] = "/auth"
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "POST", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+	if err := encodeAuthRequest(request, r); err != nil {
+		return res, errors.Wrap(err, "encode request")
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeAuthResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
 }
 
 // BanksIDGet invokes GET /banks/{id} operation.
@@ -229,7 +315,10 @@ func (c *Client) sendBanksIDGet(ctx context.Context, params BanksIDGetParams) (r
 			Explode: false,
 		})
 		if err := func() error {
-			return e.EncodeValue(conv.Int64ToString(params.ID))
+			if unwrapped := int32(params.ID); true {
+				return e.EncodeValue(conv.Int32ToString(unwrapped))
+			}
+			return nil
 		}(); err != nil {
 			return res, errors.Wrap(err, "encode path")
 		}
@@ -268,12 +357,12 @@ func (c *Client) sendBanksIDGet(ctx context.Context, params BanksIDGetParams) (r
 // Create bank.
 //
 // POST /banks
-func (c *Client) BanksPost(ctx context.Context, request Name) (*Bank, error) {
+func (c *Client) BanksPost(ctx context.Context, request *CreateBankRequest) (BanksPostRes, error) {
 	res, err := c.sendBanksPost(ctx, request)
 	return res, err
 }
 
-func (c *Client) sendBanksPost(ctx context.Context, request Name) (res *Bank, err error) {
+func (c *Client) sendBanksPost(ctx context.Context, request *CreateBankRequest) (res BanksPostRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		semconv.HTTPRequestMethodKey.String("POST"),
 		semconv.HTTPRouteKey.String("/banks"),
@@ -337,126 +426,17 @@ func (c *Client) sendBanksPost(ctx context.Context, request Name) (res *Bank, er
 	return result, nil
 }
 
-// BillsGet invokes GET /bills operation.
-//
-// Get bills.
-//
-// GET /bills
-func (c *Client) BillsGet(ctx context.Context, params BillsGetParams) (*BillListResponse, error) {
-	res, err := c.sendBillsGet(ctx, params)
-	return res, err
-}
-
-func (c *Client) sendBillsGet(ctx context.Context, params BillsGetParams) (res *BillListResponse, err error) {
-	otelAttrs := []attribute.KeyValue{
-		semconv.HTTPRequestMethodKey.String("GET"),
-		semconv.HTTPRouteKey.String("/bills"),
-	}
-
-	// Run stopwatch.
-	startTime := time.Now()
-	defer func() {
-		// Use floating point division here for higher precision (instead of Millisecond method).
-		elapsedDuration := time.Since(startTime)
-		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
-	}()
-
-	// Increment request counter.
-	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
-
-	// Start a span for this request.
-	ctx, span := c.cfg.Tracer.Start(ctx, BillsGetOperation,
-		trace.WithAttributes(otelAttrs...),
-		clientSpanKind,
-	)
-	// Track stage for error reporting.
-	var stage string
-	defer func() {
-		if err != nil {
-			span.RecordError(err)
-			span.SetStatus(codes.Error, stage)
-			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
-		}
-		span.End()
-	}()
-
-	stage = "BuildURL"
-	u := uri.Clone(c.requestURL(ctx))
-	var pathParts [1]string
-	pathParts[0] = "/bills"
-	uri.AddPathParts(u, pathParts[:]...)
-
-	stage = "EncodeQueryParams"
-	q := uri.NewQueryEncoder()
-	{
-		// Encode "payment_date" parameter.
-		cfg := uri.QueryParameterEncodingConfig{
-			Name:    "payment_date",
-			Style:   uri.QueryStyleForm,
-			Explode: true,
-		}
-
-		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
-			if val, ok := params.PaymentDate.Get(); ok {
-				return e.EncodeValue(conv.StringToString(string(val)))
-			}
-			return nil
-		}); err != nil {
-			return res, errors.Wrap(err, "encode query")
-		}
-	}
-	{
-		// Encode "is_paid" parameter.
-		cfg := uri.QueryParameterEncodingConfig{
-			Name:    "is_paid",
-			Style:   uri.QueryStyleForm,
-			Explode: true,
-		}
-
-		if err := q.EncodeParam(cfg, func(e uri.Encoder) error {
-			if val, ok := params.IsPaid.Get(); ok {
-				return e.EncodeValue(conv.BoolToString(val))
-			}
-			return nil
-		}); err != nil {
-			return res, errors.Wrap(err, "encode query")
-		}
-	}
-	u.RawQuery = q.Values().Encode()
-
-	stage = "EncodeRequest"
-	r, err := ht.NewRequest(ctx, "GET", u)
-	if err != nil {
-		return res, errors.Wrap(err, "create request")
-	}
-
-	stage = "SendRequest"
-	resp, err := c.cfg.Client.Do(r)
-	if err != nil {
-		return res, errors.Wrap(err, "do request")
-	}
-	defer resp.Body.Close()
-
-	stage = "DecodeResponse"
-	result, err := decodeBillsGetResponse(resp)
-	if err != nil {
-		return res, errors.Wrap(err, "decode response")
-	}
-
-	return result, nil
-}
-
 // BillsIDDelete invokes DELETE /bills/{id} operation.
 //
 // Delete bill.
 //
 // DELETE /bills/{id}
-func (c *Client) BillsIDDelete(ctx context.Context, params BillsIDDeleteParams) error {
-	_, err := c.sendBillsIDDelete(ctx, params)
-	return err
+func (c *Client) BillsIDDelete(ctx context.Context, params BillsIDDeleteParams) (BillsIDDeleteRes, error) {
+	res, err := c.sendBillsIDDelete(ctx, params)
+	return res, err
 }
 
-func (c *Client) sendBillsIDDelete(ctx context.Context, params BillsIDDeleteParams) (res *BillsIDDeleteNoContent, err error) {
+func (c *Client) sendBillsIDDelete(ctx context.Context, params BillsIDDeleteParams) (res BillsIDDeleteRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		semconv.HTTPRequestMethodKey.String("DELETE"),
 		semconv.HTTPRouteKey.String("/bills/{id}"),
@@ -540,12 +520,12 @@ func (c *Client) sendBillsIDDelete(ctx context.Context, params BillsIDDeletePara
 // Get  bill.
 //
 // GET /bills/{id}
-func (c *Client) BillsIDGet(ctx context.Context, params BillsIDGetParams) (*Bill, error) {
+func (c *Client) BillsIDGet(ctx context.Context, params BillsIDGetParams) (BillsIDGetRes, error) {
 	res, err := c.sendBillsIDGet(ctx, params)
 	return res, err
 }
 
-func (c *Client) sendBillsIDGet(ctx context.Context, params BillsIDGetParams) (res *Bill, err error) {
+func (c *Client) sendBillsIDGet(ctx context.Context, params BillsIDGetParams) (res BillsIDGetRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		semconv.HTTPRequestMethodKey.String("GET"),
 		semconv.HTTPRouteKey.String("/bills/{id}"),
@@ -590,7 +570,10 @@ func (c *Client) sendBillsIDGet(ctx context.Context, params BillsIDGetParams) (r
 			Explode: false,
 		})
 		if err := func() error {
-			return e.EncodeValue(conv.Int64ToString(params.ID))
+			if unwrapped := int32(params.ID); true {
+				return e.EncodeValue(conv.Int32ToString(unwrapped))
+			}
+			return nil
 		}(); err != nil {
 			return res, errors.Wrap(err, "encode path")
 		}
@@ -624,110 +607,17 @@ func (c *Client) sendBillsIDGet(ctx context.Context, params BillsIDGetParams) (r
 	return result, nil
 }
 
-// BillsIDPaymentStatusPatch invokes PATCH /bills/{id}/payment-status operation.
-//
-// Chenge payment-status.
-//
-// PATCH /bills/{id}/payment-status
-func (c *Client) BillsIDPaymentStatusPatch(ctx context.Context, request *UpdatePaymentStatusRequest, params BillsIDPaymentStatusPatchParams) (*Bill, error) {
-	res, err := c.sendBillsIDPaymentStatusPatch(ctx, request, params)
-	return res, err
-}
-
-func (c *Client) sendBillsIDPaymentStatusPatch(ctx context.Context, request *UpdatePaymentStatusRequest, params BillsIDPaymentStatusPatchParams) (res *Bill, err error) {
-	otelAttrs := []attribute.KeyValue{
-		semconv.HTTPRequestMethodKey.String("PATCH"),
-		semconv.HTTPRouteKey.String("/bills/{id}/payment-status"),
-	}
-
-	// Run stopwatch.
-	startTime := time.Now()
-	defer func() {
-		// Use floating point division here for higher precision (instead of Millisecond method).
-		elapsedDuration := time.Since(startTime)
-		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
-	}()
-
-	// Increment request counter.
-	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
-
-	// Start a span for this request.
-	ctx, span := c.cfg.Tracer.Start(ctx, BillsIDPaymentStatusPatchOperation,
-		trace.WithAttributes(otelAttrs...),
-		clientSpanKind,
-	)
-	// Track stage for error reporting.
-	var stage string
-	defer func() {
-		if err != nil {
-			span.RecordError(err)
-			span.SetStatus(codes.Error, stage)
-			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
-		}
-		span.End()
-	}()
-
-	stage = "BuildURL"
-	u := uri.Clone(c.requestURL(ctx))
-	var pathParts [3]string
-	pathParts[0] = "/bills/"
-	{
-		// Encode "id" parameter.
-		e := uri.NewPathEncoder(uri.PathEncoderConfig{
-			Param:   "id",
-			Style:   uri.PathStyleSimple,
-			Explode: false,
-		})
-		if err := func() error {
-			return e.EncodeValue(conv.Int64ToString(params.ID))
-		}(); err != nil {
-			return res, errors.Wrap(err, "encode path")
-		}
-		encoded, err := e.Result()
-		if err != nil {
-			return res, errors.Wrap(err, "encode path")
-		}
-		pathParts[1] = encoded
-	}
-	pathParts[2] = "/payment-status"
-	uri.AddPathParts(u, pathParts[:]...)
-
-	stage = "EncodeRequest"
-	r, err := ht.NewRequest(ctx, "PATCH", u)
-	if err != nil {
-		return res, errors.Wrap(err, "create request")
-	}
-	if err := encodeBillsIDPaymentStatusPatchRequest(request, r); err != nil {
-		return res, errors.Wrap(err, "encode request")
-	}
-
-	stage = "SendRequest"
-	resp, err := c.cfg.Client.Do(r)
-	if err != nil {
-		return res, errors.Wrap(err, "do request")
-	}
-	defer resp.Body.Close()
-
-	stage = "DecodeResponse"
-	result, err := decodeBillsIDPaymentStatusPatchResponse(resp)
-	if err != nil {
-		return res, errors.Wrap(err, "decode response")
-	}
-
-	return result, nil
-}
-
 // BillsIDPut invokes PUT /bills/{id} operation.
 //
 // Update bill.
 //
 // PUT /bills/{id}
-func (c *Client) BillsIDPut(ctx context.Context, request *UpdateBillRequest, params BillsIDPutParams) (*Bill, error) {
+func (c *Client) BillsIDPut(ctx context.Context, request *UpdateBillRequest, params BillsIDPutParams) (BillsIDPutRes, error) {
 	res, err := c.sendBillsIDPut(ctx, request, params)
 	return res, err
 }
 
-func (c *Client) sendBillsIDPut(ctx context.Context, request *UpdateBillRequest, params BillsIDPutParams) (res *Bill, err error) {
+func (c *Client) sendBillsIDPut(ctx context.Context, request *UpdateBillRequest, params BillsIDPutParams) (res BillsIDPutRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		semconv.HTTPRequestMethodKey.String("PUT"),
 		semconv.HTTPRouteKey.String("/bills/{id}"),
@@ -883,17 +773,109 @@ func (c *Client) sendBillsPost(ctx context.Context, request *CreateBillRequest) 
 	return result, nil
 }
 
-// CompaniesIDDelete invokes DELETE /companies/{id} operation.
+// BillsStatementIDPut invokes PUT /bills_statement/{id} operation.
 //
-// Delete bank.
+// Change is_paid of bills.
 //
-// DELETE /companies/{id}
-func (c *Client) CompaniesIDDelete(ctx context.Context, params CompaniesIDDeleteParams) error {
-	_, err := c.sendCompaniesIDDelete(ctx, params)
-	return err
+// PUT /bills_statement/{id}
+func (c *Client) BillsStatementIDPut(ctx context.Context, params BillsStatementIDPutParams) (BillsStatementIDPutRes, error) {
+	res, err := c.sendBillsStatementIDPut(ctx, params)
+	return res, err
 }
 
-func (c *Client) sendCompaniesIDDelete(ctx context.Context, params CompaniesIDDeleteParams) (res *CompaniesIDDeleteNoContent, err error) {
+func (c *Client) sendBillsStatementIDPut(ctx context.Context, params BillsStatementIDPutParams) (res BillsStatementIDPutRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		semconv.HTTPRequestMethodKey.String("PUT"),
+		semconv.HTTPRouteKey.String("/bills_statement/{id}"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, BillsStatementIDPutOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [2]string
+	pathParts[0] = "/bills_statement/"
+	{
+		// Encode "id" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "id",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			if unwrapped := int32(params.ID); true {
+				return e.EncodeValue(conv.Int32ToString(unwrapped))
+			}
+			return nil
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "PUT", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeBillsStatementIDPutResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// CompaniesIDDelete invokes DELETE /companies/{id} operation.
+//
+// Delete company.
+//
+// DELETE /companies/{id}
+func (c *Client) CompaniesIDDelete(ctx context.Context, params CompaniesIDDeleteParams) (CompaniesIDDeleteRes, error) {
+	res, err := c.sendCompaniesIDDelete(ctx, params)
+	return res, err
+}
+
+func (c *Client) sendCompaniesIDDelete(ctx context.Context, params CompaniesIDDeleteParams) (res CompaniesIDDeleteRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		semconv.HTTPRequestMethodKey.String("DELETE"),
 		semconv.HTTPRouteKey.String("/companies/{id}"),
@@ -977,12 +959,12 @@ func (c *Client) sendCompaniesIDDelete(ctx context.Context, params CompaniesIDDe
 // Get company information.
 //
 // GET /companies/{id}
-func (c *Client) CompaniesIDGet(ctx context.Context, params CompaniesIDGetParams) (*Company, error) {
+func (c *Client) CompaniesIDGet(ctx context.Context, params CompaniesIDGetParams) (CompaniesIDGetRes, error) {
 	res, err := c.sendCompaniesIDGet(ctx, params)
 	return res, err
 }
 
-func (c *Client) sendCompaniesIDGet(ctx context.Context, params CompaniesIDGetParams) (res *Company, err error) {
+func (c *Client) sendCompaniesIDGet(ctx context.Context, params CompaniesIDGetParams) (res CompaniesIDGetRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		semconv.HTTPRequestMethodKey.String("GET"),
 		semconv.HTTPRouteKey.String("/companies/{id}"),
@@ -1027,7 +1009,10 @@ func (c *Client) sendCompaniesIDGet(ctx context.Context, params CompaniesIDGetPa
 			Explode: false,
 		})
 		if err := func() error {
-			return e.EncodeValue(conv.Int64ToString(params.ID))
+			if unwrapped := int32(params.ID); true {
+				return e.EncodeValue(conv.Int32ToString(unwrapped))
+			}
+			return nil
 		}(); err != nil {
 			return res, errors.Wrap(err, "encode path")
 		}
@@ -1063,15 +1048,15 @@ func (c *Client) sendCompaniesIDGet(ctx context.Context, params CompaniesIDGetPa
 
 // CompaniesIDPut invokes PUT /companies/{id} operation.
 //
-// Update bank.
+// Update company.
 //
 // PUT /companies/{id}
-func (c *Client) CompaniesIDPut(ctx context.Context, request *UpdateCompanyRequest, params CompaniesIDPutParams) (*Company, error) {
-	res, err := c.sendCompaniesIDPut(ctx, request, params)
+func (c *Client) CompaniesIDPut(ctx context.Context, params CompaniesIDPutParams) (CompaniesIDPutRes, error) {
+	res, err := c.sendCompaniesIDPut(ctx, params)
 	return res, err
 }
 
-func (c *Client) sendCompaniesIDPut(ctx context.Context, request *UpdateCompanyRequest, params CompaniesIDPutParams) (res *Company, err error) {
+func (c *Client) sendCompaniesIDPut(ctx context.Context, params CompaniesIDPutParams) (res CompaniesIDPutRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		semconv.HTTPRequestMethodKey.String("PUT"),
 		semconv.HTTPRouteKey.String("/companies/{id}"),
@@ -1133,9 +1118,6 @@ func (c *Client) sendCompaniesIDPut(ctx context.Context, request *UpdateCompanyR
 	if err != nil {
 		return res, errors.Wrap(err, "create request")
 	}
-	if err := encodeCompaniesIDPutRequest(request, r); err != nil {
-		return res, errors.Wrap(err, "encode request")
-	}
 
 	stage = "SendRequest"
 	resp, err := c.cfg.Client.Do(r)
@@ -1158,12 +1140,12 @@ func (c *Client) sendCompaniesIDPut(ctx context.Context, request *UpdateCompanyR
 // Create company.
 //
 // POST /companies
-func (c *Client) CompaniesPost(ctx context.Context, request *CreateCompanyRequest) (*Company, error) {
+func (c *Client) CompaniesPost(ctx context.Context, request *CreateCompanyRequest) (CompaniesPostRes, error) {
 	res, err := c.sendCompaniesPost(ctx, request)
 	return res, err
 }
 
-func (c *Client) sendCompaniesPost(ctx context.Context, request *CreateCompanyRequest) (res *Company, err error) {
+func (c *Client) sendCompaniesPost(ctx context.Context, request *CreateCompanyRequest) (res CompaniesPostRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		semconv.HTTPRequestMethodKey.String("POST"),
 		semconv.HTTPRouteKey.String("/companies"),
@@ -1220,6 +1202,95 @@ func (c *Client) sendCompaniesPost(ctx context.Context, request *CreateCompanyRe
 
 	stage = "DecodeResponse"
 	result, err := decodeCompaniesPostResponse(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// PaydatePaymentDateGet invokes GET /paydate/{payment_date} operation.
+//
+// Get bill by day.
+//
+// GET /paydate/{payment_date}
+func (c *Client) PaydatePaymentDateGet(ctx context.Context, params PaydatePaymentDateGetParams) (PaydatePaymentDateGetRes, error) {
+	res, err := c.sendPaydatePaymentDateGet(ctx, params)
+	return res, err
+}
+
+func (c *Client) sendPaydatePaymentDateGet(ctx context.Context, params PaydatePaymentDateGetParams) (res PaydatePaymentDateGetRes, err error) {
+	otelAttrs := []attribute.KeyValue{
+		semconv.HTTPRequestMethodKey.String("GET"),
+		semconv.HTTPRouteKey.String("/paydate/{payment_date}"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, PaydatePaymentDateGetOperation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [2]string
+	pathParts[0] = "/paydate/"
+	{
+		// Encode "payment_date" parameter.
+		e := uri.NewPathEncoder(uri.PathEncoderConfig{
+			Param:   "payment_date",
+			Style:   uri.PathStyleSimple,
+			Explode: false,
+		})
+		if err := func() error {
+			return e.EncodeValue(conv.StringToString(string(params.PaymentDate)))
+		}(); err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		encoded, err := e.Result()
+		if err != nil {
+			return res, errors.Wrap(err, "encode path")
+		}
+		pathParts[1] = encoded
+	}
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "GET", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodePaydatePaymentDateGetResponse(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}
@@ -1445,7 +1516,7 @@ func (c *Client) sendUsersIDGet(ctx context.Context, params UsersIDGetParams) (r
 			Explode: false,
 		})
 		if err := func() error {
-			return e.EncodeValue(conv.Int64ToString(params.ID))
+			return params.ID.EncodeURI(e)
 		}(); err != nil {
 			return res, errors.Wrap(err, "encode path")
 		}

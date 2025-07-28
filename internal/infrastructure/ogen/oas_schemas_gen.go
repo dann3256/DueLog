@@ -3,962 +3,329 @@
 package api
 
 import (
-	"time"
+	"fmt"
 
 	"github.com/go-faster/errors"
 )
 
-// Ref: #/components/schemas/Bank
-type Bank struct {
-	ID   int32  `json:"id"`
-	Name string `json:"name"`
+func (s *InternalServerErrorStatusCode) Error() string {
+	return fmt.Sprintf("code %d: %+v", s.StatusCode, s.Response)
 }
 
-// GetID returns the value of ID.
-func (s *Bank) GetID() int32 {
-	return s.ID
-}
-
-// GetName returns the value of Name.
-func (s *Bank) GetName() string {
-	return s.Name
-}
-
-// SetID sets the value of ID.
-func (s *Bank) SetID(val int32) {
-	s.ID = val
-}
-
-// SetName sets the value of Name.
-func (s *Bank) SetName(val string) {
-	s.Name = val
-}
-
-func (*Bank) banksIDGetRes() {}
-
-// BanksIDGetNotFound is response for BanksIDGet operation.
-type BanksIDGetNotFound struct{}
-
-func (*BanksIDGetNotFound) banksIDGetRes() {}
-
-// Ref: #/components/schemas/Bill
-type Bill struct {
-	ID        int32    `json:"id"`
-	CompanyID OptInt32 `json:"company_id"`
-	BankID    OptInt32 `json:"bank_id"`
-	// 支払金額（円）.
-	Amount int `json:"amount"`
-	// 振込上限金額（円）.
-	PaymentLimit int `json:"payment_limit"`
-	// 実際の振込予定日.
-	PaymentDate time.Time `json:"payment_date"`
-	// 振込期限区分.
-	PaymentPeriod BillPaymentPeriod `json:"payment_period"`
-	// 支払済みフラグ.
-	IsPaid bool `json:"is_paid"`
-	// 支払完了日時.
-	PaidAt OptNilDateTime `json:"paid_at"`
-	// 備考.
-	Description OptNilString `json:"description"`
-	CreatedAt   OptDateTime  `json:"created_at"`
-	UpdatedAt   OptDateTime  `json:"updated_at"`
-}
-
-// GetID returns the value of ID.
-func (s *Bill) GetID() int32 {
-	return s.ID
-}
-
-// GetCompanyID returns the value of CompanyID.
-func (s *Bill) GetCompanyID() OptInt32 {
-	return s.CompanyID
-}
-
-// GetBankID returns the value of BankID.
-func (s *Bill) GetBankID() OptInt32 {
-	return s.BankID
-}
-
-// GetAmount returns the value of Amount.
-func (s *Bill) GetAmount() int {
-	return s.Amount
-}
-
-// GetPaymentLimit returns the value of PaymentLimit.
-func (s *Bill) GetPaymentLimit() int {
-	return s.PaymentLimit
-}
-
-// GetPaymentDate returns the value of PaymentDate.
-func (s *Bill) GetPaymentDate() time.Time {
-	return s.PaymentDate
-}
-
-// GetPaymentPeriod returns the value of PaymentPeriod.
-func (s *Bill) GetPaymentPeriod() BillPaymentPeriod {
-	return s.PaymentPeriod
-}
-
-// GetIsPaid returns the value of IsPaid.
-func (s *Bill) GetIsPaid() bool {
-	return s.IsPaid
-}
-
-// GetPaidAt returns the value of PaidAt.
-func (s *Bill) GetPaidAt() OptNilDateTime {
-	return s.PaidAt
-}
-
-// GetDescription returns the value of Description.
-func (s *Bill) GetDescription() OptNilString {
-	return s.Description
-}
-
-// GetCreatedAt returns the value of CreatedAt.
-func (s *Bill) GetCreatedAt() OptDateTime {
-	return s.CreatedAt
-}
-
-// GetUpdatedAt returns the value of UpdatedAt.
-func (s *Bill) GetUpdatedAt() OptDateTime {
-	return s.UpdatedAt
-}
-
-// SetID sets the value of ID.
-func (s *Bill) SetID(val int32) {
-	s.ID = val
-}
-
-// SetCompanyID sets the value of CompanyID.
-func (s *Bill) SetCompanyID(val OptInt32) {
-	s.CompanyID = val
-}
-
-// SetBankID sets the value of BankID.
-func (s *Bill) SetBankID(val OptInt32) {
-	s.BankID = val
-}
-
-// SetAmount sets the value of Amount.
-func (s *Bill) SetAmount(val int) {
-	s.Amount = val
-}
-
-// SetPaymentLimit sets the value of PaymentLimit.
-func (s *Bill) SetPaymentLimit(val int) {
-	s.PaymentLimit = val
-}
-
-// SetPaymentDate sets the value of PaymentDate.
-func (s *Bill) SetPaymentDate(val time.Time) {
-	s.PaymentDate = val
-}
-
-// SetPaymentPeriod sets the value of PaymentPeriod.
-func (s *Bill) SetPaymentPeriod(val BillPaymentPeriod) {
-	s.PaymentPeriod = val
-}
-
-// SetIsPaid sets the value of IsPaid.
-func (s *Bill) SetIsPaid(val bool) {
-	s.IsPaid = val
-}
-
-// SetPaidAt sets the value of PaidAt.
-func (s *Bill) SetPaidAt(val OptNilDateTime) {
-	s.PaidAt = val
-}
-
-// SetDescription sets the value of Description.
-func (s *Bill) SetDescription(val OptNilString) {
-	s.Description = val
-}
-
-// SetCreatedAt sets the value of CreatedAt.
-func (s *Bill) SetCreatedAt(val OptDateTime) {
-	s.CreatedAt = val
-}
-
-// SetUpdatedAt sets the value of UpdatedAt.
-func (s *Bill) SetUpdatedAt(val OptDateTime) {
-	s.UpdatedAt = val
-}
-
-func (*Bill) billsPostRes() {}
-
-// Ref: #/components/schemas/BillListResponse
-type BillListResponse struct {
-	Bills []Bill `json:"bills"`
-	// 総件数.
-	Total int `json:"total"`
-}
-
-// GetBills returns the value of Bills.
-func (s *BillListResponse) GetBills() []Bill {
-	return s.Bills
-}
-
-// GetTotal returns the value of Total.
-func (s *BillListResponse) GetTotal() int {
-	return s.Total
-}
-
-// SetBills sets the value of Bills.
-func (s *BillListResponse) SetBills(val []Bill) {
-	s.Bills = val
-}
-
-// SetTotal sets the value of Total.
-func (s *BillListResponse) SetTotal(val int) {
-	s.Total = val
-}
-
-// 振込期限区分.
-type BillPaymentPeriod string
-
-const (
-	BillPaymentPeriodCurrentMonthEnd BillPaymentPeriod = "current_month_end"
-	BillPaymentPeriodNextMonth15     BillPaymentPeriod = "next_month_15"
-	BillPaymentPeriodNextMonth20     BillPaymentPeriod = "next_month_20"
-	BillPaymentPeriodNextMonthEnd    BillPaymentPeriod = "next_month_end"
-)
-
-// AllValues returns all BillPaymentPeriod values.
-func (BillPaymentPeriod) AllValues() []BillPaymentPeriod {
-	return []BillPaymentPeriod{
-		BillPaymentPeriodCurrentMonthEnd,
-		BillPaymentPeriodNextMonth15,
-		BillPaymentPeriodNextMonth20,
-		BillPaymentPeriodNextMonthEnd,
-	}
-}
-
-// MarshalText implements encoding.TextMarshaler.
-func (s BillPaymentPeriod) MarshalText() ([]byte, error) {
-	switch s {
-	case BillPaymentPeriodCurrentMonthEnd:
-		return []byte(s), nil
-	case BillPaymentPeriodNextMonth15:
-		return []byte(s), nil
-	case BillPaymentPeriodNextMonth20:
-		return []byte(s), nil
-	case BillPaymentPeriodNextMonthEnd:
-		return []byte(s), nil
-	default:
-		return nil, errors.Errorf("invalid value: %q", s)
-	}
-}
-
-// UnmarshalText implements encoding.TextUnmarshaler.
-func (s *BillPaymentPeriod) UnmarshalText(data []byte) error {
-	switch BillPaymentPeriod(data) {
-	case BillPaymentPeriodCurrentMonthEnd:
-		*s = BillPaymentPeriodCurrentMonthEnd
-		return nil
-	case BillPaymentPeriodNextMonth15:
-		*s = BillPaymentPeriodNextMonth15
-		return nil
-	case BillPaymentPeriodNextMonth20:
-		*s = BillPaymentPeriodNextMonth20
-		return nil
-	case BillPaymentPeriodNextMonthEnd:
-		*s = BillPaymentPeriodNextMonthEnd
-		return nil
-	default:
-		return errors.Errorf("invalid value: %q", data)
-	}
-}
-
-// Ref: #/components/schemas/BillValidationResponse
-type BillValidationResponse struct {
-	Bill Bill `json:"bill"`
-	// 警告メッセージ（例：上限超過による期限自動変更）.
-	Warnings []string `json:"warnings"`
-	// 自動調整が行われたかどうか.
-	Adjusted bool `json:"adjusted"`
-}
-
-// GetBill returns the value of Bill.
-func (s *BillValidationResponse) GetBill() Bill {
-	return s.Bill
-}
-
-// GetWarnings returns the value of Warnings.
-func (s *BillValidationResponse) GetWarnings() []string {
-	return s.Warnings
-}
-
-// GetAdjusted returns the value of Adjusted.
-func (s *BillValidationResponse) GetAdjusted() bool {
-	return s.Adjusted
-}
-
-// SetBill sets the value of Bill.
-func (s *BillValidationResponse) SetBill(val Bill) {
-	s.Bill = val
-}
-
-// SetWarnings sets the value of Warnings.
-func (s *BillValidationResponse) SetWarnings(val []string) {
-	s.Warnings = val
-}
-
-// SetAdjusted sets the value of Adjusted.
-func (s *BillValidationResponse) SetAdjusted(val bool) {
-	s.Adjusted = val
-}
-
-func (*BillValidationResponse) billsPostRes() {}
-
-// BillsIDDeleteNoContent is response for BillsIDDelete operation.
-type BillsIDDeleteNoContent struct{}
-
-// CompaniesIDDeleteNoContent is response for CompaniesIDDelete operation.
-type CompaniesIDDeleteNoContent struct{}
-
-// Ref: #/components/schemas/Company
-type Company struct {
-	ID        int32       `json:"id"`
-	Name      string      `json:"name"`
-	CreatedAt OptDateTime `json:"created_at"`
-}
-
-// GetID returns the value of ID.
-func (s *Company) GetID() int32 {
-	return s.ID
-}
-
-// GetName returns the value of Name.
-func (s *Company) GetName() string {
-	return s.Name
-}
-
-// GetCreatedAt returns the value of CreatedAt.
-func (s *Company) GetCreatedAt() OptDateTime {
-	return s.CreatedAt
-}
-
-// SetID sets the value of ID.
-func (s *Company) SetID(val int32) {
-	s.ID = val
-}
-
-// SetName sets the value of Name.
-func (s *Company) SetName(val string) {
-	s.Name = val
-}
-
-// SetCreatedAt sets the value of CreatedAt.
-func (s *Company) SetCreatedAt(val OptDateTime) {
-	s.CreatedAt = val
-}
-
-// Ref: #/components/schemas/CreateBillRequest
-type CreateBillRequest struct {
-	CompanyID int64 `json:"company_id"`
-	BankID    int64 `json:"bank_id"`
-	// 支払金額（円）.
-	Amount int `json:"amount"`
-	// 振込上限金額（円）.
-	PaymentLimit int `json:"payment_limit"`
-	// 振込期限区分（上限超過時は自動でnext_month_15に調整）.
-	PaymentPeriod CreateBillRequestPaymentPeriod `json:"payment_period"`
-	Description   OptNilString                   `json:"description"`
-}
-
-// GetCompanyID returns the value of CompanyID.
-func (s *CreateBillRequest) GetCompanyID() int64 {
-	return s.CompanyID
-}
-
-// GetBankID returns the value of BankID.
-func (s *CreateBillRequest) GetBankID() int64 {
-	return s.BankID
-}
-
-// GetAmount returns the value of Amount.
-func (s *CreateBillRequest) GetAmount() int {
-	return s.Amount
-}
-
-// GetPaymentLimit returns the value of PaymentLimit.
-func (s *CreateBillRequest) GetPaymentLimit() int {
-	return s.PaymentLimit
-}
-
-// GetPaymentPeriod returns the value of PaymentPeriod.
-func (s *CreateBillRequest) GetPaymentPeriod() CreateBillRequestPaymentPeriod {
-	return s.PaymentPeriod
-}
+type AuthBadRequest BadRequest
 
-// GetDescription returns the value of Description.
-func (s *CreateBillRequest) GetDescription() OptNilString {
-	return s.Description
-}
-
-// SetCompanyID sets the value of CompanyID.
-func (s *CreateBillRequest) SetCompanyID(val int64) {
-	s.CompanyID = val
-}
-
-// SetBankID sets the value of BankID.
-func (s *CreateBillRequest) SetBankID(val int64) {
-	s.BankID = val
-}
-
-// SetAmount sets the value of Amount.
-func (s *CreateBillRequest) SetAmount(val int) {
-	s.Amount = val
-}
-
-// SetPaymentLimit sets the value of PaymentLimit.
-func (s *CreateBillRequest) SetPaymentLimit(val int) {
-	s.PaymentLimit = val
-}
+func (*AuthBadRequest) authRes() {}
 
-// SetPaymentPeriod sets the value of PaymentPeriod.
-func (s *CreateBillRequest) SetPaymentPeriod(val CreateBillRequestPaymentPeriod) {
-	s.PaymentPeriod = val
-}
-
-// SetDescription sets the value of Description.
-func (s *CreateBillRequest) SetDescription(val OptNilString) {
-	s.Description = val
-}
-
-// 振込期限区分（上限超過時は自動でnext_month_15に調整）.
-type CreateBillRequestPaymentPeriod string
+type AuthNotFound BadRequest
 
-const (
-	CreateBillRequestPaymentPeriodCurrentMonthEnd CreateBillRequestPaymentPeriod = "current_month_end"
-	CreateBillRequestPaymentPeriodNextMonth15     CreateBillRequestPaymentPeriod = "next_month_15"
-	CreateBillRequestPaymentPeriodNextMonth20     CreateBillRequestPaymentPeriod = "next_month_20"
-	CreateBillRequestPaymentPeriodNextMonthEnd    CreateBillRequestPaymentPeriod = "next_month_end"
-)
+func (*AuthNotFound) authRes() {}
 
-// AllValues returns all CreateBillRequestPaymentPeriod values.
-func (CreateBillRequestPaymentPeriod) AllValues() []CreateBillRequestPaymentPeriod {
-	return []CreateBillRequestPaymentPeriod{
-		CreateBillRequestPaymentPeriodCurrentMonthEnd,
-		CreateBillRequestPaymentPeriodNextMonth15,
-		CreateBillRequestPaymentPeriodNextMonth20,
-		CreateBillRequestPaymentPeriodNextMonthEnd,
-	}
+// AuthOK is response for Auth operation.
+type AuthOK struct {
+	SetCookie string
 }
 
-// MarshalText implements encoding.TextMarshaler.
-func (s CreateBillRequestPaymentPeriod) MarshalText() ([]byte, error) {
-	switch s {
-	case CreateBillRequestPaymentPeriodCurrentMonthEnd:
-		return []byte(s), nil
-	case CreateBillRequestPaymentPeriodNextMonth15:
-		return []byte(s), nil
-	case CreateBillRequestPaymentPeriodNextMonth20:
-		return []byte(s), nil
-	case CreateBillRequestPaymentPeriodNextMonthEnd:
-		return []byte(s), nil
-	default:
-		return nil, errors.Errorf("invalid value: %q", s)
-	}
+// GetSetCookie returns the value of SetCookie.
+func (s *AuthOK) GetSetCookie() string {
+	return s.SetCookie
 }
 
-// UnmarshalText implements encoding.TextUnmarshaler.
-func (s *CreateBillRequestPaymentPeriod) UnmarshalText(data []byte) error {
-	switch CreateBillRequestPaymentPeriod(data) {
-	case CreateBillRequestPaymentPeriodCurrentMonthEnd:
-		*s = CreateBillRequestPaymentPeriodCurrentMonthEnd
-		return nil
-	case CreateBillRequestPaymentPeriodNextMonth15:
-		*s = CreateBillRequestPaymentPeriodNextMonth15
-		return nil
-	case CreateBillRequestPaymentPeriodNextMonth20:
-		*s = CreateBillRequestPaymentPeriodNextMonth20
-		return nil
-	case CreateBillRequestPaymentPeriodNextMonthEnd:
-		*s = CreateBillRequestPaymentPeriodNextMonthEnd
-		return nil
-	default:
-		return errors.Errorf("invalid value: %q", data)
-	}
+// SetSetCookie sets the value of SetCookie.
+func (s *AuthOK) SetSetCookie(val string) {
+	s.SetCookie = val
 }
 
-// Ref: #/components/schemas/CreateCompanyRequest
-type CreateCompanyRequest struct {
-	Name string `json:"name"`
-}
-
-// GetName returns the value of Name.
-func (s *CreateCompanyRequest) GetName() string {
-	return s.Name
-}
-
-// SetName sets the value of Name.
-func (s *CreateCompanyRequest) SetName(val string) {
-	s.Name = val
-}
+func (*AuthOK) authRes() {}
 
-// Ref: #/components/schemas/CreateUserRequest
-type CreateUserRequest struct {
-	Name  string `json:"name"`
-	Email string `json:"email"`
+type AuthReq struct {
+	// Boolean to indicate if the user is signing in or signing up.
+	Signup bool `json:"signup"`
+	// Google JWT token provided after Google authentication.
+	Token string `json:"token"`
 }
 
-// GetName returns the value of Name.
-func (s *CreateUserRequest) GetName() string {
-	return s.Name
+// GetSignup returns the value of Signup.
+func (s *AuthReq) GetSignup() bool {
+	return s.Signup
 }
 
-// GetEmail returns the value of Email.
-func (s *CreateUserRequest) GetEmail() string {
-	return s.Email
+// GetToken returns the value of Token.
+func (s *AuthReq) GetToken() string {
+	return s.Token
 }
 
-// SetName sets the value of Name.
-func (s *CreateUserRequest) SetName(val string) {
-	s.Name = val
+// SetSignup sets the value of Signup.
+func (s *AuthReq) SetSignup(val bool) {
+	s.Signup = val
 }
 
-// SetEmail sets the value of Email.
-func (s *CreateUserRequest) SetEmail(val string) {
-	s.Email = val
+// SetToken sets the value of Token.
+func (s *AuthReq) SetToken(val string) {
+	s.Token = val
 }
 
-// Ref: #/components/schemas/Error
-type Error struct {
-	Message OptString `json:"message"`
+type BadRequest struct {
+	Message string `json:"message"`
 }
 
 // GetMessage returns the value of Message.
-func (s *Error) GetMessage() OptString {
+func (s *BadRequest) GetMessage() string {
 	return s.Message
 }
 
 // SetMessage sets the value of Message.
-func (s *Error) SetMessage(val OptString) {
+func (s *BadRequest) SetMessage(val string) {
 	s.Message = val
 }
 
-func (*Error) usersGetRes()   {}
-func (*Error) usersIDGetRes() {}
-func (*Error) usersPostRes()  {}
+// Creation bank was success.
+// Ref: #/components/schemas/BankCreated
+type BankCreated struct{}
+
+func (*BankCreated) banksPostRes() {}
+
+// Obtain bank information was success.
+// Ref: #/components/schemas/BankObtained
+type BankObtained struct{}
+
+func (*BankObtained) banksIDGetRes() {}
+
+type BanksIDGetBadRequest BadRequest
+
+func (*BanksIDGetBadRequest) banksIDGetRes() {}
+
+type BanksIDGetNotFound BadRequest
+
+func (*BanksIDGetNotFound) banksIDGetRes() {}
+
+type BanksPostBadRequest BadRequest
+
+func (*BanksPostBadRequest) banksPostRes() {}
+
+type BanksPostNotFound BadRequest
+
+func (*BanksPostNotFound) banksPostRes() {}
+
+// Creation bill was success.
+// Ref: #/components/schemas/BillCreated
+type BillCreated struct{}
+
+func (*BillCreated) billsPostRes() {}
+
+// Obtain direct bill information was success.
+// Ref: #/components/schemas/BillObtained
+type BillObtained struct{}
+
+func (*BillObtained) billsIDGetRes()            {}
+func (*BillObtained) paydatePaymentDateGetRes() {}
+
+// Update bill was success.
+// Ref: #/components/schemas/BillUpdated
+type BillUpdated struct{}
+
+func (*BillUpdated) billsIDPutRes() {}
+
+type BillsIDDeleteBadRequest BadRequest
+
+func (*BillsIDDeleteBadRequest) billsIDDeleteRes() {}
+
+// BillsIDDeleteNoContent is response for BillsIDDelete operation.
+type BillsIDDeleteNoContent struct{}
+
+func (*BillsIDDeleteNoContent) billsIDDeleteRes() {}
+
+type BillsIDDeleteNotFound BadRequest
+
+func (*BillsIDDeleteNotFound) billsIDDeleteRes() {}
+
+type BillsIDGetBadRequest BadRequest
+
+func (*BillsIDGetBadRequest) billsIDGetRes() {}
+
+type BillsIDGetNotFound BadRequest
+
+func (*BillsIDGetNotFound) billsIDGetRes() {}
+
+type BillsIDPutBadRequest BadRequest
+
+func (*BillsIDPutBadRequest) billsIDPutRes() {}
+
+type BillsIDPutNotFound BadRequest
+
+func (*BillsIDPutNotFound) billsIDPutRes() {}
+
+type BillsPostBadRequest BadRequest
+
+func (*BillsPostBadRequest) billsPostRes() {}
+
+type BillsPostNotFound BadRequest
+
+func (*BillsPostNotFound) billsPostRes() {}
+
+type BillsStatementIDPutBadRequest BadRequest
+
+func (*BillsStatementIDPutBadRequest) billsStatementIDPutRes() {}
+
+type BillsStatementIDPutNotFound BadRequest
+
+func (*BillsStatementIDPutNotFound) billsStatementIDPutRes() {}
+
+// BillsStatementIDPutOK is response for BillsStatementIDPut operation.
+type BillsStatementIDPutOK struct{}
+
+func (*BillsStatementIDPutOK) billsStatementIDPutRes() {}
+
+type CompaniesIDDeleteBadRequest BadRequest
+
+func (*CompaniesIDDeleteBadRequest) companiesIDDeleteRes() {}
+
+// CompaniesIDDeleteNoContent is response for CompaniesIDDelete operation.
+type CompaniesIDDeleteNoContent struct{}
+
+func (*CompaniesIDDeleteNoContent) companiesIDDeleteRes() {}
+
+type CompaniesIDDeleteNotFound BadRequest
+
+func (*CompaniesIDDeleteNotFound) companiesIDDeleteRes() {}
+
+type CompaniesIDGetBadRequest BadRequest
+
+func (*CompaniesIDGetBadRequest) companiesIDGetRes() {}
+
+type CompaniesIDGetNotFound BadRequest
+
+func (*CompaniesIDGetNotFound) companiesIDGetRes() {}
+
+type CompaniesIDPutBadRequest BadRequest
+
+func (*CompaniesIDPutBadRequest) companiesIDPutRes() {}
+
+type CompaniesIDPutNotFound BadRequest
+
+func (*CompaniesIDPutNotFound) companiesIDPutRes() {}
+
+type CompaniesPostBadRequest BadRequest
+
+func (*CompaniesPostBadRequest) companiesPostRes() {}
+
+type CompaniesPostNotFound BadRequest
+
+func (*CompaniesPostNotFound) companiesPostRes() {}
+
+// Creation companies was success.
+// Ref: #/components/schemas/CompanyCreated
+type CompanyCreated struct{}
+
+func (*CompanyCreated) companiesPostRes() {}
+
+// Obtain companies was success.
+// Ref: #/components/schemas/CompanyObtained
+type CompanyObtained struct{}
+
+func (*CompanyObtained) companiesIDGetRes() {}
+
+// Update companies was success.
+// Ref: #/components/schemas/CompanyUpdated
+type CompanyUpdated struct{}
+
+func (*CompanyUpdated) companiesIDPutRes() {}
+
+// Ref: #/components/schemas/CreateBankRequest
+type CreateBankRequest struct{}
+
+// Ref: #/components/schemas/CreateBillRequest
+type CreateBillRequest struct{}
+
+// Ref: #/components/schemas/CreateCompanyRequest
+type CreateCompanyRequest struct{}
+
+// Ref: #/components/schemas/CreateUserRequest
+type CreateUserRequest struct{}
 
 // Ref: #/components/schemas/GetUserRequest
-type GetUserRequest struct {
-	Name  string `json:"name"`
-	Email string `json:"email"`
+type GetUserRequest struct{}
+
+type ID int32
+
+type InternalServerError struct {
+	Message string `json:"message"`
 }
 
-// GetName returns the value of Name.
-func (s *GetUserRequest) GetName() string {
-	return s.Name
+// GetMessage returns the value of Message.
+func (s *InternalServerError) GetMessage() string {
+	return s.Message
 }
 
-// GetEmail returns the value of Email.
-func (s *GetUserRequest) GetEmail() string {
-	return s.Email
+// SetMessage sets the value of Message.
+func (s *InternalServerError) SetMessage(val string) {
+	s.Message = val
 }
 
-// SetName sets the value of Name.
-func (s *GetUserRequest) SetName(val string) {
-	s.Name = val
+// InternalServerErrorStatusCode wraps InternalServerError with StatusCode.
+type InternalServerErrorStatusCode struct {
+	StatusCode int
+	Response   InternalServerError
 }
 
-// SetEmail sets the value of Email.
-func (s *GetUserRequest) SetEmail(val string) {
-	s.Email = val
+// GetStatusCode returns the value of StatusCode.
+func (s *InternalServerErrorStatusCode) GetStatusCode() int {
+	return s.StatusCode
 }
 
-func (*GetUserRequest) usersIDGetRes() {}
-
-type Name string
-
-// NewOptBool returns new OptBool with value set to v.
-func NewOptBool(v bool) OptBool {
-	return OptBool{
-		Value: v,
-		Set:   true,
-	}
+// GetResponse returns the value of Response.
+func (s *InternalServerErrorStatusCode) GetResponse() InternalServerError {
+	return s.Response
 }
 
-// OptBool is optional bool.
-type OptBool struct {
-	Value bool
-	Set   bool
+// SetStatusCode sets the value of StatusCode.
+func (s *InternalServerErrorStatusCode) SetStatusCode(val int) {
+	s.StatusCode = val
 }
 
-// IsSet returns true if OptBool was set.
-func (o OptBool) IsSet() bool { return o.Set }
-
-// Reset unsets value.
-func (o *OptBool) Reset() {
-	var v bool
-	o.Value = v
-	o.Set = false
+// SetResponse sets the value of Response.
+func (s *InternalServerErrorStatusCode) SetResponse(val InternalServerError) {
+	s.Response = val
 }
 
-// SetTo sets value to v.
-func (o *OptBool) SetTo(v bool) {
-	o.Set = true
-	o.Value = v
-}
+type PaydatePaymentDateGetBadRequest BadRequest
 
-// Get returns value and boolean that denotes whether value was set.
-func (o OptBool) Get() (v bool, ok bool) {
-	if !o.Set {
-		return v, false
-	}
-	return o.Value, true
-}
+func (*PaydatePaymentDateGetBadRequest) paydatePaymentDateGetRes() {}
 
-// Or returns value if set, or given parameter if does not.
-func (o OptBool) Or(d bool) bool {
-	if v, ok := o.Get(); ok {
-		return v
-	}
-	return d
-}
+type PaydatePaymentDateGetNotFound BadRequest
 
-// NewOptDateTime returns new OptDateTime with value set to v.
-func NewOptDateTime(v time.Time) OptDateTime {
-	return OptDateTime{
-		Value: v,
-		Set:   true,
-	}
-}
-
-// OptDateTime is optional time.Time.
-type OptDateTime struct {
-	Value time.Time
-	Set   bool
-}
-
-// IsSet returns true if OptDateTime was set.
-func (o OptDateTime) IsSet() bool { return o.Set }
-
-// Reset unsets value.
-func (o *OptDateTime) Reset() {
-	var v time.Time
-	o.Value = v
-	o.Set = false
-}
-
-// SetTo sets value to v.
-func (o *OptDateTime) SetTo(v time.Time) {
-	o.Set = true
-	o.Value = v
-}
-
-// Get returns value and boolean that denotes whether value was set.
-func (o OptDateTime) Get() (v time.Time, ok bool) {
-	if !o.Set {
-		return v, false
-	}
-	return o.Value, true
-}
-
-// Or returns value if set, or given parameter if does not.
-func (o OptDateTime) Or(d time.Time) time.Time {
-	if v, ok := o.Get(); ok {
-		return v
-	}
-	return d
-}
-
-// NewOptInt32 returns new OptInt32 with value set to v.
-func NewOptInt32(v int32) OptInt32 {
-	return OptInt32{
-		Value: v,
-		Set:   true,
-	}
-}
-
-// OptInt32 is optional int32.
-type OptInt32 struct {
-	Value int32
-	Set   bool
-}
-
-// IsSet returns true if OptInt32 was set.
-func (o OptInt32) IsSet() bool { return o.Set }
-
-// Reset unsets value.
-func (o *OptInt32) Reset() {
-	var v int32
-	o.Value = v
-	o.Set = false
-}
-
-// SetTo sets value to v.
-func (o *OptInt32) SetTo(v int32) {
-	o.Set = true
-	o.Value = v
-}
-
-// Get returns value and boolean that denotes whether value was set.
-func (o OptInt32) Get() (v int32, ok bool) {
-	if !o.Set {
-		return v, false
-	}
-	return o.Value, true
-}
-
-// Or returns value if set, or given parameter if does not.
-func (o OptInt32) Or(d int32) int32 {
-	if v, ok := o.Get(); ok {
-		return v
-	}
-	return d
-}
-
-// NewOptNilDateTime returns new OptNilDateTime with value set to v.
-func NewOptNilDateTime(v time.Time) OptNilDateTime {
-	return OptNilDateTime{
-		Value: v,
-		Set:   true,
-	}
-}
-
-// OptNilDateTime is optional nullable time.Time.
-type OptNilDateTime struct {
-	Value time.Time
-	Set   bool
-	Null  bool
-}
-
-// IsSet returns true if OptNilDateTime was set.
-func (o OptNilDateTime) IsSet() bool { return o.Set }
-
-// Reset unsets value.
-func (o *OptNilDateTime) Reset() {
-	var v time.Time
-	o.Value = v
-	o.Set = false
-	o.Null = false
-}
-
-// SetTo sets value to v.
-func (o *OptNilDateTime) SetTo(v time.Time) {
-	o.Set = true
-	o.Null = false
-	o.Value = v
-}
-
-// IsNull returns true if value is Null.
-func (o OptNilDateTime) IsNull() bool { return o.Null }
-
-// SetToNull sets value to null.
-func (o *OptNilDateTime) SetToNull() {
-	o.Set = true
-	o.Null = true
-	var v time.Time
-	o.Value = v
-}
-
-// Get returns value and boolean that denotes whether value was set.
-func (o OptNilDateTime) Get() (v time.Time, ok bool) {
-	if o.Null {
-		return v, false
-	}
-	if !o.Set {
-		return v, false
-	}
-	return o.Value, true
-}
-
-// Or returns value if set, or given parameter if does not.
-func (o OptNilDateTime) Or(d time.Time) time.Time {
-	if v, ok := o.Get(); ok {
-		return v
-	}
-	return d
-}
-
-// NewOptNilString returns new OptNilString with value set to v.
-func NewOptNilString(v string) OptNilString {
-	return OptNilString{
-		Value: v,
-		Set:   true,
-	}
-}
-
-// OptNilString is optional nullable string.
-type OptNilString struct {
-	Value string
-	Set   bool
-	Null  bool
-}
-
-// IsSet returns true if OptNilString was set.
-func (o OptNilString) IsSet() bool { return o.Set }
-
-// Reset unsets value.
-func (o *OptNilString) Reset() {
-	var v string
-	o.Value = v
-	o.Set = false
-	o.Null = false
-}
-
-// SetTo sets value to v.
-func (o *OptNilString) SetTo(v string) {
-	o.Set = true
-	o.Null = false
-	o.Value = v
-}
-
-// IsNull returns true if value is Null.
-func (o OptNilString) IsNull() bool { return o.Null }
-
-// SetToNull sets value to null.
-func (o *OptNilString) SetToNull() {
-	o.Set = true
-	o.Null = true
-	var v string
-	o.Value = v
-}
-
-// Get returns value and boolean that denotes whether value was set.
-func (o OptNilString) Get() (v string, ok bool) {
-	if o.Null {
-		return v, false
-	}
-	if !o.Set {
-		return v, false
-	}
-	return o.Value, true
-}
-
-// Or returns value if set, or given parameter if does not.
-func (o OptNilString) Or(d string) string {
-	if v, ok := o.Get(); ok {
-		return v
-	}
-	return d
-}
-
-// NewOptPaymentPeriod returns new OptPaymentPeriod with value set to v.
-func NewOptPaymentPeriod(v PaymentPeriod) OptPaymentPeriod {
-	return OptPaymentPeriod{
-		Value: v,
-		Set:   true,
-	}
-}
-
-// OptPaymentPeriod is optional PaymentPeriod.
-type OptPaymentPeriod struct {
-	Value PaymentPeriod
-	Set   bool
-}
-
-// IsSet returns true if OptPaymentPeriod was set.
-func (o OptPaymentPeriod) IsSet() bool { return o.Set }
-
-// Reset unsets value.
-func (o *OptPaymentPeriod) Reset() {
-	var v PaymentPeriod
-	o.Value = v
-	o.Set = false
-}
-
-// SetTo sets value to v.
-func (o *OptPaymentPeriod) SetTo(v PaymentPeriod) {
-	o.Set = true
-	o.Value = v
-}
-
-// Get returns value and boolean that denotes whether value was set.
-func (o OptPaymentPeriod) Get() (v PaymentPeriod, ok bool) {
-	if !o.Set {
-		return v, false
-	}
-	return o.Value, true
-}
-
-// Or returns value if set, or given parameter if does not.
-func (o OptPaymentPeriod) Or(d PaymentPeriod) PaymentPeriod {
-	if v, ok := o.Get(); ok {
-		return v
-	}
-	return d
-}
-
-// NewOptString returns new OptString with value set to v.
-func NewOptString(v string) OptString {
-	return OptString{
-		Value: v,
-		Set:   true,
-	}
-}
-
-// OptString is optional string.
-type OptString struct {
-	Value string
-	Set   bool
-}
-
-// IsSet returns true if OptString was set.
-func (o OptString) IsSet() bool { return o.Set }
-
-// Reset unsets value.
-func (o *OptString) Reset() {
-	var v string
-	o.Value = v
-	o.Set = false
-}
-
-// SetTo sets value to v.
-func (o *OptString) SetTo(v string) {
-	o.Set = true
-	o.Value = v
-}
-
-// Get returns value and boolean that denotes whether value was set.
-func (o OptString) Get() (v string, ok bool) {
-	if !o.Set {
-		return v, false
-	}
-	return o.Value, true
-}
-
-// Or returns value if set, or given parameter if does not.
-func (o OptString) Or(d string) string {
-	if v, ok := o.Get(); ok {
-		return v
-	}
-	return d
-}
+func (*PaydatePaymentDateGetNotFound) paydatePaymentDateGetRes() {}
 
 // 振込期限区分.
-// Ref: #/components/schemas/PaymentPeriod
-type PaymentPeriod string
+// Ref: #/components/schemas/payment_date
+type PaymentDate string
 
 const (
-	PaymentPeriodCurrentMonthEnd PaymentPeriod = "current_month_end"
-	PaymentPeriodNextMonth15     PaymentPeriod = "next_month_15"
-	PaymentPeriodNextMonth20     PaymentPeriod = "next_month_20"
-	PaymentPeriodNextMonthEnd    PaymentPeriod = "next_month_end"
+	PaymentDateCurrentMonthEnd PaymentDate = "current_month_end"
+	PaymentDateNextMonth15     PaymentDate = "next_month_15"
+	PaymentDateNextMonth20     PaymentDate = "next_month_20"
+	PaymentDateNextMonthEnd    PaymentDate = "next_month_end"
 )
 
-// AllValues returns all PaymentPeriod values.
-func (PaymentPeriod) AllValues() []PaymentPeriod {
-	return []PaymentPeriod{
-		PaymentPeriodCurrentMonthEnd,
-		PaymentPeriodNextMonth15,
-		PaymentPeriodNextMonth20,
-		PaymentPeriodNextMonthEnd,
+// AllValues returns all PaymentDate values.
+func (PaymentDate) AllValues() []PaymentDate {
+	return []PaymentDate{
+		PaymentDateCurrentMonthEnd,
+		PaymentDateNextMonth15,
+		PaymentDateNextMonth20,
+		PaymentDateNextMonthEnd,
 	}
 }
 
 // MarshalText implements encoding.TextMarshaler.
-func (s PaymentPeriod) MarshalText() ([]byte, error) {
+func (s PaymentDate) MarshalText() ([]byte, error) {
 	switch s {
-	case PaymentPeriodCurrentMonthEnd:
+	case PaymentDateCurrentMonthEnd:
 		return []byte(s), nil
-	case PaymentPeriodNextMonth15:
+	case PaymentDateNextMonth15:
 		return []byte(s), nil
-	case PaymentPeriodNextMonth20:
+	case PaymentDateNextMonth20:
 		return []byte(s), nil
-	case PaymentPeriodNextMonthEnd:
+	case PaymentDateNextMonthEnd:
 		return []byte(s), nil
 	default:
 		return nil, errors.Errorf("invalid value: %q", s)
@@ -966,19 +333,19 @@ func (s PaymentPeriod) MarshalText() ([]byte, error) {
 }
 
 // UnmarshalText implements encoding.TextUnmarshaler.
-func (s *PaymentPeriod) UnmarshalText(data []byte) error {
-	switch PaymentPeriod(data) {
-	case PaymentPeriodCurrentMonthEnd:
-		*s = PaymentPeriodCurrentMonthEnd
+func (s *PaymentDate) UnmarshalText(data []byte) error {
+	switch PaymentDate(data) {
+	case PaymentDateCurrentMonthEnd:
+		*s = PaymentDateCurrentMonthEnd
 		return nil
-	case PaymentPeriodNextMonth15:
-		*s = PaymentPeriodNextMonth15
+	case PaymentDateNextMonth15:
+		*s = PaymentDateNextMonth15
 		return nil
-	case PaymentPeriodNextMonth20:
-		*s = PaymentPeriodNextMonth20
+	case PaymentDateNextMonth20:
+		*s = PaymentDateNextMonth20
 		return nil
-	case PaymentPeriodNextMonthEnd:
-		*s = PaymentPeriodNextMonthEnd
+	case PaymentDateNextMonthEnd:
+		*s = PaymentDateNextMonthEnd
 		return nil
 	default:
 		return errors.Errorf("invalid value: %q", data)
@@ -986,249 +353,71 @@ func (s *PaymentPeriod) UnmarshalText(data []byte) error {
 }
 
 // Ref: #/components/schemas/UpdateBillRequest
-type UpdateBillRequest struct {
-	CompanyID     int64                          `json:"company_id"`
-	BankID        int64                          `json:"bank_id"`
-	Amount        int                            `json:"amount"`
-	PaymentLimit  int                            `json:"payment_limit"`
-	PaymentPeriod UpdateBillRequestPaymentPeriod `json:"payment_period"`
-	Description   OptNilString                   `json:"description"`
-}
-
-// GetCompanyID returns the value of CompanyID.
-func (s *UpdateBillRequest) GetCompanyID() int64 {
-	return s.CompanyID
-}
-
-// GetBankID returns the value of BankID.
-func (s *UpdateBillRequest) GetBankID() int64 {
-	return s.BankID
-}
-
-// GetAmount returns the value of Amount.
-func (s *UpdateBillRequest) GetAmount() int {
-	return s.Amount
-}
-
-// GetPaymentLimit returns the value of PaymentLimit.
-func (s *UpdateBillRequest) GetPaymentLimit() int {
-	return s.PaymentLimit
-}
-
-// GetPaymentPeriod returns the value of PaymentPeriod.
-func (s *UpdateBillRequest) GetPaymentPeriod() UpdateBillRequestPaymentPeriod {
-	return s.PaymentPeriod
-}
-
-// GetDescription returns the value of Description.
-func (s *UpdateBillRequest) GetDescription() OptNilString {
-	return s.Description
-}
-
-// SetCompanyID sets the value of CompanyID.
-func (s *UpdateBillRequest) SetCompanyID(val int64) {
-	s.CompanyID = val
-}
-
-// SetBankID sets the value of BankID.
-func (s *UpdateBillRequest) SetBankID(val int64) {
-	s.BankID = val
-}
-
-// SetAmount sets the value of Amount.
-func (s *UpdateBillRequest) SetAmount(val int) {
-	s.Amount = val
-}
-
-// SetPaymentLimit sets the value of PaymentLimit.
-func (s *UpdateBillRequest) SetPaymentLimit(val int) {
-	s.PaymentLimit = val
-}
-
-// SetPaymentPeriod sets the value of PaymentPeriod.
-func (s *UpdateBillRequest) SetPaymentPeriod(val UpdateBillRequestPaymentPeriod) {
-	s.PaymentPeriod = val
-}
-
-// SetDescription sets the value of Description.
-func (s *UpdateBillRequest) SetDescription(val OptNilString) {
-	s.Description = val
-}
-
-type UpdateBillRequestPaymentPeriod string
-
-const (
-	UpdateBillRequestPaymentPeriodCurrentMonthEnd UpdateBillRequestPaymentPeriod = "current_month_end"
-	UpdateBillRequestPaymentPeriodNextMonth15     UpdateBillRequestPaymentPeriod = "next_month_15"
-	UpdateBillRequestPaymentPeriodNextMonth20     UpdateBillRequestPaymentPeriod = "next_month_20"
-	UpdateBillRequestPaymentPeriodNextMonthEnd    UpdateBillRequestPaymentPeriod = "next_month_end"
-)
-
-// AllValues returns all UpdateBillRequestPaymentPeriod values.
-func (UpdateBillRequestPaymentPeriod) AllValues() []UpdateBillRequestPaymentPeriod {
-	return []UpdateBillRequestPaymentPeriod{
-		UpdateBillRequestPaymentPeriodCurrentMonthEnd,
-		UpdateBillRequestPaymentPeriodNextMonth15,
-		UpdateBillRequestPaymentPeriodNextMonth20,
-		UpdateBillRequestPaymentPeriodNextMonthEnd,
-	}
-}
-
-// MarshalText implements encoding.TextMarshaler.
-func (s UpdateBillRequestPaymentPeriod) MarshalText() ([]byte, error) {
-	switch s {
-	case UpdateBillRequestPaymentPeriodCurrentMonthEnd:
-		return []byte(s), nil
-	case UpdateBillRequestPaymentPeriodNextMonth15:
-		return []byte(s), nil
-	case UpdateBillRequestPaymentPeriodNextMonth20:
-		return []byte(s), nil
-	case UpdateBillRequestPaymentPeriodNextMonthEnd:
-		return []byte(s), nil
-	default:
-		return nil, errors.Errorf("invalid value: %q", s)
-	}
-}
-
-// UnmarshalText implements encoding.TextUnmarshaler.
-func (s *UpdateBillRequestPaymentPeriod) UnmarshalText(data []byte) error {
-	switch UpdateBillRequestPaymentPeriod(data) {
-	case UpdateBillRequestPaymentPeriodCurrentMonthEnd:
-		*s = UpdateBillRequestPaymentPeriodCurrentMonthEnd
-		return nil
-	case UpdateBillRequestPaymentPeriodNextMonth15:
-		*s = UpdateBillRequestPaymentPeriodNextMonth15
-		return nil
-	case UpdateBillRequestPaymentPeriodNextMonth20:
-		*s = UpdateBillRequestPaymentPeriodNextMonth20
-		return nil
-	case UpdateBillRequestPaymentPeriodNextMonthEnd:
-		*s = UpdateBillRequestPaymentPeriodNextMonthEnd
-		return nil
-	default:
-		return errors.Errorf("invalid value: %q", data)
-	}
-}
-
-// Ref: #/components/schemas/UpdateCompanyRequest
-type UpdateCompanyRequest struct {
-	Name string `json:"name"`
-}
-
-// GetName returns the value of Name.
-func (s *UpdateCompanyRequest) GetName() string {
-	return s.Name
-}
-
-// SetName sets the value of Name.
-func (s *UpdateCompanyRequest) SetName(val string) {
-	s.Name = val
-}
-
-// Ref: #/components/schemas/UpdatePaymentStatusRequest
-type UpdatePaymentStatusRequest struct {
-	IsPaid bool `json:"is_paid"`
-}
-
-// GetIsPaid returns the value of IsPaid.
-func (s *UpdatePaymentStatusRequest) GetIsPaid() bool {
-	return s.IsPaid
-}
-
-// SetIsPaid sets the value of IsPaid.
-func (s *UpdatePaymentStatusRequest) SetIsPaid(val bool) {
-	s.IsPaid = val
-}
+type UpdateBillRequest struct{}
 
 // Ref: #/components/schemas/UpdateUserRequest
-type UpdateUserRequest struct {
-	Name  OptString `json:"name"`
-	Email OptString `json:"email"`
-}
+type UpdateUserRequest struct{}
 
-// GetName returns the value of Name.
-func (s *UpdateUserRequest) GetName() OptString {
-	return s.Name
-}
+// User creation was successful.
+// Ref: #/components/schemas/UserCreated
+type UserCreated struct{}
 
-// GetEmail returns the value of Email.
-func (s *UpdateUserRequest) GetEmail() OptString {
-	return s.Email
-}
+func (*UserCreated) usersPostRes() {}
 
-// SetName sets the value of Name.
-func (s *UpdateUserRequest) SetName(val OptString) {
-	s.Name = val
-}
+// Obtain user information was success.
+// Ref: #/components/schemas/UserObtained
+type UserObtained struct{}
 
-// SetEmail sets the value of Email.
-func (s *UpdateUserRequest) SetEmail(val OptString) {
-	s.Email = val
-}
+func (*UserObtained) usersGetRes() {}
 
-// Ref: #/components/schemas/User
-type User struct {
-	ID        int32       `json:"id"`
-	Name      string      `json:"name"`
-	Email     string      `json:"email"`
-	CreatedAt OptDateTime `json:"created_at"`
-}
+// Update was success.
+// Ref: #/components/schemas/UserUpdated
+type UserUpdated struct{}
 
-// GetID returns the value of ID.
-func (s *User) GetID() int32 {
-	return s.ID
-}
+func (*UserUpdated) usersIDGetRes() {}
+func (*UserUpdated) usersIDPutRes() {}
 
-// GetName returns the value of Name.
-func (s *User) GetName() string {
-	return s.Name
-}
+type UsersGetBadRequest BadRequest
 
-// GetEmail returns the value of Email.
-func (s *User) GetEmail() string {
-	return s.Email
-}
+func (*UsersGetBadRequest) usersGetRes() {}
 
-// GetCreatedAt returns the value of CreatedAt.
-func (s *User) GetCreatedAt() OptDateTime {
-	return s.CreatedAt
-}
+type UsersGetNotFound BadRequest
 
-// SetID sets the value of ID.
-func (s *User) SetID(val int32) {
-	s.ID = val
-}
+func (*UsersGetNotFound) usersGetRes() {}
 
-// SetName sets the value of Name.
-func (s *User) SetName(val string) {
-	s.Name = val
-}
+type UsersIDDeleteBadRequest BadRequest
 
-// SetEmail sets the value of Email.
-func (s *User) SetEmail(val string) {
-	s.Email = val
-}
-
-// SetCreatedAt sets the value of CreatedAt.
-func (s *User) SetCreatedAt(val OptDateTime) {
-	s.CreatedAt = val
-}
-
-func (*User) usersGetRes()   {}
-func (*User) usersIDPutRes() {}
-func (*User) usersPostRes()  {}
+func (*UsersIDDeleteBadRequest) usersIDDeleteRes() {}
 
 // UsersIDDeleteNoContent is response for UsersIDDelete operation.
 type UsersIDDeleteNoContent struct{}
 
 func (*UsersIDDeleteNoContent) usersIDDeleteRes() {}
 
-// UsersIDDeleteNotFound is response for UsersIDDelete operation.
-type UsersIDDeleteNotFound struct{}
+type UsersIDDeleteNotFound BadRequest
 
 func (*UsersIDDeleteNotFound) usersIDDeleteRes() {}
 
-// UsersIDPutNotFound is response for UsersIDPut operation.
-type UsersIDPutNotFound struct{}
+type UsersIDGetBadRequest BadRequest
+
+func (*UsersIDGetBadRequest) usersIDGetRes() {}
+
+type UsersIDGetNotFound BadRequest
+
+func (*UsersIDGetNotFound) usersIDGetRes() {}
+
+type UsersIDPutBadRequest BadRequest
+
+func (*UsersIDPutBadRequest) usersIDPutRes() {}
+
+type UsersIDPutNotFound BadRequest
 
 func (*UsersIDPutNotFound) usersIDPutRes() {}
+
+type UsersPostBadRequest BadRequest
+
+func (*UsersPostBadRequest) usersPostRes() {}
+
+type UsersPostNotFound BadRequest
+
+func (*UsersPostNotFound) usersPostRes() {}

@@ -14,8 +14,8 @@ import (
 	"github.com/ogen-go/ogen/validate"
 )
 
-func (s *Server) decodeBanksPostRequest(r *http.Request) (
-	req Name,
+func (s *Server) decodeAuthRequest(r *http.Request) (
+	req *AuthReq,
 	close func() error,
 	rerr error,
 ) {
@@ -54,7 +54,7 @@ func (s *Server) decodeBanksPostRequest(r *http.Request) (
 
 		d := jx.DecodeBytes(buf)
 
-		var request Name
+		var request AuthReq
 		if err := func() error {
 			if err := request.Decode(d); err != nil {
 				return err
@@ -71,14 +71,14 @@ func (s *Server) decodeBanksPostRequest(r *http.Request) (
 			}
 			return req, close, err
 		}
-		return request, close, nil
+		return &request, close, nil
 	default:
 		return req, close, validate.InvalidContentType(ct)
 	}
 }
 
-func (s *Server) decodeBillsIDPaymentStatusPatchRequest(r *http.Request) (
-	req *UpdatePaymentStatusRequest,
+func (s *Server) decodeBanksPostRequest(r *http.Request) (
+	req *CreateBankRequest,
 	close func() error,
 	rerr error,
 ) {
@@ -117,7 +117,7 @@ func (s *Server) decodeBillsIDPaymentStatusPatchRequest(r *http.Request) (
 
 		d := jx.DecodeBytes(buf)
 
-		var request UpdatePaymentStatusRequest
+		var request CreateBankRequest
 		if err := func() error {
 			if err := request.Decode(d); err != nil {
 				return err
@@ -197,14 +197,6 @@ func (s *Server) decodeBillsIDPutRequest(r *http.Request) (
 			}
 			return req, close, err
 		}
-		if err := func() error {
-			if err := request.Validate(); err != nil {
-				return err
-			}
-			return nil
-		}(); err != nil {
-			return req, close, errors.Wrap(err, "validate")
-		}
 		return &request, close, nil
 	default:
 		return req, close, validate.InvalidContentType(ct)
@@ -252,77 +244,6 @@ func (s *Server) decodeBillsPostRequest(r *http.Request) (
 		d := jx.DecodeBytes(buf)
 
 		var request CreateBillRequest
-		if err := func() error {
-			if err := request.Decode(d); err != nil {
-				return err
-			}
-			if err := d.Skip(); err != io.EOF {
-				return errors.New("unexpected trailing data")
-			}
-			return nil
-		}(); err != nil {
-			err = &ogenerrors.DecodeBodyError{
-				ContentType: ct,
-				Body:        buf,
-				Err:         err,
-			}
-			return req, close, err
-		}
-		if err := func() error {
-			if err := request.Validate(); err != nil {
-				return err
-			}
-			return nil
-		}(); err != nil {
-			return req, close, errors.Wrap(err, "validate")
-		}
-		return &request, close, nil
-	default:
-		return req, close, validate.InvalidContentType(ct)
-	}
-}
-
-func (s *Server) decodeCompaniesIDPutRequest(r *http.Request) (
-	req *UpdateCompanyRequest,
-	close func() error,
-	rerr error,
-) {
-	var closers []func() error
-	close = func() error {
-		var merr error
-		// Close in reverse order, to match defer behavior.
-		for i := len(closers) - 1; i >= 0; i-- {
-			c := closers[i]
-			merr = errors.Join(merr, c())
-		}
-		return merr
-	}
-	defer func() {
-		if rerr != nil {
-			rerr = errors.Join(rerr, close())
-		}
-	}()
-	ct, _, err := mime.ParseMediaType(r.Header.Get("Content-Type"))
-	if err != nil {
-		return req, close, errors.Wrap(err, "parse media type")
-	}
-	switch {
-	case ct == "application/json":
-		if r.ContentLength == 0 {
-			return req, close, validate.ErrBodyRequired
-		}
-		buf, err := io.ReadAll(r.Body)
-		if err != nil {
-			return req, close, err
-		}
-
-		if len(buf) == 0 {
-			return req, close, validate.ErrBodyRequired
-		}
-
-		d := jx.DecodeBytes(buf)
-
-		var request UpdateCompanyRequest
 		if err := func() error {
 			if err := request.Decode(d); err != nil {
 				return err
@@ -465,14 +386,6 @@ func (s *Server) decodeUsersGetRequest(r *http.Request) (
 			}
 			return req, close, err
 		}
-		if err := func() error {
-			if err := request.Validate(); err != nil {
-				return err
-			}
-			return nil
-		}(); err != nil {
-			return req, close, errors.Wrap(err, "validate")
-		}
 		return &request, close, nil
 	default:
 		return req, close, validate.InvalidContentType(ct)
@@ -536,14 +449,6 @@ func (s *Server) decodeUsersIDPutRequest(r *http.Request) (
 			}
 			return req, close, err
 		}
-		if err := func() error {
-			if err := request.Validate(); err != nil {
-				return err
-			}
-			return nil
-		}(); err != nil {
-			return req, close, errors.Wrap(err, "validate")
-		}
 		return &request, close, nil
 	default:
 		return req, close, validate.InvalidContentType(ct)
@@ -606,14 +511,6 @@ func (s *Server) decodeUsersPostRequest(r *http.Request) (
 				Err:         err,
 			}
 			return req, close, err
-		}
-		if err := func() error {
-			if err := request.Validate(); err != nil {
-				return err
-			}
-			return nil
-		}(); err != nil {
-			return req, close, errors.Wrap(err, "validate")
 		}
 		return &request, close, nil
 	default:

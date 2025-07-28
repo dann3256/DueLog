@@ -5,10 +5,56 @@
 package sqlc
 
 import (
+	"database/sql/driver"
+	"fmt"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgtype"
 )
+
+type Date string
+
+const (
+	DateCurrentMonthEnd Date = "current_month_end"
+	DateNextMonth15     Date = "next_month_15"
+	DateNextMonth20     Date = "next_month_20"
+	DateNextMonthEnd    Date = "next_month_end"
+)
+
+func (e *Date) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = Date(s)
+	case string:
+		*e = Date(s)
+	default:
+		return fmt.Errorf("unsupported scan type for Date: %T", src)
+	}
+	return nil
+}
+
+type NullDate struct {
+	Date  Date
+	Valid bool // Valid is true if Date is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullDate) Scan(value interface{}) error {
+	if value == nil {
+		ns.Date, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.Date.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullDate) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.Date), nil
+}
 
 type Bank struct {
 	ID   int32
@@ -22,7 +68,7 @@ type Bill struct {
 	Amount       int32
 	PaymentLimit int32
 	PaymentDate  time.Time
-	PaidAt       pgtype.Timestamptz
+	IsPaid       bool
 	Description  pgtype.Text
 	CreatedAt    pgtype.Timestamptz
 	DeletedAt    pgtype.Timestamptz
