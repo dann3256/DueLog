@@ -1,0 +1,110 @@
+components:
+  responses:
+# user
+    UserCreated:
+      description: User creation was successful
+      content:
+        application/json:
+          schema:
+           name:
+            $ref: "./schema.yaml#/components/schemas/User/properties/name"
+           email:
+             $ref: "./schema.yaml#/components/schemas/User/properties/email"
+
+    UserObtained:
+      description: obtain user information was success
+      content:
+        application/json:
+          schema:
+           name:
+            $ref: "./schema.yaml#/components/schemas/User/properties/name"
+           email:
+             $ref: "./schema.yaml#/components/schemas/User/properties/email"
+
+    UserUpdated:
+      description: update was success
+      content:
+        application/json:
+          schema:
+           name:
+            $ref: "./schema.yaml#/components/schemas/User/properties/name"
+           email:
+             $ref: "./schema.yaml#/components/schemas/User/properties/email"
+
+
+# bank
+    BankCreated:
+      description: creation bank was success
+      content:
+        application/json:
+          schema:
+            name:
+             $ref: "./schema.yaml#/components/schemas/Bank/properties/name"
+
+    BankObtained:
+      description: obtain bank information was success
+      content:
+        application/json:
+          schema:
+           name:
+            $ref: "./schema.yaml#/components/schemas/Bank/properties/name"
+
+  
+# company
+    CompanyCreated:
+      description: creation companies was success
+      content:
+        application/json:
+          schema:
+           name:
+            $ref: "./schema.yaml#/components/schemas/Company/properties/name"
+
+    CompanyObtained:
+      description: obtain companies was success
+      content:
+        application/json:
+          schema:
+           name:
+            $ref: "./schema.yaml#/components/schemas/Company/properties/name"
+
+    CompanyUpdated:
+      description: update companies was success
+      content:
+        application/json:
+          schema:
+           name:
+            $ref: "./schema.yaml#/components/schemas/Company/properties/name"
+
+    
+# bill
+    
+    BillCreated:
+      description: creation bill was success
+      content:
+        application/json:
+          schema:
+            id:
+            company_name:
+            bank_name:
+            amount:
+            is_paid:
+            $ref: "./schema.yaml#/components/schemas/Bill/properties/name"
+
+    BillObtained:
+      description: obtain direct bill information was success
+      content:
+        application/json:
+          schema:
+            $ref: "./components/bill.yaml#/components/schemas/Bill"
+
+    BillUpdated:
+      description: update bill was success
+      content:
+        application/json:
+          schema:
+            $ref: "./components/bill.yaml#/components/schemas/Bill"
+
+    
+
+   
+    

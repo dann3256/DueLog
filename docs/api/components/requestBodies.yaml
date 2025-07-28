@@ -1,0 +1,115 @@
+components:
+  requestBodies:
+    # User requests
+    CreateUserRequest:
+      required: true
+      content:
+        application/json:
+          schema:
+           name:
+            $ref: "./components/schema.yaml#/components/schemas/User/properties/name"
+           email:
+            $ref: "./components/schema.yaml#/components/schemas/User/properties/email"
+
+
+    GetUserRequest:
+      required: true
+      content:
+        application/json:
+          schema:
+           name:
+            $ref: "./components/schema.yaml#/components/schemas/User/properties/name"
+           email:
+            $ref: "./components/schema.yaml#/components/schemas/User/properties/email"
+
+    UpdateUserRequest:
+      required: true
+      content:
+        application/json:
+          schema:
+           name:
+            $ref: "./components/schema.yaml#/components/schemas/User/properties/name"
+           email:
+            $ref: "./components/schema.yaml#/components/schemas/User/properties/email"
+
+
+    # Bank requests
+    CreateBankRequest:
+      required: true
+      content:
+        application/json:
+          schema:
+           name:
+            $ref: "./components/schema.yaml#/components/schemas/Bank/properties/name"
+
+    # Company requests
+    CreateCompanyRequest:
+      required: true
+      content:
+        application/json:
+          schema:
+           name:
+            $ref: "./components/schema.yaml#/components/schemas/Company/properties/name"
+
+    UpdateCompanyRequest:
+      required: true
+      content:
+        application/json:
+          schema:
+            name:
+            $ref: "./components/schema.yaml#/components/schemas/Company/properties/name"
+
+    # Bill requests
+    CreateBillRequest:
+      required: true
+      content:
+        application/json:
+          schema:
+            name:
+             $ref: "./components/schema.yaml#/components/schemas/Bill/properties/name"
+            company_id:
+             $ref: "./components/schema.yaml#/components/schemas/Bill/properties/company_id"
+            bank_id:
+             $ref: "./components/schema.yaml#/components/schemas/Bill/properties/bank_id"
+            amount:
+             $ref: "./components/schema.yaml#/components/schemas/Bill/properties/amount"
+            payment_limit:
+             $ref: "./components/schema.yaml#/components/schemas/Bill/properties/payment_limit"
+            payment_date:
+             $ref: "./components/schema.yaml#/components/schemas/Bill/properties/payment_date"
+            description:
+             $ref: "./components/schema.yaml#/components/schemas/Bill/properties/description"
+        required:
+        - id
+        - company_id
+        - bank_id
+        - amount
+        - payment_limit
+        - payment_date
+
+    UpdateBillRequest:
+      required: true
+      content:
+        application/json:
+          schema:
+            name:
+             $ref: "./components/schema.yaml#/components/schemas/Bill/properties/name"
+            company_id:
+             $ref: "./components/schema.yaml#/components/schemas/Bill/properties/company_id"
+            bank_id:
+             $ref: "./components/schema.yaml#/components/schemas/Bill/properties/bank_id"
+            amount:
+             $ref: "./components/schema.yaml#/components/schemas/Bill/properties/amount"
+            payment_limit:
+             $ref: "./components/schema.yaml#/components/schemas/Bill/properties/payment_limit"
+            payment_date:
+             $ref: "./components/schema.yaml#/components/schemas/Bill/properties/payment_date"
+            description:
+             $ref: "./components/schema.yaml#/components/schemas/Bill/properties/description"
+
+    UpdatePaymentStatusRequest:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: "./components/bill.yaml#/components/schemas/UpdatePaymentStatusRequest"

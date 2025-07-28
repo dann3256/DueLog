@@ -11,6 +11,7 @@ servers:
   - url: http://localhost:8080
 
 paths:
+# user-api
   /users:
     post:
       summary: create User
@@ -21,20 +22,16 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "./components/user.yaml#/components/schemas/CreateUserRequest"
+              $ref: "./components/requestBodies.yaml#/components/requestBodies/CreateUserRequest"
       responses:
         "201":
           description: User creation was successful
           content:
             application/json:
               schema:
-                $ref: "./components/user.yaml#/components/schemas/User"
-        "400":
+                $ref: "./components/responseBodies.yaml#/components/responses/UserCreated"
+        "404":
           description: error
-          content:
-            application/json:
-              schema:
-                $ref: "./components/user.yaml#/components/schemas/Error"
     get:
       summary: get users
       tags:
@@ -44,20 +41,16 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "./components/user.yaml#/components/schemas/GetUserRequest"
+              $ref: "./components/requestBodies.yaml#/components/requestBodies/GetUserRequest"
       responses:
         "201":
           description: obtain user information was success
           content:
             application/json:
               schema:
-                $ref: "./components/user.yaml#/components/schemas/User"
+                $ref: "./components/responseBodies.yaml#/components/responses/UserObtained"
         "400":
           description: error
-          content:
-            application/json:
-              schema:
-                $ref: "./components/user.yaml#/components/schemas/Error"
 
   /users/{id}:
     get:
@@ -69,21 +62,16 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
-            format: int64
+            $ref: "./components/schema.yaml#/components/responses/User/properties/id"
       responses:
         "200":
           description: obtain user information was success
           content:
             application/json:
               schema:
-                $ref: "./components/user.yaml#/components/schemas/GetUserRequest"
+                $ref: "./components/responseBodies.yaml#/components/responses/UserUpdated"
         "404":
           description: error
-          content:
-            application/json:
-              schema:
-                $ref: "./components/user.yaml#/components/schemas/Error"
 
     put:
       summary: update user
@@ -101,14 +89,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "./components/user.yaml#/components/schemas/UpdateUserRequest"
+              $ref: "./components/requestBodies.yaml#/components/requestBodies/UpdateUserRequest"
       responses:
         "200":
           description: update was success
           content:
             application/json:
               schema:
-                $ref: "./components/user.yaml#/components/schemas/User"
+                $ref: "./components/responseBodies.yaml#/components/responses/UserUpdated"
         "404":
           description: error
 
@@ -129,6 +117,7 @@ paths:
         "404":
           description: error
 
+# bank-api
   /banks:
     post:
       summary: create bank
@@ -139,14 +128,16 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "./components/bank.yaml#/components/schemas/CreateBankRequest"
+              $ref: "./components/requestBodies.yaml#/components/requestBodies/CreateBankRequest"
       responses:
         "201":
           description: creation bank was success
           content:
             application/json:
               schema:
-                $ref: "./components/bank.yaml#/components/schemas/Bank"
+                $ref: "./components/responseBodies.yaml#/components/responses/BankCreated"
+        "404":
+          description: error
 
   /banks/{id}:
     get:
@@ -158,18 +149,18 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
-            format: int64
+           $ref: "./components/schema.yaml#/components/responses/Bank/properties/id"
       responses:
         "200":
           description: obtain bank information was success
           content:
             application/json:
               schema:
-                $ref: "./components/bank.yaml#/components/schemas/Bank"
+                $ref: "./components/responseBodies.yaml#/components/responses/BankObtained"
         "404":
           description: error
 
+# company-api
   /companies:
     post:
       summary: create company
@@ -180,14 +171,16 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "./components/company.yaml#/components/schemas/CreateCompanyRequest"
+              $ref: "./components/requestBodies.yaml#/components/requestBodies/CreateCompanyRequest"
       responses:
         "201":
           description: creation companies was success
           content:
             application/json:
               schema:
-                $ref: "./components/company.yaml#/components/schemas/Company"
+                $ref: "./components/responseBodies.yaml#/components/responses/CompanyCreated"
+        "404":
+          description: error
 
   /companies/{id}:
     get:
@@ -199,18 +192,19 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
-            format: int64
+           $ref: "./components/schema.yaml#/components/responses/Company/properties/id"
       responses:
         "200":
           description: obtain companies was success
           content:
             application/json:
               schema:
-                $ref: "./components/company.yaml#/components/schemas/Company"
+                $ref: "./components/responseBodies.yaml#/components/responses/CompanyObtained"
+        "404":
+          description: error
 
     put:
-      summary: update bank
+      summary: update company
       tags:
         - Companies
       parameters:
@@ -220,22 +214,18 @@ paths:
           schema:
             type: integer
             format: int64
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "./components/company.yaml#/components/schemas/UpdateCompanyRequest"
       responses:
         "200":
           description: update companies was success
           content:
             application/json:
               schema:
-                $ref: "./components/company.yaml#/components/schemas/Company"
+                $ref: "./components/responseBodies.yaml#/components/responses/CompanyUpdated"
+        "404":
+          description: error
 
     delete:
-      summary: delete bank
+      summary: delete company
       tags:
         - Companies
       parameters:
@@ -248,33 +238,12 @@ paths:
       responses:
         "204":
           description: delete companies was success
-
+        "404":
+          description: error
+          
+# bill-api
   /bills:
-    get:
-      summary: get bills
-      tags:
-        - Bills
-      parameters:
-        - name: payment_date
-          in: query
-          description: filter
-          schema:
-            $ref: "./components/bill.yaml#/components/schemas/PaymentPeriod"
-        - name: is_paid
-          in: query
-          description: status filter
-          schema:
-            type: boolean
-
-      responses:
-        "200":
-          description: obtain bill information was success
-          content:
-            application/json:
-              schema:
-                $ref: "./components/bill.yaml#/components/schemas/BillListResponse"
-
-    post:
+     post:
       summary: create bill
       tags:
         - Bills
@@ -283,21 +252,17 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "./components/bill.yaml#/components/schemas/CreateBillRequest"
-      responses:
+              $ref: "./components/requestBodies.yaml#/components/requestBodies/CreateBillRequest"
         "201":
           description: creation bill was success
           content:
             application/json:
               schema:
-                $ref: "./components/bill.yaml#/components/schemas/Bill"
-        "400":
+                $ref: "./components/responseBodies.yaml#/components/responses/BillCreated"
+        "404":
           description: error
-          content:
-            application/json:
-              schema:
-                $ref: "./components/bill.yaml#/components/schemas/BillValidationResponse"
 
+   
   /bills/{id}:
     get:
       summary: get  bill
@@ -308,15 +273,16 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
-            format: int64
+            $ref: "./components/schema.yaml#/components/responses/Bill/properties/id"
       responses:
         "200":
           description: obtain direct bill information was success
           content:
             application/json:
               schema:
-                $ref: "./components/bill.yaml#/components/schemas/Bill"
+                $ref: "./components/responseBodies.yaml#/components/responses/BillObtained"
+        "404":
+          description: error
 
     put:
       summary: update bill
@@ -334,14 +300,19 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "./components/bill.yaml#/components/schemas/UpdateBillRequest"
+              $ref: "./components/requestBodies.yaml#/components/requestBodies/UpdateBillRequest"
       responses:
         "200":
           description: update bill was success
           content:
             application/json:
               schema:
-                $ref: "./components/bill.yaml#/components/schemas/Bill"
+                $ref: "./components/responseBodies.yaml#/components/responses/BillUpdated"
+        "404":
+          description: error
+        
+    
+    
 
     delete:
       summary: delete bill
@@ -357,10 +328,34 @@ paths:
       responses:
         "204":
           description: delete bill was success
+      "404":
+          description: error
 
-  /bills/{id}/payment-status:
-    patch:
-      summary: chenge payment-status
+  /bills/{payment_date}:
+    get:
+      summary: get bill by day
+      tags:
+        - Bills
+      parameters:
+        - name: payment_id
+          in: path
+          required: true
+          schema:
+           $ref: "./components/schema.yaml#/components/responses/Bill/properties/payment_date"
+      
+      responses:
+        "200":
+          description: changing status was success
+          content:
+            application/json:
+              schema:
+                $ref: "./components/responseBodies.yaml#/components/responses/BillObtained"
+        "404":
+          description: error
+
+  /bills_statement/{id}:
+   put:
+      summary: change is_paid of bills
       tags:
         - Bills
       parameters:
@@ -368,22 +363,15 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
-            format: int64
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "./components/bill.yaml#/components/schemas/UpdatePaymentStatusRequest"
+           $ref: "./components/schema.yaml#/components/responses/Bill/properties/id"
+      
       responses:
         "200":
-          description: changing status was success
-          content:
-            application/json:
-              schema:
-                $ref: "./components/bill.yaml#/components/schemas/Bill"
-
+          description: change is_paid was success
+          
+        "404":
+          description: error
+   
 tags:
   - name: Users
     description: ユーザー管理

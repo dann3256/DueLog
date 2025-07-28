@@ -25,14 +25,10 @@ CREATE TABLE bills (
   amount INT NOT NULL,
   payment_limit INT NOT NULL,
   payment_date DATE NOT NULL,
-  paid_at TIMESTAMPTZ,
+  is_paid BOOLEAN NOT NULL DEFAULT FALSE,
   description TEXT,
   created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
   deleted_at TIMESTAMPTZ NULL,
   updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_bills_unpaid_created_at ON bills (created_at)
-WHERE
-  is_paid = FALSE
-  AND deleted_at IS NULL;
