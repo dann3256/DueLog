@@ -68,9 +68,11 @@ components:
           type: string
           enum: [current_month_end, next_month_15, next_month_20, next_month_end]
           description: 振込期限区分
-        is_paid:
-          type: boolean
-          description: 支払済みフラグ
+        paid_at:
+         type: string
+         format: date-time  
+         nullable: true     
+         description: 支払い日時。この値がnullでない場合、支払済みであることを示す。
 
         description:
           type: string

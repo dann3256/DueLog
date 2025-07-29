@@ -101,7 +101,7 @@ components:
             amount:
              $ref: "./schema.yaml#/components/schemas/Bill/properties/amount"
             is_paid:
-            $ref: "./schema.yaml#/components/schemas/Bill/properties/is_paid"
+            $ref: "./schema.yaml#/components/schemas/Bill/properties/paid_at"
 
     BillObtained:
       type: object

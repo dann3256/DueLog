@@ -7,53 +7,52 @@ package sqlc
 import (
 	"database/sql/driver"
 	"fmt"
-	"time"
 
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-type Date string
+type PaymentLimitDate string
 
 const (
-	DateCurrentMonthEnd Date = "current_month_end"
-	DateNextMonth15     Date = "next_month_15"
-	DateNextMonth20     Date = "next_month_20"
-	DateNextMonthEnd    Date = "next_month_end"
+	PaymentLimitDateCurrentMonthEnd PaymentLimitDate = "current_month_end"
+	PaymentLimitDateNextMonth15     PaymentLimitDate = "next_month_15"
+	PaymentLimitDateNextMonth20     PaymentLimitDate = "next_month_20"
+	PaymentLimitDateNextMonthEnd    PaymentLimitDate = "next_month_end"
 )
 
-func (e *Date) Scan(src interface{}) error {
+func (e *PaymentLimitDate) Scan(src interface{}) error {
 	switch s := src.(type) {
 	case []byte:
-		*e = Date(s)
+		*e = PaymentLimitDate(s)
 	case string:
-		*e = Date(s)
+		*e = PaymentLimitDate(s)
 	default:
-		return fmt.Errorf("unsupported scan type for Date: %T", src)
+		return fmt.Errorf("unsupported scan type for PaymentLimitDate: %T", src)
 	}
 	return nil
 }
 
-type NullDate struct {
-	Date  Date
-	Valid bool // Valid is true if Date is not NULL
+type NullPaymentLimitDate struct {
+	PaymentLimitDate PaymentLimitDate
+	Valid            bool // Valid is true if PaymentLimitDate is not NULL
 }
 
 // Scan implements the Scanner interface.
-func (ns *NullDate) Scan(value interface{}) error {
+func (ns *NullPaymentLimitDate) Scan(value interface{}) error {
 	if value == nil {
-		ns.Date, ns.Valid = "", false
+		ns.PaymentLimitDate, ns.Valid = "", false
 		return nil
 	}
 	ns.Valid = true
-	return ns.Date.Scan(value)
+	return ns.PaymentLimitDate.Scan(value)
 }
 
 // Value implements the driver Valuer interface.
-func (ns NullDate) Value() (driver.Value, error) {
+func (ns NullPaymentLimitDate) Value() (driver.Value, error) {
 	if !ns.Valid {
 		return nil, nil
 	}
-	return string(ns.Date), nil
+	return string(ns.PaymentLimitDate), nil
 }
 
 type Bank struct {
@@ -67,8 +66,8 @@ type Bill struct {
 	BankID       int32
 	Amount       int32
 	PaymentLimit int32
-	PaymentDate  time.Time
-	IsPaid       bool
+	PaymentDate  PaymentLimitDate
+	PaidAt       pgtype.Timestamptz
 	Description  pgtype.Text
 	CreatedAt    pgtype.Timestamptz
 	DeletedAt    pgtype.Timestamptz

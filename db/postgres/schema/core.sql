@@ -17,7 +17,7 @@ CREATE TABLE users (
   deleted_at TIMESTAMPTZ NULL
 );
 
-CREATE TYPE date AS ENUM ('current_month_end', 'next_month_15', 'next_month_20', 'next_month_end');
+CREATE TYPE payment_limit_date AS ENUM ('current_month_end', 'next_month_15', 'next_month_20', 'next_month_end');
 
 CREATE TABLE bills (
   id SERIAL PRIMARY KEY,
@@ -25,8 +25,8 @@ CREATE TABLE bills (
   bank_id INT NOT NULL REFERENCES banks (id),
   amount INT NOT NULL,
   payment_limit INT NOT NULL,
-  payment_date date NOT NULL,
-  is_paid BOOLEAN NOT NULL DEFAULT FALSE,
+  payment_date payment_limit_date NOT NULL,
+  paid_at TIMESTAMPTZ NULL,
   description TEXT,
   created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
   deleted_at TIMESTAMPTZ NULL,
