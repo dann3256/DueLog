@@ -40,12 +40,6 @@ paths:
       summary: get users
       tags:
         - Users
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "./components/requestBodies.yaml#/components/requestBodies/GetUserRequest"
       responses:
         "201":
           description: obtain user information was success

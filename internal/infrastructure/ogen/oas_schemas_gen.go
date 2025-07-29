@@ -242,9 +242,6 @@ type CreateCompanyRequest struct{}
 // Ref: #/components/schemas/CreateUserRequest
 type CreateUserRequest struct{}
 
-// Ref: #/components/schemas/GetUserRequest
-type GetUserRequest struct{}
-
 type ID int32
 
 type InternalServerError struct {

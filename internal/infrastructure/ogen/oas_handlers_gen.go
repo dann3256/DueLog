@@ -2037,27 +2037,8 @@ func (s *Server) handleUsersGetRequest(args [0]string, argsEscaped bool, w http.
 
 			s.errors.Add(ctx, 1, metric.WithAttributes(attrs...))
 		}
-		err          error
-		opErrContext = ogenerrors.OperationContext{
-			Name: UsersGetOperation,
-			ID:   "",
-		}
+		err error
 	)
-	request, close, err := s.decodeUsersGetRequest(r)
-	if err != nil {
-		err = &ogenerrors.DecodeRequestError{
-			OperationContext: opErrContext,
-			Err:              err,
-		}
-		defer recordError("DecodeRequest", err)
-		s.cfg.ErrorHandler(ctx, w, r, err)
-		return
-	}
-	defer func() {
-		if err := close(); err != nil {
-			recordError("CloseRequest", err)
-		}
-	}()
 
 	var response UsersGetRes
 	if m := s.cfg.Middleware; m != nil {
@@ -2066,13 +2047,13 @@ func (s *Server) handleUsersGetRequest(args [0]string, argsEscaped bool, w http.
 			OperationName:    UsersGetOperation,
 			OperationSummary: "get users",
 			OperationID:      "",
-			Body:             request,
+			Body:             nil,
 			Params:           middleware.Parameters{},
 			Raw:              r,
 		}
 
 		type (
-			Request  = *GetUserRequest
+			Request  = struct{}
 			Params   = struct{}
 			Response = UsersGetRes
 		)
@@ -2085,12 +2066,12 @@ func (s *Server) handleUsersGetRequest(args [0]string, argsEscaped bool, w http.
 			mreq,
 			nil,
 			func(ctx context.Context, request Request, params Params) (response Response, err error) {
-				response, err = s.h.UsersGet(ctx, request)
+				response, err = s.h.UsersGet(ctx)
 				return response, err
 			},
 		)
 	} else {
-		response, err = s.h.UsersGet(ctx, request)
+		response, err = s.h.UsersGet(ctx)
 	}
 	if err != nil {
 		if errRes, ok := errors.Into[*InternalServerErrorStatusCode](err); ok {

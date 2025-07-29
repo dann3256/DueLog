@@ -15,20 +15,6 @@ components:
             $ref: "./components/schema.yaml#/components/schemas/User/properties/email"
 
 
-    GetUserRequest:
-      type: object
-      required:
-       - name
-       - email
-
-      content:
-        application/json:
-          schema:
-           name:
-            $ref: "./components/schema.yaml#/components/schemas/User/properties/name"
-           email:
-            $ref: "./components/schema.yaml#/components/schemas/User/properties/email"
-
     UpdateUserRequest:
       type: object
       required: 
@@ -41,7 +27,6 @@ components:
             $ref: "./components/schema.yaml#/components/schemas/User/properties/name"
            email:
             $ref: "./components/schema.yaml#/components/schemas/User/properties/email"
-
 
     # Bank requests
     CreateBankRequest:

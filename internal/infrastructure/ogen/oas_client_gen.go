@@ -111,7 +111,7 @@ type Invoker interface {
 	// Get users.
 	//
 	// GET /users
-	UsersGet(ctx context.Context, request *GetUserRequest) (UsersGetRes, error)
+	UsersGet(ctx context.Context) (UsersGetRes, error)
 	// UsersIDDelete invokes DELETE /users/{id} operation.
 	//
 	// Delete user.
@@ -1303,12 +1303,12 @@ func (c *Client) sendPaydatePaymentDateGet(ctx context.Context, params PaydatePa
 // Get users.
 //
 // GET /users
-func (c *Client) UsersGet(ctx context.Context, request *GetUserRequest) (UsersGetRes, error) {
-	res, err := c.sendUsersGet(ctx, request)
+func (c *Client) UsersGet(ctx context.Context) (UsersGetRes, error) {
+	res, err := c.sendUsersGet(ctx)
 	return res, err
 }
 
-func (c *Client) sendUsersGet(ctx context.Context, request *GetUserRequest) (res UsersGetRes, err error) {
+func (c *Client) sendUsersGet(ctx context.Context) (res UsersGetRes, err error) {
 	otelAttrs := []attribute.KeyValue{
 		semconv.HTTPRequestMethodKey.String("GET"),
 		semconv.HTTPRouteKey.String("/users"),
@@ -1351,9 +1351,6 @@ func (c *Client) sendUsersGet(ctx context.Context, request *GetUserRequest) (res
 	r, err := ht.NewRequest(ctx, "GET", u)
 	if err != nil {
 		return res, errors.Wrap(err, "create request")
-	}
-	if err := encodeUsersGetRequest(request, r); err != nil {
-		return res, errors.Wrap(err, "encode request")
 	}
 
 	stage = "SendRequest"

@@ -91,7 +91,7 @@ type Handler interface {
 	// Get users.
 	//
 	// GET /users
-	UsersGet(ctx context.Context, req *GetUserRequest) (UsersGetRes, error)
+	UsersGet(ctx context.Context) (UsersGetRes, error)
 	// UsersIDDelete implements DELETE /users/{id} operation.
 	//
 	// Delete user.

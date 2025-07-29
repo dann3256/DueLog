@@ -135,7 +135,7 @@ func (UnimplementedHandler) PaydatePaymentDateGet(ctx context.Context, params Pa
 // Get users.
 //
 // GET /users
-func (UnimplementedHandler) UsersGet(ctx context.Context, req *GetUserRequest) (r UsersGetRes, _ error) {
+func (UnimplementedHandler) UsersGet(ctx context.Context) (r UsersGetRes, _ error) {
 	return r, ht.ErrNotImplemented
 }
 
