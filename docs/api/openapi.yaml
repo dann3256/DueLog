@@ -32,8 +32,6 @@ paths:
                 $ref: "./components/responseBodies.yaml#/components/responses/UserCreated"
         '400':
           $ref: './components/errors.yaml#/components/responses/badRequest'
-        '404':
-          $ref: './components/errors.yaml#/components/responses/badRequest'
         default:
           $ref: './components/errors.yaml#/components/responses/internalServerError'
     get:
@@ -152,8 +150,6 @@ paths:
                 $ref: "./components/responseBodies.yaml#/components/responses/BankCreated"
         '400':
           $ref: './components/errors.yaml#/components/responses/badRequest'
-        '404':
-          $ref: './components/errors.yaml#/components/responses/badRequest'
         default:
           $ref: './components/errors.yaml#/components/responses/internalServerError'
 
@@ -202,8 +198,6 @@ paths:
               schema:
                 $ref: "./components/responseBodies.yaml#/components/responses/CompanyCreated"
         '400':
-          $ref: './components/errors.yaml#/components/responses/badRequest'
-        '404':
           $ref: './components/errors.yaml#/components/responses/badRequest'
         default:
           $ref: './components/errors.yaml#/components/responses/internalServerError'
