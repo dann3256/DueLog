@@ -7,7 +7,6 @@ package sqlc
 
 import (
 	"context"
-	"time"
 
 	"github.com/jackc/pgx/v5/pgtype"
 )
@@ -41,7 +40,7 @@ type InsertBillParams struct {
 	BankID       int32
 	Amount       int32
 	PaymentLimit int32
-	PaymentDate  time.Time
+	PaymentDate  PaymentLimitDate
 	Description  pgtype.Text
 }
 
@@ -78,7 +77,7 @@ type SelectBillRow struct {
 	Name_2       string
 	Amount       int32
 	PaymentLimit int32
-	PaymentDate  time.Time
+	PaymentDate  PaymentLimitDate
 }
 
 func (q *Queries) SelectBill(ctx context.Context) ([]SelectBillRow, error) {
@@ -118,7 +117,7 @@ WHERE id = $4
 type UpdateBillParams struct {
 	Amount       int32
 	PaymentLimit int32
-	PaymentDate  time.Time
+	PaymentDate  PaymentLimitDate
 	ID           int32
 }
 

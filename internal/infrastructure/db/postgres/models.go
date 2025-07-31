@@ -5,10 +5,55 @@
 package sqlc
 
 import (
-	"time"
+	"database/sql/driver"
+	"fmt"
 
 	"github.com/jackc/pgx/v5/pgtype"
 )
+
+type PaymentLimitDate string
+
+const (
+	PaymentLimitDateCurrentMonthEnd PaymentLimitDate = "current_month_end"
+	PaymentLimitDateNextMonth15     PaymentLimitDate = "next_month_15"
+	PaymentLimitDateNextMonth20     PaymentLimitDate = "next_month_20"
+	PaymentLimitDateNextMonthEnd    PaymentLimitDate = "next_month_end"
+)
+
+func (e *PaymentLimitDate) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = PaymentLimitDate(s)
+	case string:
+		*e = PaymentLimitDate(s)
+	default:
+		return fmt.Errorf("unsupported scan type for PaymentLimitDate: %T", src)
+	}
+	return nil
+}
+
+type NullPaymentLimitDate struct {
+	PaymentLimitDate PaymentLimitDate
+	Valid            bool // Valid is true if PaymentLimitDate is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullPaymentLimitDate) Scan(value interface{}) error {
+	if value == nil {
+		ns.PaymentLimitDate, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.PaymentLimitDate.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullPaymentLimitDate) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.PaymentLimitDate), nil
+}
 
 type Bank struct {
 	ID   int32
@@ -21,7 +66,7 @@ type Bill struct {
 	BankID       int32
 	Amount       int32
 	PaymentLimit int32
-	PaymentDate  time.Time
+	PaymentDate  PaymentLimitDate
 	PaidAt       pgtype.Timestamptz
 	Description  pgtype.Text
 	CreatedAt    pgtype.Timestamptz

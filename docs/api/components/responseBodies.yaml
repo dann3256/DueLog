@@ -1,0 +1,143 @@
+components:
+  responses:
+# user
+    UserCreated:
+      type: object
+      description: User creation was successful
+      content:
+        application/json:
+          schema:
+           name:
+            $ref: "./schema.yaml#/components/schemas/User/properties/name"
+           email:
+             $ref: "./schema.yaml#/components/schemas/User/properties/email"
+
+    UserObtained:
+      type: object
+      description: obtain user information was success
+      content:
+        application/json:
+          schema:
+           name:
+            $ref: "./schema.yaml#/components/schemas/User/properties/name"
+           email:
+             $ref: "./schema.yaml#/components/schemas/User/properties/email"
+
+    UserUpdated:
+      type: object
+      description: update was success
+      content:
+        application/json:
+          schema:
+           name:
+            $ref: "./schema.yaml#/components/schemas/User/properties/name"
+           email:
+             $ref: "./schema.yaml#/components/schemas/User/properties/email"
+
+
+# bank
+    BankCreated:
+      type: object
+      description: creation bank was success
+      content:
+        application/json:
+          schema:
+            name:
+             $ref: "./schema.yaml#/components/schemas/Bank/properties/name"
+
+    BankObtained:
+      type: object
+      description: obtain bank information was success
+      content:
+        application/json:
+          schema:
+           name:
+            $ref: "./schema.yaml#/components/schemas/Bank/properties/name"
+
+  
+# company
+    CompanyCreated:
+      type: object
+      description: creation companies was success
+      content:
+        application/json:
+          schema:
+           name:
+            $ref: "./schema.yaml#/components/schemas/Company/properties/name"
+
+    CompanyObtained:
+      type: object
+      description: obtain companies was success
+      content:
+        application/json:
+          schema:
+           name:
+            $ref: "./schema.yaml#/components/schemas/Company/properties/name"
+
+    CompanyUpdated:
+      type: object
+      description: update companies was success
+      content:
+        application/json:
+          schema:
+           name:
+            $ref: "./schema.yaml#/components/schemas/Company/properties/name"
+
+    
+# bill
+    
+    BillCreated:
+      type: object
+      description: creation bill was success
+      content:
+        application/json:
+          schema:
+            id:
+             $ref: "./schema.yaml#/components/schemas/Bill/properties/id"
+            company_name:
+             $ref: "./schema.yaml#/components/schemas/Company/properties/name"
+            bank_name:
+             $ref: "./schema.yaml#/components/schemas/Bank/properties/name"
+            amount:
+             $ref: "./schema.yaml#/components/schemas/Bill/properties/amount"
+            is_paid:
+            $ref: "./schema.yaml#/components/schemas/Bill/properties/paid_at"
+
+    BillObtained:
+      type: object
+      description: obtain direct bill information was success
+      content:
+        application/json:
+          schema:
+            id:
+             $ref: "./schema.yaml#/components/schemas/Bill/properties/id"
+            company_name:
+             $ref: "./schema.yaml#/components/schemas/Company/properties/name"
+            bank_name:
+             $ref: "./schema.yaml#/components/schemas/Bank/properties/name"
+            amount:
+             $ref: "./schema.yaml#/components/schemas/Bill/properties/amount"
+            is_paid:
+            $ref: "./schema.yaml#/components/schemas/Bill/properties/is_paid"
+
+    BillUpdated:
+      type: object
+      description: update bill was success
+      content:
+        application/json:
+          schema:
+            id:
+             $ref: "./schema.yaml#/components/schemas/Bill/properties/id"
+            company_name:
+             $ref: "./schema.yaml#/components/schemas/Company/properties/name"
+            bank_name:
+             $ref: "./schema.yaml#/components/schemas/Bank/properties/name"
+            amount:
+             $ref: "./schema.yaml#/components/schemas/Bill/properties/amount"
+            is_paid:
+            $ref: "./schema.yaml#/components/schemas/Bill/properties/is_paid"
+
+    
+
+   
+    
