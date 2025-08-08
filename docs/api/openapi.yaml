@@ -1,0 +1,459 @@
+openapi: 3.0.3
+info:
+  title: DueLog API
+  description: API
+  version: 1.0.0
+  license:
+    name: MIT
+    url: https://github.com/dann3256/DueLog
+
+servers:
+  - url: http://localhost:8080
+
+paths:
+# user-api
+  /users:
+    post:
+      summary: create User
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "./components/requestBodies.yaml#/components/requestBodies/CreateUserRequest"
+      responses:
+        "201":
+          description: User creation was successful
+          content:
+            application/json:
+              schema:
+                $ref: "./components/responseBodies.yaml#/components/responses/UserCreated"
+        '400':
+          $ref: './components/errors.yaml#/components/responses/badRequest'
+        default:
+          $ref: './components/errors.yaml#/components/responses/internalServerError'
+    get:
+      summary: get users
+      tags:
+        - Users
+      responses:
+        "201":
+          description: obtain user information was success
+          content:
+            application/json:
+              schema:
+                $ref: "./components/responseBodies.yaml#/components/responses/UserObtained"
+        '400':
+          $ref: './components/errors.yaml#/components/responses/badRequest'
+        '404':
+          $ref: './components/errors.yaml#/components/responses/badRequest'
+        default:
+          $ref: './components/errors.yaml#/components/responses/internalServerError'
+
+  /users/{id}:
+    get:
+      summary: get user
+      tags:
+        - Users
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            $ref: "./components/responseBodies.yaml#/components/responses/UserCreated"
+      responses:
+        "200":
+          description: obtain user information was success
+          content:
+            application/json:
+              schema:
+                $ref: "./components/responseBodies.yaml#/components/responses/UserUpdated"
+        '400':
+          $ref: './components/errors.yaml#/components/responses/badRequest'
+        '404':
+          $ref: './components/errors.yaml#/components/responses/badRequest'
+        default:
+          $ref: './components/errors.yaml#/components/responses/internalServerError'
+
+    put:
+      summary: update user
+      tags:
+        - Users
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "./components/requestBodies.yaml#/components/requestBodies/UpdateUserRequest"
+      responses:
+        "200":
+          description: update was success
+          content:
+            application/json:
+              schema:
+                $ref: "./components/responseBodies.yaml#/components/responses/UserUpdated"
+        '400':
+          $ref: './components/errors.yaml#/components/responses/badRequest'
+        '404':
+          $ref: './components/errors.yaml#/components/responses/badRequest'
+        default:
+          $ref: './components/errors.yaml#/components/responses/internalServerError'
+
+    delete:
+      summary: delete user
+      tags:
+        - Users
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "204":
+          description: delete was success
+        '400':
+          $ref: './components/errors.yaml#/components/responses/badRequest'
+        '404':
+          $ref: './components/errors.yaml#/components/responses/badRequest'
+        default:
+          $ref: './components/errors.yaml#/components/responses/internalServerError'
+
+# bank-api
+  /banks:
+    post:
+      summary: create bank
+      tags:
+        - Banks
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "./components/requestBodies.yaml#/components/requestBodies/CreateBankRequest"
+      responses:
+        "201":
+          description: creation bank was success
+          content:
+            application/json:
+              schema:
+                $ref: "./components/responseBodies.yaml#/components/responses/BankCreated"
+        '400':
+          $ref: './components/errors.yaml#/components/responses/badRequest'
+        default:
+          $ref: './components/errors.yaml#/components/responses/internalServerError'
+
+  /banks/{id}:
+    get:
+      summary: get bank information
+      tags:
+        - Banks
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+           $ref: "./components/schema.yaml#/components/schemas/Bank/properties/id"
+      responses:
+        "200":
+          description: obtain bank information was success
+          content:
+            application/json:
+              schema:
+                $ref: "./components/responseBodies.yaml#/components/responses/BankObtained"
+        '400':
+          $ref: './components/errors.yaml#/components/responses/badRequest'
+        '404':
+          $ref: './components/errors.yaml#/components/responses/badRequest'
+        default:
+          $ref: './components/errors.yaml#/components/responses/internalServerError'
+
+# company-api
+  /companies:
+    post:
+      summary: create company
+      tags:
+        - Companies
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "./components/requestBodies.yaml#/components/requestBodies/CreateCompanyRequest"
+      responses:
+        "201":
+          description: creation companies was success
+          content:
+            application/json:
+              schema:
+                $ref: "./components/responseBodies.yaml#/components/responses/CompanyCreated"
+        '400':
+          $ref: './components/errors.yaml#/components/responses/badRequest'
+        default:
+          $ref: './components/errors.yaml#/components/responses/internalServerError'
+
+  /companies/{id}:
+    get:
+      summary: get company information
+      tags:
+        - Companies
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+           $ref: "./components/schema.yaml#/components/schemas/Company/properties/id"
+      responses:
+        "200":
+          description: obtain companies was success
+          content:
+            application/json:
+              schema:
+                $ref: "./components/responseBodies.yaml#/components/responses/CompanyObtained"
+        '400':
+          $ref: './components/errors.yaml#/components/responses/badRequest'
+        '404':
+          $ref: './components/errors.yaml#/components/responses/badRequest'
+        default:
+          $ref: './components/errors.yaml#/components/responses/internalServerError'
+
+    put:
+      summary: update company
+      tags:
+        - Companies
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: update companies was success
+          content:
+            application/json:
+              schema:
+                $ref: "./components/responseBodies.yaml#/components/responses/CompanyUpdated"
+        '400':
+          $ref: './components/errors.yaml#/components/responses/badRequest'
+        '404':
+          $ref: './components/errors.yaml#/components/responses/badRequest'
+        default:
+          $ref: './components/errors.yaml#/components/responses/internalServerError'
+
+    delete:
+      summary: delete company
+      tags:
+        - Companies
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "204":
+          description: delete companies was success
+        '400':
+          $ref: './components/errors.yaml#/components/responses/badRequest'
+        '404':
+          $ref: './components/errors.yaml#/components/responses/badRequest'
+        default:
+          $ref: './components/errors.yaml#/components/responses/internalServerError'
+# bill-api
+  /bills:
+     post:
+      summary: create bill
+      tags:
+        - Bills
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "./components/requestBodies.yaml#/components/requestBodies/CreateBillRequest"
+      responses:
+        "201":
+          description: creation bill was success
+          content:
+            application/json:
+              schema:
+                $ref: "./components/responseBodies.yaml#/components/responses/BillCreated"
+        '400':
+          $ref: './components/errors.yaml#/components/responses/badRequest'
+        '404':
+          $ref: './components/errors.yaml#/components/responses/badRequest'
+        default:
+          $ref: './components/errors.yaml#/components/responses/internalServerError'
+   
+  /bills/{id}:
+    get:
+      summary: get  bill
+      tags:
+        - Bills
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            $ref: "./components/schema.yaml#/components/schemas/Bill/properties/id"
+      responses:
+        "200":
+          description: obtain direct bill information was success
+          content:
+            application/json:
+              schema:
+                $ref: "./components/responseBodies.yaml#/components/responses/BillObtained"
+        '400':
+          $ref: './components/errors.yaml#/components/responses/badRequest'
+        '404':
+          $ref: './components/errors.yaml#/components/responses/badRequest'
+        default:
+          $ref: './components/errors.yaml#/components/responses/internalServerError'
+
+    put:
+      summary: update bill
+      tags:
+        - Bills
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "./components/requestBodies.yaml#/components/requestBodies/UpdateBillRequest"
+      responses:
+        "200":
+          description: update bill was success
+          content:
+            application/json:
+              schema:
+                $ref: "./components/responseBodies.yaml#/components/responses/BillUpdated"
+        '400':
+          $ref: './components/errors.yaml#/components/responses/badRequest'
+        '404':
+          $ref: './components/errors.yaml#/components/responses/badRequest'
+        default:
+          $ref: './components/errors.yaml#/components/responses/internalServerError'
+        
+    
+    
+
+    delete:
+      summary: delete bill
+      tags:
+        - Bills
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "204":
+          description: delete bill was success
+        '400':
+          $ref: './components/errors.yaml#/components/responses/badRequest'
+        '404':
+          $ref: './components/errors.yaml#/components/responses/badRequest'
+        default:
+          $ref: './components/errors.yaml#/components/responses/internalServerError'
+
+  /paydate/{payment_date}:
+    get:
+      summary: get bill by day
+      tags:
+        - Bills
+      parameters:
+        - name: payment_date
+          in: path
+          required: true
+          schema:
+           $ref: "./components/schema.yaml#/components/schemas/Bill/properties/payment_date"
+      
+      responses:
+        "200":
+          description: changing status was success
+          content:
+            application/json:
+              schema:
+                $ref: "./components/responseBodies.yaml#/components/responses/BillObtained"
+        '400':
+          $ref: './components/errors.yaml#/components/responses/badRequest'
+        '404':
+          $ref: './components/errors.yaml#/components/responses/badRequest'
+        default:
+          $ref: './components/errors.yaml#/components/responses/internalServerError'
+
+  /bills_statement/{id}:
+   put:
+      summary: change is_paid of bills
+      tags:
+        - Bills
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+           $ref: "./components/schema.yaml#/components/schemas/Bill/properties/id"
+      
+      responses:
+        "200":
+          description: change is_paid was success
+        '400':
+          $ref: './components/errors.yaml#/components/responses/badRequest'
+        '404':
+          $ref: './components/errors.yaml#/components/responses/badRequest'
+        default:
+          $ref: './components/errors.yaml#/components/responses/internalServerError'
+   
+  /auth:
+    post:
+      operationId: Auth
+      summary: Authenticate User (Sign In or Sign Up)
+      requestBody:
+        $ref: './components/requestBodies.yaml#/components/requestBodies/SignInAndSignUpRequest'
+      responses:
+        '200':
+          description: User authenticated successfully (signed in or signed up)
+          headers:
+            Set-Cookie:
+              required: true
+              schema:
+                type: string
+                example: "Authorization: Bearer <token>"
+        '400':
+          $ref: './components/errors.yaml#/components/responses/badRequest'
+        '404':
+          $ref: './components/errors.yaml#/components/responses/badRequest'
+        default:
+          $ref: './components/errors.yaml#/components/responses/internalServerError'
+        
+tags:
+  - name: Users
+    description: ユーザー管理
+  - name: Banks
+    description: 銀行管理
+  - name: Companies
+    description: 会社管理
+  - name: Bills
+    description: 請求書（振込情報）管理

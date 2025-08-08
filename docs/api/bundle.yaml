@@ -1,0 +1,692 @@
+openapi: 3.0.3
+info:
+  title: DueLog API
+  description: API
+  version: 1.0.0
+  license:
+    name: MIT
+    url: https://github.com/dann3256/DueLog
+servers:
+  - url: http://localhost:8080
+tags:
+  - name: Users
+    description: ユーザー管理
+  - name: Banks
+    description: 銀行管理
+  - name: Companies
+    description: 会社管理
+  - name: Bills
+    description: 請求書（振込情報）管理
+paths:
+  /users:
+    post:
+      summary: create User
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserRequest'
+      responses:
+        '201':
+          description: User creation was successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserCreated'
+        '400':
+          $ref: '#/components/responses/badRequest'
+        default:
+          $ref: '#/components/responses/internalServerError'
+    get:
+      summary: get users
+      tags:
+        - Users
+      responses:
+        '201':
+          description: obtain user information was success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserObtained'
+        '400':
+          $ref: '#/components/responses/badRequest'
+        '404':
+          $ref: '#/components/responses/badRequest'
+        default:
+          $ref: '#/components/responses/internalServerError'
+  /users/{id}:
+    get:
+      summary: get user
+      tags:
+        - Users
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/UserCreated'
+      responses:
+        '200':
+          description: obtain user information was success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserUpdated'
+        '400':
+          $ref: '#/components/responses/badRequest'
+        '404':
+          $ref: '#/components/responses/badRequest'
+        default:
+          $ref: '#/components/responses/internalServerError'
+    put:
+      summary: update user
+      tags:
+        - Users
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserRequest'
+      responses:
+        '200':
+          description: update was success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserUpdated'
+        '400':
+          $ref: '#/components/responses/badRequest'
+        '404':
+          $ref: '#/components/responses/badRequest'
+        default:
+          $ref: '#/components/responses/internalServerError'
+    delete:
+      summary: delete user
+      tags:
+        - Users
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: delete was success
+        '400':
+          $ref: '#/components/responses/badRequest'
+        '404':
+          $ref: '#/components/responses/badRequest'
+        default:
+          $ref: '#/components/responses/internalServerError'
+  /banks:
+    post:
+      summary: create bank
+      tags:
+        - Banks
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateBankRequest'
+      responses:
+        '201':
+          description: creation bank was success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BankCreated'
+        '400':
+          $ref: '#/components/responses/badRequest'
+        default:
+          $ref: '#/components/responses/internalServerError'
+  /banks/{id}:
+    get:
+      summary: get bank information
+      tags:
+        - Banks
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/id'
+      responses:
+        '200':
+          description: obtain bank information was success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BankObtained'
+        '400':
+          $ref: '#/components/responses/badRequest'
+        '404':
+          $ref: '#/components/responses/badRequest'
+        default:
+          $ref: '#/components/responses/internalServerError'
+  /companies:
+    post:
+      summary: create company
+      tags:
+        - Companies
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCompanyRequest'
+      responses:
+        '201':
+          description: creation companies was success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompanyCreated'
+        '400':
+          $ref: '#/components/responses/badRequest'
+        default:
+          $ref: '#/components/responses/internalServerError'
+  /companies/{id}:
+    get:
+      summary: get company information
+      tags:
+        - Companies
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/id'
+      responses:
+        '200':
+          description: obtain companies was success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompanyObtained'
+        '400':
+          $ref: '#/components/responses/badRequest'
+        '404':
+          $ref: '#/components/responses/badRequest'
+        default:
+          $ref: '#/components/responses/internalServerError'
+    put:
+      summary: update company
+      tags:
+        - Companies
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: update companies was success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompanyUpdated'
+        '400':
+          $ref: '#/components/responses/badRequest'
+        '404':
+          $ref: '#/components/responses/badRequest'
+        default:
+          $ref: '#/components/responses/internalServerError'
+    delete:
+      summary: delete company
+      tags:
+        - Companies
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: delete companies was success
+        '400':
+          $ref: '#/components/responses/badRequest'
+        '404':
+          $ref: '#/components/responses/badRequest'
+        default:
+          $ref: '#/components/responses/internalServerError'
+  /bills:
+    post:
+      summary: create bill
+      tags:
+        - Bills
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateBillRequest'
+      responses:
+        '201':
+          description: creation bill was success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BillCreated'
+        '400':
+          $ref: '#/components/responses/badRequest'
+        '404':
+          $ref: '#/components/responses/badRequest'
+        default:
+          $ref: '#/components/responses/internalServerError'
+  /bills/{id}:
+    get:
+      summary: get  bill
+      tags:
+        - Bills
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/id'
+      responses:
+        '200':
+          description: obtain direct bill information was success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BillObtained'
+        '400':
+          $ref: '#/components/responses/badRequest'
+        '404':
+          $ref: '#/components/responses/badRequest'
+        default:
+          $ref: '#/components/responses/internalServerError'
+    put:
+      summary: update bill
+      tags:
+        - Bills
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateBillRequest'
+      responses:
+        '200':
+          description: update bill was success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BillUpdated'
+        '400':
+          $ref: '#/components/responses/badRequest'
+        '404':
+          $ref: '#/components/responses/badRequest'
+        default:
+          $ref: '#/components/responses/internalServerError'
+    delete:
+      summary: delete bill
+      tags:
+        - Bills
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: delete bill was success
+        '400':
+          $ref: '#/components/responses/badRequest'
+        '404':
+          $ref: '#/components/responses/badRequest'
+        default:
+          $ref: '#/components/responses/internalServerError'
+  /paydate/{payment_date}:
+    get:
+      summary: get bill by day
+      tags:
+        - Bills
+      parameters:
+        - name: payment_date
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/payment_date'
+      responses:
+        '200':
+          description: changing status was success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BillObtained'
+        '400':
+          $ref: '#/components/responses/badRequest'
+        '404':
+          $ref: '#/components/responses/badRequest'
+        default:
+          $ref: '#/components/responses/internalServerError'
+  /bills_statement/{id}:
+    put:
+      summary: change is_paid of bills
+      tags:
+        - Bills
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/id'
+      responses:
+        '200':
+          description: change is_paid was success
+        '400':
+          $ref: '#/components/responses/badRequest'
+        '404':
+          $ref: '#/components/responses/badRequest'
+        default:
+          $ref: '#/components/responses/internalServerError'
+  /auth:
+    post:
+      operationId: Auth
+      summary: Authenticate User (Sign In or Sign Up)
+      requestBody:
+        $ref: '#/components/requestBodies/SignInAndSignUpRequest'
+      responses:
+        '200':
+          description: User authenticated successfully (signed in or signed up)
+          headers:
+            Set-Cookie:
+              required: true
+              schema:
+                type: string
+                example: 'Authorization: Bearer <token>'
+        '400':
+          $ref: '#/components/responses/badRequest'
+        '404':
+          $ref: '#/components/responses/badRequest'
+        default:
+          $ref: '#/components/responses/internalServerError'
+components:
+  responses:
+    internalServerError:
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - message
+            properties:
+              message:
+                type: string
+    badRequest:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - message
+            properties:
+              message:
+                type: string
+  schemas:
+    UserObtained:
+      type: object
+      description: obtain user information was success
+      content:
+        application/json:
+          schema:
+            name:
+              $ref: ./schema.yaml#/components/schemas/User/properties/name
+            email:
+              $ref: ./schema.yaml#/components/schemas/User/properties/email
+    CreateUserRequest:
+      type: object
+      required:
+        - name
+        - email
+      content:
+        application/json:
+          schema:
+            name:
+              $ref: ./components/schema.yaml#/components/schemas/User/properties/name
+            email:
+              $ref: ./components/schema.yaml#/components/schemas/User/properties/email
+    UserCreated:
+      type: object
+      description: User creation was successful
+      content:
+        application/json:
+          schema:
+            name:
+              $ref: ./schema.yaml#/components/schemas/User/properties/name
+            email:
+              $ref: ./schema.yaml#/components/schemas/User/properties/email
+    UserUpdated:
+      type: object
+      description: update was success
+      content:
+        application/json:
+          schema:
+            name:
+              $ref: ./schema.yaml#/components/schemas/User/properties/name
+            email:
+              $ref: ./schema.yaml#/components/schemas/User/properties/email
+    UpdateUserRequest:
+      type: object
+      required:
+        - name
+        - email
+      content:
+        application/json:
+          schema:
+            name:
+              $ref: ./components/schema.yaml#/components/schemas/User/properties/name
+            email:
+              $ref: ./components/schema.yaml#/components/schemas/User/properties/email
+    CreateBankRequest:
+      type: object
+      required:
+        - name
+      content:
+        application/json:
+          schema:
+            name:
+              $ref: ./components/schema.yaml#/components/schemas/Bank/properties/name
+    BankCreated:
+      type: object
+      description: creation bank was success
+      content:
+        application/json:
+          schema:
+            name:
+              $ref: ./schema.yaml#/components/schemas/Bank/properties/name
+    id:
+      type: integer
+      format: int32
+    BankObtained:
+      type: object
+      description: obtain bank information was success
+      content:
+        application/json:
+          schema:
+            name:
+              $ref: ./schema.yaml#/components/schemas/Bank/properties/name
+    CreateCompanyRequest:
+      type: object
+      required:
+        - name
+      content:
+        application/json:
+          schema:
+            name:
+              $ref: ./components/schema.yaml#/components/schemas/Company/properties/name
+    CompanyCreated:
+      type: object
+      description: creation companies was success
+      content:
+        application/json:
+          schema:
+            name:
+              $ref: ./schema.yaml#/components/schemas/Company/properties/name
+    CompanyObtained:
+      type: object
+      description: obtain companies was success
+      content:
+        application/json:
+          schema:
+            name:
+              $ref: ./schema.yaml#/components/schemas/Company/properties/name
+    CompanyUpdated:
+      type: object
+      description: update companies was success
+      content:
+        application/json:
+          schema:
+            name:
+              $ref: ./schema.yaml#/components/schemas/Company/properties/name
+    CreateBillRequest:
+      type: object
+      content:
+        application/json:
+          schema:
+            name:
+              $ref: ./components/schema.yaml#/components/schemas/Bill/properties/name
+            company_id:
+              $ref: ./components/schema.yaml#/components/schemas/Bill/properties/company_id
+            bank_id:
+              $ref: ./components/schema.yaml#/components/schemas/Bill/properties/bank_id
+            amount:
+              $ref: ./components/schema.yaml#/components/schemas/Bill/properties/amount
+            payment_limit:
+              $ref: ./components/schema.yaml#/components/schemas/Bill/properties/payment_limit
+            payment_date:
+              $ref: ./components/schema.yaml#/components/schemas/Bill/properties/payment_date
+            description:
+              $ref: ./components/schema.yaml#/components/schemas/Bill/properties/description
+        required:
+          - id
+          - company_id
+          - bank_id
+          - amount
+          - payment_limit
+          - payment_date
+    BillCreated:
+      type: object
+      description: creation bill was success
+      content:
+        application/json:
+          schema:
+            id:
+              $ref: ./schema.yaml#/components/schemas/Bill/properties/id
+            company_name:
+              $ref: ./schema.yaml#/components/schemas/Company/properties/name
+            bank_name:
+              $ref: ./schema.yaml#/components/schemas/Bank/properties/name
+            amount:
+              $ref: ./schema.yaml#/components/schemas/Bill/properties/amount
+            is_paid: null
+            $ref: ./schema.yaml#/components/schemas/Bill/properties/paid_at
+    BillObtained:
+      type: object
+      description: obtain direct bill information was success
+      content:
+        application/json:
+          schema:
+            id:
+              $ref: ./schema.yaml#/components/schemas/Bill/properties/id
+            company_name:
+              $ref: ./schema.yaml#/components/schemas/Company/properties/name
+            bank_name:
+              $ref: ./schema.yaml#/components/schemas/Bank/properties/name
+            amount:
+              $ref: ./schema.yaml#/components/schemas/Bill/properties/amount
+            is_paid: null
+            $ref: ./schema.yaml#/components/schemas/Bill/properties/is_paid
+    UpdateBillRequest:
+      type: object
+      content:
+        application/json:
+          schema:
+            name:
+              $ref: ./components/schema.yaml#/components/schemas/Bill/properties/name
+            company_id:
+              $ref: ./components/schema.yaml#/components/schemas/Bill/properties/company_id
+            bank_id:
+              $ref: ./components/schema.yaml#/components/schemas/Bill/properties/bank_id
+            amount:
+              $ref: ./components/schema.yaml#/components/schemas/Bill/properties/amount
+            payment_limit:
+              $ref: ./components/schema.yaml#/components/schemas/Bill/properties/payment_limit
+            payment_date:
+              $ref: ./components/schema.yaml#/components/schemas/Bill/properties/payment_date
+            description:
+              $ref: ./components/schema.yaml#/components/schemas/Bill/properties/description
+    BillUpdated:
+      type: object
+      description: update bill was success
+      content:
+        application/json:
+          schema:
+            id:
+              $ref: ./schema.yaml#/components/schemas/Bill/properties/id
+            company_name:
+              $ref: ./schema.yaml#/components/schemas/Company/properties/name
+            bank_name:
+              $ref: ./schema.yaml#/components/schemas/Bank/properties/name
+            amount:
+              $ref: ./schema.yaml#/components/schemas/Bill/properties/amount
+            is_paid: null
+            $ref: ./schema.yaml#/components/schemas/Bill/properties/is_paid
+    payment_date:
+      type: string
+      enum:
+        - current_month_end
+        - next_month_15
+        - next_month_20
+        - next_month_end
+      description: 振込期限区分
+  requestBodies:
+    SignInAndSignUpRequest:
+      description: Request to register or log in a user using a Google JWT token and user information.
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              signup:
+                type: boolean
+                description: Boolean to indicate if the user is signing in or signing up
+              token:
+                type: string
+                description: Google JWT token provided after Google authentication
+                example: eyJhbGciOiJSUzI1NiIsImtpZCI6IjFlODk5...
+            required:
+              - signup
+              - token

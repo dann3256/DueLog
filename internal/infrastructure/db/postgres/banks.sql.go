@@ -24,7 +24,7 @@ INSERT INTO banks (name)
 VALUES ($1)
 `
 
-func (q *Queries) InsertBank(ctx context.Context, name string) error {
+func (q *Queries) InsertBank(ctx context.Context, name BankName) error {
 	_, err := q.db.Exec(ctx, insertBank, name)
 	return err
 }
@@ -34,9 +34,9 @@ SELECT name FROM banks
 WHERE id = $1
 `
 
-func (q *Queries) SelectBank(ctx context.Context, id int32) (string, error) {
+func (q *Queries) SelectBank(ctx context.Context, id int32) (BankName, error) {
 	row := q.db.QueryRow(ctx, selectBank, id)
-	var name string
+	var name BankName
 	err := row.Scan(&name)
 	return name, err
 }
@@ -48,7 +48,7 @@ WHERE id = $2
 `
 
 type UpdateBankParams struct {
-	Name string
+	Name BankName
 	ID   int32
 }
 

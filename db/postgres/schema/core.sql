@@ -1,8 +1,8 @@
+CREATE TYPE bank_name AS ENUM ('hukuginn', 'iishin', 'nishiginn');
 CREATE TABLE banks (
-  id INT PRIMARY KEY,
-  name VARCHAR(50) NOT NULL
+  id SERIAL PRIMARY KEY,
+  name bank_name NOT NULL
 );
-
 
 CREATE TABLE companies (
   id SERIAL PRIMARY KEY,
@@ -18,21 +18,19 @@ CREATE TABLE users (
   deleted_at TIMESTAMPTZ NULL
 );
 
+CREATE TYPE payment_limit_date AS ENUM ('current_month_end', 'next_month_15', 'next_month_20', 'next_month_end');
+
 CREATE TABLE bills (
   id SERIAL PRIMARY KEY,
   company_id INT NOT NULL REFERENCES companies (id),
   bank_id INT NOT NULL REFERENCES banks (id),
   amount INT NOT NULL,
   payment_limit INT NOT NULL,
-  payment_date DATE NOT NULL,
-  paid_at TIMESTAMPTZ,
+  payment_date payment_limit_date NOT NULL,
+  paid_at TIMESTAMPTZ NULL,
   description TEXT,
   created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
   deleted_at TIMESTAMPTZ NULL,
   updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_bills_unpaid_created_at ON bills (created_at)
-WHERE
-  is_paid = FALSE
-  AND deleted_at IS NULL;

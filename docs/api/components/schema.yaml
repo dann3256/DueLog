@@ -1,0 +1,95 @@
+components:
+  schemas:
+   Bank:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        name:
+          type: string
+          enum: [hukuginn, iishin, nishiginn]
+      required:
+        - id
+        - name
+        
+   Company:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        name:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+
+   User:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        created_at:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - email
+
+   Bill:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        company_id:
+          type: integer
+          format: int32
+        bank_id:
+          type: integer
+          format: int32
+        amount:
+          type: integer
+          description: 支払金額（円）
+        payment_limit:
+          type: integer
+          description: 振込上限金額（円）
+        payment_date :
+          type: string
+          enum: [current_month_end, next_month_15, next_month_20, next_month_end]
+          description: 振込期限区分
+        paid_at:
+         type: string
+         format: date-time  
+         nullable: true     
+         description: 支払い日時。この値がnullでない場合、支払済みであることを示す。
+
+        description:
+          type: string
+          nullable: true
+          description: 備考
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - id
+        - company_id
+        - bank_id
+        - amount
+        - payment_limit
+        - payment_date
+        - is_paid
