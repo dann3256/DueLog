@@ -11,6 +11,49 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+type BankName string
+
+const (
+	BankNameHukuginn  BankName = "hukuginn"
+	BankNameIishin    BankName = "iishin"
+	BankNameNishiginn BankName = "nishiginn"
+)
+
+func (e *BankName) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = BankName(s)
+	case string:
+		*e = BankName(s)
+	default:
+		return fmt.Errorf("unsupported scan type for BankName: %T", src)
+	}
+	return nil
+}
+
+type NullBankName struct {
+	BankName BankName
+	Valid    bool // Valid is true if BankName is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullBankName) Scan(value interface{}) error {
+	if value == nil {
+		ns.BankName, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.BankName.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullBankName) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.BankName), nil
+}
+
 type PaymentLimitDate string
 
 const (
@@ -57,7 +100,7 @@ func (ns NullPaymentLimitDate) Value() (driver.Value, error) {
 
 type Bank struct {
 	ID   int32
-	Name string
+	Name BankName
 }
 
 type Bill struct {

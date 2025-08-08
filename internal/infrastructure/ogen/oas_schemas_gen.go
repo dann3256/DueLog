@@ -78,6 +78,10 @@ func (s *BadRequest) SetMessage(val string) {
 	s.Message = val
 }
 
+func (*BadRequest) banksPostRes()     {}
+func (*BadRequest) companiesPostRes() {}
+func (*BadRequest) usersPostRes()     {}
+
 // Creation bank was success.
 // Ref: #/components/schemas/BankCreated
 type BankCreated struct{}
@@ -97,14 +101,6 @@ func (*BanksIDGetBadRequest) banksIDGetRes() {}
 type BanksIDGetNotFound BadRequest
 
 func (*BanksIDGetNotFound) banksIDGetRes() {}
-
-type BanksPostBadRequest BadRequest
-
-func (*BanksPostBadRequest) banksPostRes() {}
-
-type BanksPostNotFound BadRequest
-
-func (*BanksPostNotFound) banksPostRes() {}
 
 // Creation bill was success.
 // Ref: #/components/schemas/BillCreated
@@ -203,14 +199,6 @@ func (*CompaniesIDPutBadRequest) companiesIDPutRes() {}
 type CompaniesIDPutNotFound BadRequest
 
 func (*CompaniesIDPutNotFound) companiesIDPutRes() {}
-
-type CompaniesPostBadRequest BadRequest
-
-func (*CompaniesPostBadRequest) companiesPostRes() {}
-
-type CompaniesPostNotFound BadRequest
-
-func (*CompaniesPostNotFound) companiesPostRes() {}
 
 // Creation companies was success.
 // Ref: #/components/schemas/CompanyCreated
@@ -410,11 +398,3 @@ func (*UsersIDPutBadRequest) usersIDPutRes() {}
 type UsersIDPutNotFound BadRequest
 
 func (*UsersIDPutNotFound) usersIDPutRes() {}
-
-type UsersPostBadRequest BadRequest
-
-func (*UsersPostBadRequest) usersPostRes() {}
-
-type UsersPostNotFound BadRequest
-
-func (*UsersPostNotFound) usersPostRes() {}

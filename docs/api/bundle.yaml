@@ -38,8 +38,6 @@ paths:
                 $ref: '#/components/schemas/UserCreated'
         '400':
           $ref: '#/components/responses/badRequest'
-        '404':
-          $ref: '#/components/responses/badRequest'
         default:
           $ref: '#/components/responses/internalServerError'
     get:
@@ -153,8 +151,6 @@ paths:
                 $ref: '#/components/schemas/BankCreated'
         '400':
           $ref: '#/components/responses/badRequest'
-        '404':
-          $ref: '#/components/responses/badRequest'
         default:
           $ref: '#/components/responses/internalServerError'
   /banks/{id}:
@@ -200,8 +196,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/CompanyCreated'
         '400':
-          $ref: '#/components/responses/badRequest'
-        '404':
           $ref: '#/components/responses/badRequest'
         default:
           $ref: '#/components/responses/internalServerError'

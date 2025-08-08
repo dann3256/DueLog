@@ -1,6 +1,7 @@
+CREATE TYPE bank_name AS ENUM ('hukuginn', 'iishin', 'nishiginn');
 CREATE TABLE banks (
   id SERIAL PRIMARY KEY,
-  name VARCHAR(50) NOT NULL
+  name bank_name NOT NULL
 );
 
 CREATE TABLE companies (

@@ -74,7 +74,7 @@ INNER JOIN
 
 type SelectBillRow struct {
 	Name         string
-	Name_2       string
+	Name_2       BankName
 	Amount       int32
 	PaymentLimit int32
 	PaymentDate  PaymentLimitDate
