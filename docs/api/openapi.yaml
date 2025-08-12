@@ -88,12 +88,6 @@ paths:
           schema:
             type: integer
             format: int64
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "./components/requestBodies.yaml#/components/requestBodies/UpdateUserRequest"
       responses:
         "200":
           description: update was success
@@ -293,8 +287,6 @@ paths:
                 $ref: "./components/responseBodies.yaml#/components/responses/BillCreated"
         '400':
           $ref: './components/errors.yaml#/components/responses/badRequest'
-        '404':
-          $ref: './components/errors.yaml#/components/responses/badRequest'
         default:
           $ref: './components/errors.yaml#/components/responses/internalServerError'
    
@@ -334,12 +326,6 @@ paths:
           schema:
             type: integer
             format: int64
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "./components/requestBodies.yaml#/components/requestBodies/UpdateBillRequest"
       responses:
         "200":
           description: update bill was success
