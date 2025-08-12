@@ -1,0 +1,127 @@
+components:
+  requestBodies:
+    # User requests
+    CreateUserRequest:
+      type: object
+      required:
+       - name
+       - email
+      content:
+        application/json:
+          schema:
+           name:
+            $ref: "./components/schema.yaml#/components/schemas/User/properties/name"
+           email:
+            $ref: "./components/schema.yaml#/components/schemas/User/properties/email"
+
+
+    UpdateUserRequest:
+      type: object
+      required: 
+       - name
+       - email
+      content:
+        application/json:
+          schema:
+           name:
+            $ref: "./components/schema.yaml#/components/schemas/User/properties/name"
+           email:
+            $ref: "./components/schema.yaml#/components/schemas/User/properties/email"
+
+    # Bank requests
+    CreateBankRequest:
+      type: object
+      required: 
+       - name
+      content:
+        application/json:
+          schema:
+           name:
+            $ref: "./components/schema.yaml#/components/schemas/Bank/properties/name"
+
+    # Company requests
+    CreateCompanyRequest:
+      type: object
+      required: 
+       - name
+      content:
+        application/json:
+          schema:
+           name:
+            $ref: "./components/schema.yaml#/components/schemas/Company/properties/name"
+
+    UpdateCompanyRequest:
+      type: object
+      required: true
+      content:
+        application/json:
+          schema:
+            name:
+            $ref: "./components/schema.yaml#/components/schemas/Company/properties/name"
+
+    # Bill requests
+    CreateBillRequest:
+      type: object
+      content:
+        application/json:
+          schema:
+            name:
+             $ref: "./components/schema.yaml#/components/schemas/Bill/properties/name"
+            company_id:
+             $ref: "./components/schema.yaml#/components/schemas/Bill/properties/company_id"
+            bank_id:
+             $ref: "./components/schema.yaml#/components/schemas/Bill/properties/bank_id"
+            amount:
+             $ref: "./components/schema.yaml#/components/schemas/Bill/properties/amount"
+            payment_limit:
+             $ref: "./components/schema.yaml#/components/schemas/Bill/properties/payment_limit"
+            payment_date:
+             $ref: "./components/schema.yaml#/components/schemas/Bill/properties/payment_date"
+            description:
+             $ref: "./components/schema.yaml#/components/schemas/Bill/properties/description"
+        required:
+        - id
+        - company_id
+        - bank_id
+        - amount
+        - payment_limit
+        - payment_date
+
+    UpdateBillRequest:
+      type: object
+      content:
+        application/json:
+          schema:
+            name:
+             $ref: "./components/schema.yaml#/components/schemas/Bill/properties/name"
+            company_id:
+             $ref: "./components/schema.yaml#/components/schemas/Bill/properties/company_id"
+            bank_id:
+             $ref: "./components/schema.yaml#/components/schemas/Bill/properties/bank_id"
+            amount:
+             $ref: "./components/schema.yaml#/components/schemas/Bill/properties/amount"
+            payment_limit:
+             $ref: "./components/schema.yaml#/components/schemas/Bill/properties/payment_limit"
+            payment_date:
+             $ref: "./components/schema.yaml#/components/schemas/Bill/properties/payment_date"
+            description:
+             $ref: "./components/schema.yaml#/components/schemas/Bill/properties/description"
+    
+    SignInAndSignUpRequest:
+      description: Request to register or log in a user using a Google JWT token and user information.
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              signup:
+                type: boolean
+                description: "Boolean to indicate if the user is signing in or signing up"
+              token:
+                type: string
+                description: "Google JWT token provided after Google authentication"
+                example: "eyJhbGciOiJSUzI1NiIsImtpZCI6IjFlODk5..."
+            required:
+              - signup
+              - token

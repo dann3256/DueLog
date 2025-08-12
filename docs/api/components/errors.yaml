@@ -1,0 +1,40 @@
+components:
+  responses:
+    badRequest:
+      description: Bad Request
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - message
+            properties:
+              message:
+                type: string
+
+
+    internalServerError:
+      description: Internal Server Error
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - message
+            properties:
+              message:
+                type: string
+
+    
+
+    notFound:
+      description: Not Found
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - message
+            properties:
+              message:
+                type: string
